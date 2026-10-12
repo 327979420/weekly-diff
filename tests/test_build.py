@@ -31,7 +31,7 @@ def workspace(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, offline_http: res
     paths.BUILD.mkdir()
     (paths.BUILD / 'candidates.json').write_text(json.dumps(ROWS))
     for row in ROWS:
-        offline_http.get(row['url'], body='')
+        offline_http.get(row['url'], body=(FIX / 'image.html').read_text())
     return load_config()
 
 
@@ -42,7 +42,7 @@ def fake_response(system: str, user: str, schema: dict, max_tokens: int) -> dict
                            'tag': 'builders', 'score': 8, 'reason': 'Useful update'} for row in data]}
     if 'SOURCE' in data:
         return GOOD
-    return {'bullets': [{'text': item['headline'], 'item_keys': [item['key']]} for item in data['items'][:3]]}
+    return {'bullets': [{'text': item['headline'], 'text_zh': item['zh']['headline'], 'item_keys': [item['key']]} for item in data['items'][:3]]}
 
 
 def test_end_to_end_and_rerun(workspace: Config, monkeypatch: pytest.MonkeyPatch,
@@ -55,6 +55,9 @@ def test_end_to_end_and_rerun(workspace: Config, monkeypatch: pytest.MonkeyPatch
     assert Issue.from_dict(json.loads(target.read_text())) == first
     assert 10 <= len(list(first.items())) <= 15
     assert len(first.sixty_seconds) == 3 and len(first.top) == 5
+    assert len(first.sixty_seconds_zh) == 3
+    assert all(item.emoji and set(item.zh) == {'headline', 'summary', 'why_it_matters', 'for_builders'}
+               and item.image_url == 'https://example.com/image.png' for item in first.items())
     assert not validate_issue(first, workspace)
     assert set(load_seen()['items']) == {item.key for item in first.items()}
     assert first.published_at == NOW

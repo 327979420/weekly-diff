@@ -4,5 +4,12 @@
   "why_it_matters": "Builders can configure when a subagent compacts its context.",
   "for_builders": "Set autoCompactWindow in subagent frontmatter.",
   "tag": "builders",
-  "supported": true
+  "supported": true,
+  "emoji": "🛠️",
+  "zh": {
+    "headline": "子代理可以提前压缩上下文",
+    "summary": "子代理可以比主对话更早自动压缩上下文。",
+    "why_it_matters": "开发者可以配置子代理压缩上下文的时机。",
+    "for_builders": "在子代理 frontmatter 中设置 autoCompactWindow。"
+  }
 }

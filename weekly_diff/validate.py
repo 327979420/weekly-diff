@@ -3,6 +3,8 @@ from collections import Counter
 import re
 from urllib.parse import urlsplit
 
+import regex
+
 from weekly_diff.config import Config
 from weekly_diff.models import Issue, Item
 from weekly_diff.urls import canonical_url
@@ -30,21 +32,57 @@ def single_sentence(text: str) -> bool:
     return not re.search(r'[.!?]+[\"\u201d\u2019\)]*\s*\S', cleaned.rstrip('.!?"\u201d\u2019) '))
 
 
+def valid_emoji(value: object, max_codepoints: int) -> bool:
+    if not isinstance(value, str) or not regex.fullmatch(r'\X', value):
+        return False
+    # Each ZWJ component is a short emoji, optionally with a skin tone or selector.
+    component = r'(?:\p{Extended_Pictographic}\uFE0F?\p{Emoji_Modifier}?|[\p{Regional_Indicator}]{2}|[0-9#*]\uFE0F?\u20E3)'
+    if not regex.fullmatch(component + '(?:\u200D' + component + ')*', value):
+        return False
+    return all(len(part.replace('\ufe0f', '')) <= max_codepoints
+               for part in value.split('\u200d'))
+
+
+def _copy_problems(copy: dict, cfg: Config, *, chinese: bool) -> list[str]:
+    prefix = 'zh.' if chinese else ''
+    limits = (('headline', cfg.content.max_headline_chars_zh if chinese else cfg.issue.max_headline_chars),
+              ('summary', cfg.content.max_summary_chars_zh if chinese else cfg.content.max_summary_words),
+              ('why_it_matters', cfg.content.max_why_chars_zh if chinese else cfg.content.max_why_words),
+              ('for_builders', cfg.content.max_builders_chars_zh if chinese else cfg.content.max_builders_words))
+    problems = []
+    for field, limit in limits:
+        value = copy.get(field)
+        if field == 'for_builders' and value is None:
+            continue
+        if not _nonempty(value):
+            problems.append(f'{prefix}{field} must be non-empty')
+            continue
+        characters = chinese or field == 'headline'
+        length = len(value) if characters else len(value.split())
+        if length > limit:
+            unit = 'characters' if characters else 'words'
+            problems.append(f'{prefix}{field} exceeds {limit} {unit}')
+        if regex.search(r'\p{Extended_Pictographic}|\p{Regional_Indicator}|\u20e3', value):
+            problems.append(f'{prefix}{field} must not contain emoji')
+    summary = copy.get('summary')
+    if isinstance(summary, str) and not single_sentence(summary.translate(str.maketrans('。！？', '.!?'))):
+        problems.append(f'{prefix}summary must be a single sentence')
+    return problems
+
+
 def validate_item(item: Item, source_text: str, cfg: Config) -> list[str]:
     problems = []
-    for field in ('key', 'headline', 'summary', 'why_it_matters', 'source_name', 'source_url'):
+    for field in ('key', 'source_name', 'source_url'):
         if not _nonempty(getattr(item, field)):
             problems.append(f'{field} must be non-empty')
-    if item.for_builders is not None and not _nonempty(item.for_builders):
-        problems.append('for_builders must be null or non-empty')
-    if isinstance(item.headline, str) and len(item.headline) > cfg.issue.max_headline_chars:
-        problems.append(f'headline exceeds {cfg.issue.max_headline_chars} characters')
-    for field, limit in (('summary', 35), ('why_it_matters', 40), ('for_builders', 30)):
-        value = getattr(item, field)
-        if isinstance(value, str) and len(value.split()) > limit:
-            problems.append(f'{field} exceeds {limit} words')
-    if isinstance(item.summary, str) and not single_sentence(item.summary):
-        problems.append('summary must be a single sentence')
+    if not valid_emoji(item.emoji, cfg.content.max_emoji_codepoints):
+        problems.append('emoji must be one short emoji grapheme')
+    problems.extend(_copy_problems(vars(item), cfg, chinese=False))
+    fields = {'headline', 'summary', 'why_it_matters', 'for_builders'}
+    if not isinstance(item.zh, dict) or set(item.zh) != fields:
+        problems.append('zh must contain all four content fields')
+    else:
+        problems.extend(_copy_problems(item.zh, cfg, chinese=True))
     if not isinstance(item.tag, str) or item.tag not in vars(cfg.tags):
         problems.append('invalid tag')
     if not isinstance(item.section, str) or item.section not in {section.key for section in cfg.issue.sections}:
@@ -55,22 +93,28 @@ def validate_item(item: Item, source_text: str, cfg: Config) -> list[str]:
             raise ValueError
     except (ValueError, TypeError, AttributeError):
         problems.append('source_url must be an http(s) URL')
-    generated = ' '.join(value for value in (item.headline, item.summary, item.why_it_matters,
-                                            item.for_builders) if isinstance(value, str))
-    if re.search(r'@(?:everyone|here)\b', generated, re.I):
-        problems.append('broadcast mention is forbidden')
-    if isinstance(item.headline, str) and re.search('[\U0001f000-\U0001faff\u2600-\u27bf]', item.headline):
-        problems.append('headline must not contain emoji')
-    problems.extend(number_problems(generated, source_text + '\n' + item.extra.get('candidate_title', '')))
+    generated = [value for value in (item.headline, item.summary, item.why_it_matters,
+                                     item.for_builders) if isinstance(value, str)]
+    if isinstance(item.zh, dict):
+        generated.extend(value for value in item.zh.values() if isinstance(value, str))
+    evidence = source_text + '\n' + item.extra.get('candidate_title', '')
+    for value in generated:
+        if re.search(r'@(?:everyone|here)\b', value, re.I):
+            problems.append('broadcast mention is forbidden')
+        problems.extend(number_problems(value, evidence))
     return problems
 
 
 def validate_issue(issue: Issue, cfg: Config) -> list[str]:
     problems = []
     items = list(issue.items())
-    if len(issue.sixty_seconds) != 3 or any(not _nonempty(bullet) or len(bullet.split()) > 30
+    if len(issue.sixty_seconds) != 3 or any(not _nonempty(bullet) or len(bullet.split()) > cfg.content.max_bullet_words
                                           for bullet in issue.sixty_seconds):
         problems.append('sixty_seconds must contain exactly 3 non-empty bullets of at most 30 words')
+    if (len(issue.sixty_seconds_zh) != 3
+            or any(not _nonempty(bullet) or len(bullet) > cfg.content.max_bullet_chars_zh
+                   for bullet in issue.sixty_seconds_zh)):
+        problems.append('sixty_seconds_zh must contain exactly 3 non-empty, bounded bullets')
     if not cfg.issue.hard_min_items <= len(items) <= cfg.issue.max_items:
         problems.append('item count outside configured bounds')
     keys = [item.key for item in items]

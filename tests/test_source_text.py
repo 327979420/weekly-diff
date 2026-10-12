@@ -65,3 +65,34 @@ def test_fallback(offline_http: responses.RequestsMock, body: str | Exception) -
 @pytest.mark.parametrize('kind', ['github_trending', 'huggingface'])
 def test_missing_readme_is_unusable(kind: str) -> None:
     assert fetch_source_text(replace(CANDIDATE, source_type=kind), Http(load_config()), 12000) == ''
+
+
+@pytest.mark.parametrize('case', json.loads((FIX / 'summarise/images.json').read_text()))
+def test_page_image_uses_existing_fetch(case: dict, offline_http: responses.RequestsMock) -> None:
+    candidate = replace(CANDIDATE, url='https://example.com/news/article', extra={'image_url': 'untrusted'})
+    offline_http.get(candidate.url, body=case['html'])
+    assert fetch_source_text(candidate, Http(load_config()), 12000) == SOURCE.strip()
+    assert candidate.extra['image_url'] == case['expected']
+    assert len(offline_http.calls) == 1
+
+
+@pytest.mark.parametrize('kind', ['github_release', 'github_trending'])
+def test_github_images(kind: str, offline_http: responses.RequestsMock) -> None:
+    cfg = load_config()
+    url = 'https://github.com/owner/repo' + ('/releases/tag/v2.1' if kind == 'github_release' else '')
+    candidate = replace(CANDIDATE, source_type=kind, url=url, extra={})
+    if kind == 'github_trending':
+        offline_http.get(f'{cfg.sources.github_api_url}/repos/owner/repo/readme', body=SOURCE)
+    fetch_source_text(candidate, Http(cfg), 12000)
+    assert candidate.extra['image_url'] == f'{cfg.sources.github_image_url}/owner/repo'
+    assert len(offline_http.calls) == (1 if kind == 'github_trending' else 0)
+
+
+def test_huggingface_has_no_image(offline_http: responses.RequestsMock) -> None:
+    cfg = load_config()
+    candidate = replace(CANDIDATE, source_type='huggingface', url='https://huggingface.co/owner/model',
+                        extra={'image_url': 'https://example.com/untrusted.png'})
+    offline_http.get(f'{cfg.sources.huggingface.base_url}/owner/model/raw/main/README.md',
+                     body=(FIX / 'summarise/card.md').read_text())
+    fetch_source_text(candidate, Http(cfg), 12000)
+    assert candidate.extra['image_url'] is None

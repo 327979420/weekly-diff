@@ -107,9 +107,9 @@ def run_build(cfg: Config, issue_id: str, now: datetime, dry_run: bool) -> Issue
     by_key = {item.key: item for item in items}
     ordered = [by_key[key] for key in top]
     ordered.extend(sorted((item for item in items if item.key not in top), key=lambda item: (-item.score, item.key)))
-    bullets = sixty(ordered, llm)
+    bullets, bullets_zh = sixty(ordered, llm, cfg)
     start, end = window(now, cfg.issue.lookback_days)
-    issue = Issue(issue_id, cfg.name, now, start, end, bullets, sections, top)
+    issue = Issue(issue_id, cfg.name, now, start, end, bullets, sections, top, sixty_seconds_zh=bullets_zh)
     if problems := validate_issue(issue, cfg):
         raise ValueError('Invalid issue: ' + '; '.join(problems))
     destination = paths.BUILD / 'dry-run' if dry_run else paths.ISSUES

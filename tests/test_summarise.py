@@ -77,3 +77,41 @@ def test_long_headline_does_not_hide_other_errors(extra: dict) -> None:
 def test_long_headline_without_word_boundary_is_dropped() -> None:
     fake = FakeLLM([{**GOOD, 'headline': 'x' * 100}] * 2)
     assert summarise(SCORED, SOURCE, load_config(), fake) is None
+
+
+@pytest.mark.parametrize('both', [False, True])
+def test_chinese_headline_shortened_after_retry(both: bool) -> None:
+    row = {**GOOD, 'zh': {**GOOD['zh'], 'headline': '新' * 39 + '，还有更新'}}
+    if both:
+        row['headline'] = 'A useful update ' * 10
+    fake = FakeLLM([row, row])
+    item = summarise(SCORED, SOURCE, load_config(), fake)
+    assert item is not None and item.zh['headline'] == '新' * 39
+    assert len(item.headline) <= 90
+    assert len(fake.calls) == 2
+    assert 'zh.headline exceeds 40' in fake.calls[1]['user']
+    assert row['zh']['headline'].endswith('还有更新')
+
+
+@pytest.mark.parametrize('change', [{'summary': ''}, {'summary': '支持 99999 个工具'}])
+def test_chinese_headline_does_not_hide_other_errors(change: dict) -> None:
+    row = {**GOOD, 'zh': {**GOOD['zh'], 'headline': '新' * 41, **change}}
+    assert summarise(SCORED, SOURCE, load_config(), FakeLLM([row, row])) is None
+
+
+@pytest.mark.parametrize('change', [{'emoji': ''}, {'zh': None}, {'zh': []},
+                                  {'zh': {'summary': '新闻'}}, {'image_url': 'https://example.com/injected'}])
+def test_invalid_bilingual_response(change: dict) -> None:
+    row = {**GOOD, **change}
+    assert summarise(SCORED, SOURCE, load_config(), FakeLLM([row, row])) is None
+
+
+def test_bilingual_schema_and_token_budget() -> None:
+    fake = FakeLLM([GOOD])
+    cfg = load_config()
+    item = summarise(SCORED, SOURCE, cfg, fake)
+    assert item is not None and item.zh == GOOD['zh'] and item.emoji == GOOD['emoji']
+    call = fake.calls[0]
+    assert call['max_tokens'] == cfg.content.summarise_max_tokens
+    assert set(call['schema']['properties']['zh']['required']) == set(GOOD['zh'])
+    assert 'image_url' not in call['schema']['properties']

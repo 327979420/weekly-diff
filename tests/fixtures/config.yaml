@@ -1,5 +1,21 @@
 name: Test Roundup
 tagline: Weekly test news
+tagline_zh: "每周 AI 与开发者工具速览，一分钟看完。"
+tags_zh: {builders: "🛠️ 开发者", work: "💼 工作效率", beginner: "🌱 新手友好"}
+
+content:
+  max_headline_chars_zh: 40
+  max_summary_words: 25
+  max_summary_chars_zh: 50
+  max_why_words: 40
+  max_why_chars_zh: 80
+  max_builders_words: 30
+  max_builders_chars_zh: 60
+  max_bullet_words: 30
+  max_bullet_chars_zh: 60
+  max_emoji_codepoints: 2
+  summarise_max_tokens: 1800
+
 publish_enabled: false
 paused: false
 site: {base_url: 'https://example.com/roundup', language: en, timezone: Australia/Melbourne, feed_items: 20}
@@ -12,10 +28,10 @@ issue:
   max_top_per_section: 2
   max_headline_chars: 90
   sections:
-    - {key: models, title: Models, min: 2, max: 4}
-    - {key: tools, title: Tools, min: 2, max: 4}
-    - {key: github, title: GitHub, min: 3, max: 4}
-    - {key: quick, title: Quick, min: 2, max: 4}
+    - {key: models, title_zh: "新模型与实验室", title: Models, min: 2, max: 4}
+    - {key: tools, title_zh: "Agent 与开发工具", title: Tools, min: 2, max: 4}
+    - {key: github, title_zh: "GitHub 热门", title: GitHub, min: 3, max: 4}
+    - {key: quick, title_zh: "快讯", title: Quick, min: 2, max: 4}
 tags: {builders: Builders, work: Work, beginner: Beginner}
 llm: {timeout_seconds: 180, max_retries: 2, provider: auto, anthropic_model: test-anthropic, openai_model: test-openai, effort: low, max_candidates_to_score: 80, score_batch_size: 40, max_source_chars: 12000, min_score: 5}
 dedupe: {title_similarity: 0.6, seen_retention_days: 730}
@@ -23,6 +39,7 @@ discord: {color: 5793266}
 sources:
   retries: 2
   backoff_seconds: 0.5
+  github_image_url: "https://opengraph.githubassets.com/1"
   github_api_url: "https://api.github.com"
   github_api_version: "2022-11-28"
   user_agent: TestBot

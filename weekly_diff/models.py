@@ -1,5 +1,5 @@
 """JSON-compatible data exchanged by pipeline stages."""
-from dataclasses import asdict, dataclass, fields
+from dataclasses import asdict, dataclass, field, fields
 from datetime import datetime
 from typing import Any, Iterator, Literal, Self
 
@@ -62,6 +62,9 @@ class Item(JSONModel):
     published_at: datetime | None
     score: float
     extra: dict[str, Any]
+    emoji: str | None = None
+    zh: dict[str, str | None] | None = None
+    image_url: str | None = None
 
 
 @dataclass
@@ -74,6 +77,7 @@ class Issue(JSONModel):
     sixty_seconds: list[str]
     sections: dict[str, list[Item]]
     top: list[str]
+    sixty_seconds_zh: list[str] = field(default_factory=list)
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> Self:

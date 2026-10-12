@@ -56,3 +56,18 @@ def test_llm_defaults(tmp_path: Path) -> None:
     cfg = load_config(path)
     assert cfg.llm.timeout_seconds == 180
     assert cfg.llm.max_retries == 2
+
+
+@pytest.mark.parametrize('path', [('tagline_zh',), ('tags_zh', 'builders'),
+                                  ('issue', 'sections', 0, 'title_zh')])
+@pytest.mark.parametrize('value', ['', '  ', None, 42])
+def test_chinese_labels_validated(path: tuple, value: object, tmp_path: Path) -> None:
+    raw = yaml.safe_load((FIXTURES / 'config.yaml').read_text())
+    target = raw
+    for key in path[:-1]:
+        target = target[key]
+    target[path[-1]] = value
+    config = tmp_path / 'config.yaml'
+    config.write_text(yaml.safe_dump(raw))
+    with pytest.raises(ConfigError):
+        load_config(config)

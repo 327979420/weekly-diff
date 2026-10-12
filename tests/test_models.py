@@ -30,3 +30,20 @@ def test_dates_are_utc_and_optional() -> None:
     item.published_at = datetime(2026, 1, 1)
     with pytest.raises(ValueError, match="timezone-aware"):
         item.to_dict()
+
+
+def test_committed_legacy_issue_loads_and_renders(tmp_path: Path) -> None:
+    from weekly_diff.config import load_config
+    from weekly_diff.site import render_site
+
+    source = Path(__file__).parents[1] / 'data/issues/2026-42.json'
+    raw = source.read_text()
+    issue = Issue.from_dict(json.loads(raw))
+    assert issue.sixty_seconds_zh == []
+    assert all(item.zh is None and item.emoji is None and item.image_url is None for item in issue.items())
+    issues = tmp_path / 'issues'
+    issues.mkdir()
+    (issues / source.name).write_text(raw)
+    render_site(load_config(), issues, tmp_path / 'site')
+    page = (tmp_path / 'site/issues/2026-42/index.html').read_text()
+    assert '2026-42' in page and next(issue.items()).source_url in page

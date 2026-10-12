@@ -1,0 +1,10 @@
+[
+  {"html": "<meta property=\"og:image\" content=\"../hero.png\"><meta name=\"twitter:image\" content=\"https://cdn.example.com/other.png\">", "expected": "https://example.com/hero.png"},
+  {"html": "<meta name=\"twitter:image\" content=\"//cdn.example.com/image.png\">", "expected": "https://cdn.example.com/image.png"},
+  {"html": "<meta property=\"og:image\" content=\"javascript:alert(1)\"><meta name=\"twitter:image\" content=\"/safe.png\">", "expected": "https://example.com/safe.png"},
+  {"html": "<meta property=\"og:image\" content=\"https://[bad\"><meta name=\"twitter:image\" content=\"/safe.png\">", "expected": "https://example.com/safe.png"},
+  {"html": "<meta property=\"og:image\" content=\"data:image/png;base64,abc\">", "expected": null},
+  {"html": "<meta property=\"og:image\" content=\"ftp://example.com/image.png\">", "expected": null},
+  {"html": "<meta property=\"og:image\" content=\"\">", "expected": null},
+  {"html": "<html><body>No image</body></html>", "expected": null}
+]

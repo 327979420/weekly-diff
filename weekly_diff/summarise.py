@@ -15,14 +15,18 @@ from weekly_diff.validate import validate_item
 
 def _schema(cfg: Config) -> dict:
     properties = {field: {'type': 'string'} for field in ('headline', 'summary', 'why_it_matters')}
-    properties.update(for_builders={'type': ['string', 'null']},
+    chinese = {**properties, 'for_builders': {'type': ['string', 'null']}}
+    properties.update(emoji={'type': 'string'}, zh={'type': 'object', 'properties': chinese},
+                      for_builders={'type': ['string', 'null']},
                       tag={'type': 'string', 'enum': list(vars(cfg.tags))}, supported={'type': 'boolean'})
     return strict_schema({'type': 'object', 'properties': properties})
 
 
-def _shorten_headline(headline: str, limit: int) -> str:
+def _shorten_headline(headline: str, limit: int, *, chinese: bool = False) -> str:
     ends = [match.end() for match in re.finditer(r'\S+', headline) if match.end() <= limit]
     shortened = headline[:ends[-1]].rstrip() if ends else ''
+    if chinese:
+        shortened = headline[:limit].rstrip()
     while shortened and unicodedata.category(shortened[-1]).startswith('P'):
         shortened = shortened[:-1].rstrip()
     return shortened
@@ -35,7 +39,7 @@ def summarise(scored: Scored, source_text: str, cfg: Config, llm: LLMClient) -> 
         logger.warning('Dropped item: no source text')
         return None
     system = Path(__file__).with_name('prompts').joinpath('summarise.md').read_text(encoding='utf-8')
-    system = system.format(max_headline_chars=cfg.issue.max_headline_chars)
+    system = system.format(max_headline_chars=cfg.issue.max_headline_chars, **vars(cfg.content))
     payload = dict(section=scored.section, title=candidate.title, source_name=candidate.source_name,
                    url=candidate.url, SOURCE=source_text)
     schema = _schema(cfg)
@@ -43,7 +47,7 @@ def summarise(scored: Scored, source_text: str, cfg: Config, llm: LLMClient) -> 
     for attempt in range(2):
         user = json.dumps({**payload, 'validation_problems': problems})
         try:
-            row = llm.complete_json(system, user, schema, max_tokens=len(system) + len(json.dumps(schema)))
+            row = llm.complete_json(system, user, schema, max_tokens=cfg.content.summarise_max_tokens)
             if (not isinstance(row, dict) or set(row) != set(schema['properties'])
                     or type(row['supported']) is not bool
                     or any(not isinstance(row[field], str) for field in ('headline', 'summary', 'why_it_matters', 'tag'))
@@ -57,10 +61,17 @@ def summarise(scored: Scored, source_text: str, cfg: Config, llm: LLMClient) -> 
                      'candidate_title': candidate.title, 'source_text': source_text}
             item = Item(candidate.key, scored.section, row['headline'], row['summary'], row['why_it_matters'],
                         row['for_builders'], row['tag'], candidate.url, candidate.source_name,
-                        candidate.published_at, scored.score, extra)
+                        candidate.published_at, scored.score, extra, emoji=row['emoji'],
+                        zh=deepcopy(row['zh']), image_url=candidate.extra.get('image_url'))
             problems = validate_item(item, source_text, cfg)
-            if attempt == 1 and problems == [f'headline exceeds {cfg.issue.max_headline_chars} characters']:
-                item.headline = _shorten_headline(item.headline, cfg.issue.max_headline_chars)
+            headline_errors = {f'headline exceeds {cfg.issue.max_headline_chars} characters',
+                               f'zh.headline exceeds {cfg.content.max_headline_chars_zh} characters'}
+            if attempt == 1 and problems and set(problems) <= headline_errors:
+                if len(item.headline) > cfg.issue.max_headline_chars:
+                    item.headline = _shorten_headline(item.headline, cfg.issue.max_headline_chars)
+                if len(item.zh['headline']) > cfg.content.max_headline_chars_zh:
+                    item.zh['headline'] = _shorten_headline(
+                        item.zh['headline'], cfg.content.max_headline_chars_zh, chinese=True)
                 problems = validate_item(item, source_text, cfg)
             if not problems:
                 return item

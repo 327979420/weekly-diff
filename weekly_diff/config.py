@@ -24,6 +24,7 @@ class SiteConfig:
 class SectionConfig:
     key: str
     title: str
+    title_zh: str
     min: int
     max: int
 
@@ -45,6 +46,21 @@ class TagsConfig:
     builders: str
     work: str
     beginner: str
+
+
+@dataclass(frozen=True)
+class ContentConfig:
+    max_headline_chars_zh: int
+    max_summary_words: int
+    max_summary_chars_zh: int
+    max_why_words: int
+    max_why_chars_zh: int
+    max_builders_words: int
+    max_builders_chars_zh: int
+    max_bullet_words: int
+    max_bullet_chars_zh: int
+    max_emoji_codepoints: int
+    summarise_max_tokens: int
 
 
 @dataclass(frozen=True)
@@ -148,6 +164,7 @@ class SourcesConfig:
     retries: int
     backoff_seconds: float
     github_api_url: str
+    github_image_url: str
     github_api_version: str
     user_agent: str
     timeout_seconds: int
@@ -164,6 +181,9 @@ class SourcesConfig:
 class Config:
     name: str
     tagline: str
+    tagline_zh: str
+    tags_zh: TagsConfig
+    content: ContentConfig
     publish_enabled: bool
     paused: bool
     site: SiteConfig
@@ -216,6 +236,19 @@ def _convert(value: Any, kind: type[T], path: str) -> T:
 
 
 def _validate(cfg: Config) -> None:
+    labels = {'tagline_zh': cfg.tagline_zh, **{
+        f'tags_zh.{key}': value for key, value in vars(cfg.tags_zh).items()}, **{
+        f'issue.sections[{i}].title_zh': section.title_zh
+        for i, section in enumerate(cfg.issue.sections)}}
+    for path, value in labels.items():
+        if not value.strip():
+            raise ConfigError(f'{path}: must be non-empty')
+    for key, value in vars(cfg.content).items():
+        if value <= 0:
+            raise ConfigError(f'content.{key}: must be a positive integer')
+    image_url = urlsplit(cfg.sources.github_image_url)
+    if image_url.scheme not in {'http', 'https'} or not image_url.hostname:
+        raise ConfigError('sources.github_image_url: must be an http(s) URL')
     if cfg.issue.max_headline_chars <= 0:
         raise ConfigError("issue.max_headline_chars: must be a positive integer")
     if cfg.site.base_url.endswith("/"):

@@ -1,0 +1,6 @@
+- Changes: Added English/Simplified Chinese snack-sized item copy, emoji validation, bilingual overview pairs, and source-only image URLs.
+- Changes: Added validated Chinese labels and configurable content limits/token budget; preserved legacy JSON loading and current site/Discord rendering.
+- Testing: `.venv/bin/python -m pytest -q` → 413 passed (offline fixtures, FakeLLM build, committed legacy issue render).
+- Testing: `git diff --check` → passed.
+- Unfinished: None.
+- Questions: None.

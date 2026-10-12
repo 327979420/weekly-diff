@@ -175,14 +175,14 @@ def test_constraint_payload_validation_and_retry(provider: str, scenario: str,
     else:
         item_data = json.loads((Path(__file__).parent / 'fixtures/models.json').read_text())['item']
         items = [replace(Item.from_dict(item_data), key=str(i)) for i in range(3)]
-        good = {'bullets': [{'text': item.headline, 'item_keys': [item.key]} for item in items]}
+        good = {'bullets': [{'text': item.headline, 'text_zh': item.zh['headline'], 'item_keys': [item.key]} for item in items]}
         bad = {'bullets': good['bullets'][:2]}
         fake = FakeLLM([good])
-        sixty(items, fake)
+        sixty(items, fake, cfg)
         schema = fake.calls[0]['schema']
         field = '$.bullets'
         def run() -> object:
-            return sixty(items, client)
+            return sixty(items, client, cfg)
     original = deepcopy(schema)
     method.return_value = sdk_response(provider, bad)
     with pytest.raises(LLMError) as error:
@@ -203,7 +203,7 @@ def test_constraint_payload_validation_and_retry(provider: str, scenario: str,
     if scenario == 'score':
         assert result[0].score == DATA['row']['score']
     else:
-        assert result == [item.headline for item in items]
+        assert result == ([item.headline for item in items], [item.zh['headline'] for item in items])
 
 
 @pytest.mark.parametrize(('schema', 'bad', 'good'), CONSTRAINTS['cases'])

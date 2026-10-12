@@ -4,6 +4,22 @@
 name: "The Weekly Diff"
 tagline: "The week in AI and developer tools, in plain English."
 
+tagline_zh: "每周 AI 与开发者工具速览，一分钟看完。"
+tags_zh: {builders: "🛠️ 开发者", work: "💼 工作效率", beginner: "🌱 新手友好"}
+
+content:
+  max_headline_chars_zh: 40
+  max_summary_words: 25
+  max_summary_chars_zh: 50
+  max_why_words: 40
+  max_why_chars_zh: 80
+  max_builders_words: 30
+  max_builders_chars_zh: 60
+  max_bullet_words: 30
+  max_bullet_chars_zh: 60
+  max_emoji_codepoints: 2
+  summarise_max_tokens: 1800
+
 # false = the Monday post goes to the private preview channel only.
 # true  = the Monday post goes to the public Discord channel.
 publish_enabled: false
@@ -27,18 +43,22 @@ issue:
   max_headline_chars: 90
   sections:                # page order
     - key: models
+      title_zh: "新模型与实验室"
       title: "New models & labs"
       min: 2
       max: 4
     - key: tools
+      title_zh: "Agent 与开发工具"
       title: "Agent & dev tool updates"
       min: 2
       max: 4
     - key: github
+      title_zh: "GitHub 热门"
       title: "Trending on GitHub"
       min: 3
       max: 4
     - key: quick
+      title_zh: "快讯"
       title: "Quick hits"
       min: 2
       max: 4
@@ -70,6 +90,7 @@ discord:
 sources:
   retries: 2
   backoff_seconds: 0.5
+  github_image_url: "https://opengraph.githubassets.com/1"
   github_api_url: "https://api.github.com"
   github_api_version: "2022-11-28"
   user_agent: "WeeklyDiffBot/1.0 (+https://github.com/327979420/weekly-diff)"
