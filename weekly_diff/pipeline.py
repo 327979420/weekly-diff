@@ -6,6 +6,7 @@ import json
 from weekly_diff import paths
 from weekly_diff.collect import run_collect
 from weekly_diff.build import run_build
+from weekly_diff.site import render_site
 from weekly_diff.log import redact
 from weekly_diff.config import Config
 
@@ -23,7 +24,7 @@ def build(cfg: Config, args: Namespace) -> None:
 
 
 def render(cfg: Config, args: Namespace) -> None:
-    raise NotImplementedError("task 005")
+    render_site(cfg, paths.ISSUES, paths.SITE)
 
 
 def publish(cfg: Config, args: Namespace) -> None:

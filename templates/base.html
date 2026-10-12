@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="{{ cfg.site.language }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ title }}</title>
+  <meta name="description" content="{{ description }}">
+  <link rel="canonical" href="{{ canonical }}">
+  <link rel="alternate" type="application/rss+xml" title="{{ cfg.name }}" href="{{ cfg.base_path }}/feed.xml">
+  <meta property="og:title" content="{{ title }}">
+  <meta property="og:description" content="{{ description }}">
+  <meta property="og:url" content="{{ canonical }}">
+  <link rel="stylesheet" href="{{ cfg.base_path }}/assets/style.css">
+</head>
+<body>
+  <a class="skip-link" href="{{ page_path }}#main">Skip to content</a>
+  <header>
+    <a class="brand" href="{{ cfg.base_path }}/">{{ cfg.name }}</a>
+    <p>{{ cfg.tagline }}</p>
+    <nav aria-label="Main navigation"><a href="{{ cfg.base_path }}/">Latest</a> <a href="{{ cfg.base_path }}/archive/">Archive</a> <a href="{{ cfg.base_path }}/feed.xml">RSS</a></nav>
+  </header>
+  <main id="main" tabindex="-1">{% block content %}{% endblock %}</main>
+  <footer><a href="{{ cfg.base_path }}/archive/">Browse all issues</a> · <a href="{{ cfg.base_path }}/feed.xml">Subscribe via RSS</a></footer>
+</body>
+</html>

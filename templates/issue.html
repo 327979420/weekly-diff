@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% macro issue_content(view, cfg) %}
+<h1>Issue {{ view.issue.id }} <span class="period">· {{ view.period }}</span></h1>
+<section aria-labelledby="sixty-seconds">
+  <h2 id="sixty-seconds">This week in 60 seconds</h2>
+  <ul>{% for bullet in view.issue.sixty_seconds %}<li>{{ bullet }}</li>{% endfor %}</ul>
+</section>
+{% for section in cfg.issue.sections %}
+{% if view.issue.sections.get(section.key) %}
+<section id="{{ section.key }}" aria-labelledby="heading-{{ section.key }}">
+  <h2 id="heading-{{ section.key }}">{{ section.title }}</h2>
+  {% for item in view.issue.sections[section.key] %}
+  <article>
+    <h3>{{ item.headline }}</h3>
+    <p>{{ item.summary }}</p>
+    <p><strong>Why it matters:</strong> {{ item.why_it_matters }}</p>
+    {% if item.for_builders %}<p><strong>For builders:</strong> {{ item.for_builders }}</p>{% endif %}
+    <p class="item-meta"><span class="tag">{{ cfg.tags|attr(item.tag) }}</span>{% if section.key == 'github' and item.extra.get('stars_gained') is not none %} <span>+{{ item.extra.stars_gained }} stars this week</span>{% endif %}</p>
+    <a href="{{ item.source_url }}" rel="noopener">Source: {{ item.source_url|domain }} ↗</a>
+  </article>
+  {% endfor %}
+</section>
+{% endif %}
+{% endfor %}
+{% endmacro %}
+
+{% block content %}{{ issue_content(view, cfg) }}{% endblock %}

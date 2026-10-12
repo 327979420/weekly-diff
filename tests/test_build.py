@@ -4,8 +4,6 @@ from dataclasses import replace
 from datetime import datetime, timezone, timedelta
 import json
 from pathlib import Path
-import sys
-from types import SimpleNamespace
 
 import pytest
 import responses
@@ -28,7 +26,7 @@ NOW = datetime(2026, 10, 11, 21, tzinfo=timezone.utc)
 @pytest.fixture
 def workspace(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, offline_http: responses.RequestsMock) -> Config:
     for name, relative in (('BUILD', 'build'), ('DATA', 'data'), ('ISSUES', 'data/issues'),
-                           ('SEEN', 'data/seen.json'), ('DRY_RUN', 'build/dry-run')):
+                           ('SEEN', 'data/seen.json'), ('DRY_RUN', 'build/dry-run'), ('SITE', 'site')):
         monkeypatch.setattr(paths, name, tmp_path / relative)
     paths.BUILD.mkdir()
     (paths.BUILD / 'candidates.json').write_text(json.dumps(ROWS))
@@ -62,7 +60,7 @@ def test_end_to_end_and_rerun(workspace: Config, monkeypatch: pytest.MonkeyPatch
     assert first.published_at == NOW
     assert first.period_start == NOW - timedelta(days=workspace.issue.lookback_days)
     assert first.period_end == NOW
-    assert 'task 005' in caplog.text
+    assert (paths.SITE / 'issues/2026-41/index.html').exists()
     second = build.run_build(workspace, '2026-41', NOW + timedelta(hours=1), False)
     assert {item.key for item in second.items()} == {item.key for item in first.items()}
     assert json.loads(target.read_text())['published_at'] == second.published_at.isoformat()
@@ -142,10 +140,10 @@ def test_pipeline_and_render_hook(workspace: Config, monkeypatch: pytest.MonkeyP
     monkeypatch.setattr(pipeline, 'run_build', lambda *args: calls.append(args))
     pipeline.build(workspace, Namespace(issue='2026-41', dry_run=True))
     assert calls[0][0:2] == (workspace, '2026-41') and calls[0][3] is True
-    rendered = []
-    monkeypatch.setitem(sys.modules, 'weekly_diff.site', SimpleNamespace(render_site=lambda cfg: rendered.append(cfg)))
-    build._render(workspace)
-    assert rendered == [workspace]
+    monkeypatch.setattr(build, 'render_site', lambda *args: calls.append(args))
+    issue = Issue.from_dict(json.loads((Path(__file__).parent / 'fixtures/issues/2026-41.json').read_text()))
+    build._render(workspace, issue, False)
+    assert calls[-1] == (workspace, paths.ISSUES, paths.SITE)
 
 
 def test_top_score_and_section_cap(workspace: Config, monkeypatch: pytest.MonkeyPatch) -> None:

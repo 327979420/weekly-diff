@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0">
+  <channel>
+    <title>{{ cfg.name }}</title>
+    <link>{{ cfg.site.base_url }}/</link>
+    <description>{{ cfg.tagline }}</description>
+    <language>{{ cfg.site.language }}</language>
+    {% for view in views %}
+    <item>
+      <title>{{ view.title }}</title>
+      <link>{{ view.url }}</link>
+      <guid isPermaLink="true">{{ view.url }}</guid>
+      <pubDate>{{ view.pub_date }}</pubDate>
+      <description>{{ view.feed_description }}</description>
+    </item>
+    {% endfor %}
+  </channel>
+</rss>
+{% macro feed_description(issue, cfg) %}
+<h2>This week in 60 seconds</h2>
+<ul>{% for bullet in issue.sixty_seconds %}<li>{{ bullet }}</li>{% endfor %}</ul>
+<ul>{% for section in cfg.issue.sections %}{% for item in issue.sections.get(section.key, []) %}<li><a href="{{ item.source_url }}">{{ item.headline }}</a></li>{% endfor %}{% endfor %}</ul>
+{% endmacro %}

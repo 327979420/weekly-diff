@@ -30,7 +30,7 @@ def test_help_and_default_status() -> None:
     assert cli("status").returncode == 0
 
 
-@pytest.mark.parametrize(("command", "task"), [("render", "005"), ("publish", "006")])
+@pytest.mark.parametrize(("command", "task"), [("publish", "006")])
 def test_stubs(command: str, task: str) -> None:
     result = cli("--dry-run", command)
     assert result.returncode == 1

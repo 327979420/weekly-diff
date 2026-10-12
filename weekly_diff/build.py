@@ -1,9 +1,11 @@
 """Build, validate and persist one weekly issue."""
 from collections import Counter
 from datetime import datetime
-import importlib
 import json
 import logging
+from pathlib import Path
+import shutil
+from tempfile import TemporaryDirectory
 
 from weekly_diff import paths
 from weekly_diff.config import Config
@@ -16,6 +18,7 @@ from weekly_diff.models import Candidate, Issue, Item
 from weekly_diff.score import score
 from weekly_diff.seen import load_seen, mark_seen, prune, save_seen
 from weekly_diff.select import Selection, select
+from weekly_diff.site import render_site
 from weekly_diff.sixty import sixty
 from weekly_diff.source_text import fetch_source_text
 from weekly_diff.summarise import summarise
@@ -66,15 +69,16 @@ def _write_items(selection: Selection, cfg: Config, http: Http, llm: LLMClient) 
     return sections
 
 
-def _render(cfg: Config) -> None:
-    try:
-        site = importlib.import_module('weekly_diff.site')
-    except ModuleNotFoundError as error:
-        if error.name != 'weekly_diff.site':
-            raise
-        logging.getLogger(__name__).info('Render hook unavailable; weekly_diff.site is provided by task 005')
+def _render(cfg: Config, issue: Issue, dry_run: bool) -> None:
+    if not dry_run:
+        render_site(cfg, paths.ISSUES, paths.SITE)
         return
-    site.render_site(cfg)
+    with TemporaryDirectory(prefix='weekly-diff-issues-') as temporary:
+        combined = Path(temporary)
+        for source in paths.ISSUES.glob('*.json'):
+            shutil.copyfile(source, combined / source.name)
+        (combined / f'{issue.id}.json').write_text(json.dumps(issue.to_dict()), encoding='utf-8')
+        render_site(cfg, combined, paths.SITE)
 
 
 def run_build(cfg: Config, issue_id: str, now: datetime, dry_run: bool) -> Issue:
@@ -111,5 +115,5 @@ def run_build(cfg: Config, issue_id: str, now: datetime, dry_run: bool) -> Issue
         mark_seen(seen, items, issue_id, now.date())
         prune(seen, cfg.dedupe.seen_retention_days, now.date())
         save_seen(seen)
-    _render(cfg)
+    _render(cfg, issue, dry_run)
     return issue

@@ -1,0 +1,243 @@
+{
+  "id": "2026-42",
+  "name": "Archived name",
+  "published_at": "2026-10-18T21:00:00+00:00",
+  "period_start": "2026-10-11T13:00:00+00:00",
+  "period_end": "2026-10-17T13:00:00+00:00",
+  "sixty_seconds": [
+    "Week 42: tools for builders.",
+    "A model update <script>alert(1)</script>.",
+    "Repositories & releases."
+  ],
+  "sections": {
+    "models": [
+      {
+        "key": "models:0",
+        "section": "models",
+        "headline": "<script>alert(1)</script>",
+        "summary": "A concise summary based on the source text.",
+        "why_it_matters": "This helps readers understand the update.",
+        "for_builders": "Read the release notes before upgrading.",
+        "tag": "builders",
+        "source_url": "https://example.com/models/0?a=1&b=2",
+        "source_name": "Test",
+        "published_at": "2026-10-11T21:00:00+00:00",
+        "score": 8.5,
+        "extra": {}
+      },
+      {
+        "key": "models:1",
+        "section": "models",
+        "headline": "Week 42 models update 1",
+        "summary": "A concise summary based on the source text.",
+        "why_it_matters": "This helps readers understand the update.",
+        "for_builders": null,
+        "tag": "work",
+        "source_url": "https://example.com/models/1?a=1&b=2",
+        "source_name": "Test",
+        "published_at": "2026-10-11T21:00:00+00:00",
+        "score": 8.5,
+        "extra": {}
+      },
+      {
+        "key": "models:2",
+        "section": "models",
+        "headline": "Week 42 models update 2",
+        "summary": "A concise summary based on the source text.",
+        "why_it_matters": "This helps readers understand the update.",
+        "for_builders": null,
+        "tag": "beginner",
+        "source_url": "https://example.com/models/2?a=1&b=2",
+        "source_name": "Test",
+        "published_at": "2026-10-11T21:00:00+00:00",
+        "score": 8.5,
+        "extra": {}
+      },
+      {
+        "key": "models:3",
+        "section": "models",
+        "headline": "Week 42 models update 3",
+        "summary": "A concise summary based on the source text.",
+        "why_it_matters": "This helps readers understand the update.",
+        "for_builders": null,
+        "tag": "builders",
+        "source_url": "https://example.com/models/3?a=1&b=2",
+        "source_name": "Test",
+        "published_at": "2026-10-11T21:00:00+00:00",
+        "score": 8.5,
+        "extra": {}
+      }
+    ],
+    "tools": [
+      {
+        "key": "tools:0",
+        "section": "tools",
+        "headline": "Week 42 tools update 0",
+        "summary": "A concise summary based on the source text.",
+        "why_it_matters": "This helps readers understand the update.",
+        "for_builders": "Read the release notes before upgrading.",
+        "tag": "builders",
+        "source_url": "https://example.com/tools/0?a=1&b=2",
+        "source_name": "Test",
+        "published_at": "2026-10-11T21:00:00+00:00",
+        "score": 8.5,
+        "extra": {}
+      },
+      {
+        "key": "tools:1",
+        "section": "tools",
+        "headline": "Week 42 tools update 1",
+        "summary": "A concise summary based on the source text.",
+        "why_it_matters": "This helps readers understand the update.",
+        "for_builders": null,
+        "tag": "work",
+        "source_url": "https://example.com/tools/1?a=1&b=2",
+        "source_name": "Test",
+        "published_at": "2026-10-11T21:00:00+00:00",
+        "score": 8.5,
+        "extra": {}
+      },
+      {
+        "key": "tools:2",
+        "section": "tools",
+        "headline": "Week 42 tools update 2",
+        "summary": "A concise summary based on the source text.",
+        "why_it_matters": "This helps readers understand the update.",
+        "for_builders": null,
+        "tag": "beginner",
+        "source_url": "https://example.com/tools/2?a=1&b=2",
+        "source_name": "Test",
+        "published_at": "2026-10-11T21:00:00+00:00",
+        "score": 8.5,
+        "extra": {}
+      },
+      {
+        "key": "tools:3",
+        "section": "tools",
+        "headline": "Week 42 tools update 3",
+        "summary": "A concise summary based on the source text.",
+        "why_it_matters": "This helps readers understand the update.",
+        "for_builders": null,
+        "tag": "builders",
+        "source_url": "https://example.com/tools/3?a=1&b=2",
+        "source_name": "Test",
+        "published_at": "2026-10-11T21:00:00+00:00",
+        "score": 8.5,
+        "extra": {}
+      }
+    ],
+    "github": [
+      {
+        "key": "github:0",
+        "section": "github",
+        "headline": "Week 42 github update 0",
+        "summary": "A concise summary based on the source text.",
+        "why_it_matters": "This helps readers understand the update.",
+        "for_builders": "Read the release notes before upgrading.",
+        "tag": "builders",
+        "source_url": "https://example.com/github/0?a=1&b=2",
+        "source_name": "Test",
+        "published_at": "2026-10-11T21:00:00+00:00",
+        "score": 8.5,
+        "extra": {
+          "stars_gained": 0
+        }
+      },
+      {
+        "key": "github:1",
+        "section": "github",
+        "headline": "Week 42 github update 1",
+        "summary": "A concise summary based on the source text.",
+        "why_it_matters": "This helps readers understand the update.",
+        "for_builders": null,
+        "tag": "work",
+        "source_url": "https://example.com/github/1?a=1&b=2",
+        "source_name": "Test",
+        "published_at": "2026-10-11T21:00:00+00:00",
+        "score": 8.5,
+        "extra": {
+          "stars_gained": 125
+        }
+      },
+      {
+        "key": "github:2",
+        "section": "github",
+        "headline": "Week 42 github update 2",
+        "summary": "A concise summary based on the source text.",
+        "why_it_matters": "This helps readers understand the update.",
+        "for_builders": null,
+        "tag": "beginner",
+        "source_url": "https://example.com/github/2?a=1&b=2",
+        "source_name": "Test",
+        "published_at": "2026-10-11T21:00:00+00:00",
+        "score": 8.5,
+        "extra": {
+          "stars_gained": 125
+        }
+      },
+      {
+        "key": "github:3",
+        "section": "github",
+        "headline": "Week 42 github update 3",
+        "summary": "A concise summary based on the source text.",
+        "why_it_matters": "This helps readers understand the update.",
+        "for_builders": null,
+        "tag": "builders",
+        "source_url": "https://example.com/github/3?a=1&b=2",
+        "source_name": "Test",
+        "published_at": "2026-10-11T21:00:00+00:00",
+        "score": 8.5,
+        "extra": {
+          "stars_gained": 125
+        }
+      }
+    ],
+    "quick": [
+      {
+        "key": "quick:0",
+        "section": "quick",
+        "headline": "Week 42 quick update 0",
+        "summary": "A concise summary based on the source text.",
+        "why_it_matters": "This helps readers understand the update.",
+        "for_builders": "Read the release notes before upgrading.",
+        "tag": "builders",
+        "source_url": "https://example.com/quick/0?a=1&b=2",
+        "source_name": "Test",
+        "published_at": "2026-10-11T21:00:00+00:00",
+        "score": 8.5,
+        "extra": {}
+      },
+      {
+        "key": "quick:1",
+        "section": "quick",
+        "headline": "Week 42 quick update 1",
+        "summary": "A concise summary based on the source text.",
+        "why_it_matters": "This helps readers understand the update.",
+        "for_builders": null,
+        "tag": "work",
+        "source_url": "https://example.com/quick/1?a=1&b=2",
+        "source_name": "Test",
+        "published_at": "2026-10-11T21:00:00+00:00",
+        "score": 8.5,
+        "extra": {}
+      },
+      {
+        "key": "quick:2",
+        "section": "quick",
+        "headline": "Week 42 quick update 2",
+        "summary": "A concise summary based on the source text.",
+        "why_it_matters": "This helps readers understand the update.",
+        "for_builders": null,
+        "tag": "beginner",
+        "source_url": "https://example.com/quick/2?a=1&b=2",
+        "source_name": "Test",
+        "published_at": "2026-10-11T21:00:00+00:00",
+        "score": 8.5,
+        "extra": {}
+      }
+    ]
+  },
+  "top": [
+    "a"
+  ]
+}

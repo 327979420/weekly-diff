@@ -1,0 +1,6 @@
+- Changes: Added static issue/home/archive/404 pages, RSS, responsive light/dark CSS, config-based metadata and links, escaped content, and offline CLI/build rendering with isolated dry-run archive overlays.
+- Testing: `.venv/bin/python -m pytest -q` → 240 passed.
+- Testing: `.venv/bin/python run.py render --dry-run` → exit 0; `git diff --check` → passed.
+- Testing: 15-item home HTML + CSS = 10,074 bytes; calculated minimum text contrast 6.28:1 light and 7.41:1 dark.
+- Unfinished: Browser visual inspection was blocked by browser security policy because preview access permission was recorded as declined; automated HTML/RSS checks passed.
+- Questions: None.

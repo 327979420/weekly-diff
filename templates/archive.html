@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>Archive</h1>
+{% for view in views %}
+<article>
+  <h2><a href="{{ view.path }}">{{ view.title }}</a></h2>
+  <p class="period">{{ view.period }}</p>
+  {% if view.issue.sixty_seconds %}<p>{{ view.issue.sixty_seconds[0] }}</p>{% endif %}
+</article>
+{% else %}<p>{{ cfg.name }} — first issue coming soon.</p>{% endfor %}
+{% endblock %}
