@@ -30,6 +30,13 @@ You implement one task file at a time for The Weekly Diff, a fully automatic wee
 - No item repeats an earlier issue (data/seen.json).
 - Escape all external and LLM text in HTML (Jinja2 autoescape) and neutralise mentions in Discord.
 
+## When the owner asks you directly (no task file)
+- Treat the owner's message as the task. Read docs/PLAN.md and README.md first.
+- Make the change, run the tests, then show the diff summary and ask before committing and pushing. Pushing to main deploys the website.
+- Keep `publish_enabled` unchanged unless the owner explicitly asks.
+- For a failed weekly run, read it with `gh run list --workflow weekly.yml` and `gh run view <id> --log-failed`.
+- Add a line to "Decisions" in docs/PLAN.md for anything that changes behaviour. Skip the report file.
+
 ## Finish
 Write tasks/NNN-report.md (NNN = your task number; a fix task overwrites the same file) with at most 10 lines:
 - Changes: …
