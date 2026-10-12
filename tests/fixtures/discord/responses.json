@@ -1,0 +1,9 @@
+{
+  "public": "https://discord.com/api/webhooks/123/fake-public-token",
+  "preview": "https://discordapp.com/api/webhooks/456/fake-preview-token",
+  "success": {"id": "789"},
+  "rate_limit": {"retry_after": 0.25},
+  "error": {"message": "Do not expose response bodies"},
+  "markdown": "*bold* _italic_ ~strike~ `code` |spoiler| >quote \\ [link](https://example.com) @everyone @here <@123>",
+  "run_env": {"GITHUB_SERVER_URL": "https://github.com", "GITHUB_REPOSITORY": "example/roundup", "GITHUB_RUN_ID": "1234"}
+}

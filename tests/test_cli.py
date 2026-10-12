@@ -30,16 +30,15 @@ def test_help_and_default_status() -> None:
     assert cli("status").returncode == 0
 
 
-@pytest.mark.parametrize(("command", "task"), [("publish", "006")])
-def test_stubs(command: str, task: str) -> None:
-    result = cli("--dry-run", command)
+def test_publish_requires_issue() -> None:
+    result = cli("--dry-run", "publish", "--issue", "2000-01")
     assert result.returncode == 1
-    assert f"task {task}" in result.stderr
+    assert "build first" in result.stderr
     assert "Traceback" not in result.stderr
 
 
 def test_verbose_and_preview() -> None:
-    result = cli("publish", "--preview", "-v", "--dry-run")
+    result = cli("publish", "--preview", "-v", "--dry-run", "--issue", "2000-01")
     assert result.returncode == 1
     assert "Traceback" in result.stderr
 

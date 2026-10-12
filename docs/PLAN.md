@@ -52,7 +52,7 @@ All scheduled workflows also have `workflow_dispatch` with a `dry_run` option. `
 | 003 | Dedupe, seen.json, LLM module, scoring and selection | done (166 tests) |
 | 004 | Source text, summariser, validation, build orchestration | done (229 tests; live LLM run pending key) |
 | 005 | Static website + RSS | done (240 tests) |
-| 006 | Discord sender (preview/publish, publish_enabled) | pending |
+| 006 | Discord sender (preview/publish, publish_enabled) | done (273 tests) |
 | 007 | GitHub Actions workflows, Pages deploy, owner README | pending |
 
 ## Decisions

@@ -1,0 +1,4 @@
+- Changes: Implemented Discord payload formatting, limits, escaping, preview/public routing, dry-run output, bounded 429 retries, URL validation, and secret-safe failures/logging; wired publish issue loading and CLI outcomes.
+- Testing: `.venv/bin/python -m pytest -q` → 273 passed; `git diff --check` → passed. All HTTP mocked; no live webhook requests.
+- Unfinished: None.
+- Questions: None.
