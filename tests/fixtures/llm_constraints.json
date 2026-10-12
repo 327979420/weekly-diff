@@ -1,0 +1,16 @@
+{
+  "error": {"type": "invalid_request_error", "message": "Unsupported schema constraint; test-placeholder"},
+  "cases": [
+    [{"minimum": 0}, -1, 0],
+    [{"maximum": 10}, 14, 10],
+    [{"exclusiveMinimum": 0}, 0, 1],
+    [{"exclusiveMaximum": 10}, 10, 9],
+    [{"multipleOf": 0.1}, 0.15, 0.3],
+    [{"minLength": 3}, "ab", "abc"],
+    [{"maxLength": 3}, "abcd", "abc"],
+    [{"pattern": "^abc$"}, "bad", "abc"],
+    [{"minItems": 3}, [1, 2], [1, 2, 3]],
+    [{"maxItems": 3}, [1, 2, 3, 4], [1, 2, 3]],
+    [{"uniqueItems": true}, [{"id": 1}, {"id": 1}], [{"id": 1}, {"id": 2}]]
+  ]
+}

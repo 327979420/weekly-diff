@@ -135,3 +135,120 @@ def test_json_parsing_and_nested_schema() -> None:
     nested = result['properties']['items']['items']
     assert nested['additionalProperties'] is False and nested['required'] == ['id']
     assert 'required' not in schema
+
+
+CONSTRAINTS = json.loads((Path(__file__).parent / 'fixtures/llm_constraints.json').read_text())
+
+
+def sdk_response(provider: str, payload: dict) -> object:
+    raw = deepcopy(DATA[provider])
+    if provider == 'anthropic':
+        raw['content'][0]['text'] = json.dumps(payload)
+    else:
+        raw['output_text'] = json.dumps(payload)
+    return namespace(raw)
+
+
+@pytest.mark.parametrize('provider', ['anthropic', 'openai'])
+@pytest.mark.parametrize('scenario', ['score', 'sixty'])
+def test_constraint_payload_validation_and_retry(provider: str, scenario: str,
+        sdk_mocks: dict[str, Mock], monkeypatch: pytest.MonkeyPatch) -> None:
+    from weekly_diff.llm.fake import FakeLLM
+    from weekly_diff.models import Candidate, Item
+    from weekly_diff.score import _schema, score
+    from weekly_diff.sixty import sixty
+
+    monkeypatch.setenv(f'{provider.upper()}_API_KEY', 'test-placeholder')
+    cfg = load_config()
+    client = get_client(cfg)
+    sdk = sdk_mocks[provider].return_value
+    method = sdk.messages.create if provider == 'anthropic' else sdk.responses.create
+    if scenario == 'score':
+        schema = _schema(cfg)
+        good = {'items': [DATA['row']]}
+        bad = {'items': [{**DATA['row'], 'score': 14}]}
+        field = '$.items[0].score'
+        def run() -> object:
+            return score([Candidate.from_dict(DATA['candidate'])], cfg, client)
+    else:
+        item_data = json.loads((Path(__file__).parent / 'fixtures/models.json').read_text())['item']
+        items = [replace(Item.from_dict(item_data), key=str(i)) for i in range(3)]
+        good = {'bullets': [{'text': item.headline, 'item_keys': [item.key]} for item in items]}
+        bad = {'bullets': good['bullets'][:2]}
+        fake = FakeLLM([good])
+        sixty(items, fake)
+        schema = fake.calls[0]['schema']
+        field = '$.bullets'
+        def run() -> object:
+            return sixty(items, client)
+    original = deepcopy(schema)
+    method.return_value = sdk_response(provider, bad)
+    with pytest.raises(LLMError) as error:
+        client.complete_json('', '', schema, 512)
+    assert str(error.value) == f'response did not match schema: {field}'
+    call = method.call_args.kwargs
+    sent = (call['output_config']['format'] if provider == 'anthropic' else call['text']['format'])['schema']
+    if provider == 'anthropic':
+        for keyword in ('minimum', 'maximum', 'minItems', 'maxItems'):
+            assert keyword not in json.dumps(sent)
+    else:
+        assert sent == strict_schema(schema)
+    assert schema == original
+    method.reset_mock()
+    method.side_effect = [sdk_response(provider, bad), sdk_response(provider, good)]
+    result = run()
+    assert method.call_count == 2
+    if scenario == 'score':
+        assert result[0].score == DATA['row']['score']
+    else:
+        assert result == [item.headline for item in items]
+
+
+@pytest.mark.parametrize(('schema', 'bad', 'good'), CONSTRAINTS['cases'])
+def test_all_removed_constraints(schema: dict, bad: object, good: object) -> None:
+    from weekly_diff.llm.anthropic_client import anthropic_schema
+    from weekly_diff.llm.base import validate_constraints
+
+    nested = {'type': 'object', 'properties': {'value': schema}}
+    validate_constraints({'value': good}, nested)
+    with pytest.raises(LLMError, match=r'response did not match schema: \$\.value'):
+        validate_constraints({'value': bad}, nested)
+    assert anthropic_schema(strict_schema(nested))['properties']['value'] == {}
+
+
+@pytest.mark.parametrize('minimum', [0, 1, 2])
+def test_sanitizer_preserves_supported_schema_and_property_names(minimum: int) -> None:
+    from weekly_diff.llm.anthropic_client import anthropic_schema
+
+    schema = {'type': 'object', 'properties': {'maximum': {'type': 'array', 'minItems': minimum,
+              'items': {'anyOf': [{'type': 'string', 'maxLength': 2}, {'type': 'integer', 'maximum': 2}]}}}}
+    original = deepcopy(schema)
+    result = anthropic_schema(strict_schema(schema))
+    array = result['properties']['maximum']
+    assert array.get('minItems') == (minimum if minimum < 2 else None)
+    assert array['items']['anyOf'] == [{'type': 'string'}, {'type': 'integer'}]
+    assert result['required'] == ['maximum'] and result['additionalProperties'] is False
+    assert schema == original
+
+
+@pytest.mark.parametrize('provider', ['anthropic', 'openai'])
+@pytest.mark.parametrize('status', [400, 429])
+def test_status_error_details_redacted(provider: str, status: int, sdk_mocks: dict[str, Mock],
+                                       monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv(f'{provider.upper()}_API_KEY', 'test-placeholder')
+    module = anthropic if provider == 'anthropic' else openai
+    body = {'error': deepcopy(CONSTRAINTS['error'])}
+    body['error']['message'] += ' ' + 'x' * 280 + 'test-placeholder' + 'x' * 100
+    body['request'] = 'private request body'
+    error_class = module.RateLimitError if status == 429 else module.APIStatusError
+    sdk = sdk_mocks[provider].return_value
+    method = sdk.messages.create if provider == 'anthropic' else sdk.responses.create
+    method.side_effect = error_class('private prompt and headers', response=Mock(status_code=status), body=body)
+    with pytest.raises(LLMError) as error:
+        get_client(load_config()).complete_json('', '', {}, 10)
+    message = str(error.value)
+    label = 'Anthropic' if provider == 'anthropic' else 'OpenAI'
+    assert message.startswith(f'{label} API error {status} invalid_request_error: Unsupported schema constraint; ***')
+    assert len(message.split(': ', 1)[1]) == 300
+    assert 'private' not in message and 'test-placeholder' not in message
+    assert error.value.__suppress_context__

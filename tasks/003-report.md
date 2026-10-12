@@ -1,6 +1,6 @@
-- Changes: Added canonical URLs, persistent seen identities, primary-source/story/Hugging Face deduplication, and merged-source provenance.
-- Changes: Added swappable Anthropic/OpenAI structured-output clients, safe errors and usage logging, FakeLLM, batched scoring, section selection, backups, and build/selection.json persistence.
-- Testing: `.venv/bin/python -m pytest -q` → 166 passed; all provider calls mocked.
+- Changes: Sanitise Anthropic schemas after strict_schema; preserve full OpenAI schemas; validate original numeric, string and array constraints client-side with retry-compatible LLMError subclasses.
+- Changes: Include HTTP status and redacted API error type/message in both providers' status errors; truncate details to 300 characters after redaction.
+- Testing: `.venv/bin/python -m pytest -q` → 311 passed; covers schema payloads, invalid score/overview retries, constraint limits and safe 400/429 errors.
 - Testing: `git diff --check` → passed.
-- Unfinished: None within task 003; build orchestration remains reserved for task 004.
+- Unfinished: None.
 - Questions: None.
