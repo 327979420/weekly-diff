@@ -1,0 +1,30 @@
+# 002 — Collectors
+
+## Goal
+Fetch candidate news items for the lookback window from every configured source, one module per source, so that any single failure is logged and skipped.
+
+## Scope
+1. **`weekly_diff/http.py`**: `Http` wrapper around `requests.Session`: configured User-Agent and timeout, 2 retries with backoff on 429/5xx/connection errors, `get_json`, `get_text`, `get_bytes`, response headers access. For `api.github.com` add `Authorization: Bearer $GITHUB_TOKEN` when set (never log it) and `X-GitHub-Api-Version: 2022-11-28`.
+2. **`weekly_diff/text.py`**: `html_to_text(html)` (strip tags, collapse whitespace), `extract_main_text(html)` (drop script/style/nav/header/footer/aside/form; prefer `<article>`, then `<main>`, then `<body>`), `extract_published_at(html)` (`meta[property=article:published_time]`, JSON-LD `datePublished`, then first `<time datetime>`), `extract_title(html)` (og:title, then `<title>`). Shared by collectors and task 004.
+3. **Collectors** in `weekly_diff/collectors/`, each exposing `collect(cfg: Config, window: tuple[datetime, datetime], http: Http) -> list[Candidate]`:
+   - `rss.py` — each feed in `sources.rss`; parse with feedparser from bytes fetched via `Http`; keep entries published/updated inside the window; text = entry content or summary as plain text; `section_hint` from config; `primary` if the link's domain is in `primary_domains`; key = canonical-ish link (task 003 canonicalises properly; use the link as-is here).
+   - `html_index.py` — each page in `sources.html_index.pages`: absolute-ise every `<a href>`, keep unique links matching `link_pattern`, open up to `max_articles_per_index`, keep those whose `extract_published_at` is inside the window (skip pages with no date). Title from `extract_title`, text from `extract_main_text`.
+   - `github_releases.py` — `GET /repos/{repo}/releases?per_page=20` per configured repo; keep non-draft releases published in the window (prereleases only if `include_prereleases`). Collapse to **one candidate per repo**: title `"{name} {latest tag}"`, url = latest release `html_url`, text = release bodies newest first (cap 8000 chars), key `release:{repo}:{latest tag}`, `section_hint="tools"`, `signals.release_count`, `extra.tags`.
+   - `github_trending.py` — run each query in `github_trending.queries` (substitute `{since}`, `{created_since}` as YYYY-MM-DD) against `GET /search/repositories?q=…&sort=stars&order=desc&per_page=50`. Merge unique repos, drop forks, archived and `exclude_repos`. Pre-rank by `stargazers_count / max(age_days, 7)` and keep the top `candidates`. For each, **measure stars gained in the window**: `GET /repos/{owner}/{repo}/stargazers?per_page=100&page=N` with `Accept: application/vnd.github.star+json`, starting at the last page (`ceil(stars/100)`) and walking backwards until a page's oldest `starred_at` is before the window start or `max_stargazer_pages` is reached; count `starred_at >= window start`. If the last page is beyond 400 (API limit) or the request fails, fall back to `data/stars.json`: gained = current − snapshot stars if the snapshot is 5–9 days old, else skip the repo. Always write the current star counts to `data/stars.json` (`{repo: {"stars": n, "at": iso}}`) unless `--dry-run`. Candidate: title `owner/name`, url = `html_url`, text = description, key `github:{owner}/{name}` (lowercase), `section_hint="github"`, `primary=True`, signals `stars_gained` (and `stars_gained_capped` if the page cap was hit), `stars_total`, extra `language`, `topics`, `description`.
+   - `hackernews.py` — `GET https://hn.algolia.com/api/v1/search?tags=story&numericFilters=created_at_i>{start},points>={min_points}&hitsPerPage=500`; keep titles matching any keyword as a whole word, case-insensitive. url = story URL (or the HN item URL for text posts), signals `hn_points`, `hn_comments`, extra `hn_url`; `primary` by domain. Key = url.
+   - `huggingface.py` — trending: `GET https://huggingface.co/api/models?sort=trendingScore&direction=-1&limit={trending_limit}`; per org: `GET https://huggingface.co/api/models?author={org}&sort=createdAt&direction=-1&limit=20`. Keep models created within `created_within_days` (trending) or inside the window (orgs); request `createdAt` if the API needs `full=true` or `expand` — check against a recorded fixture. Title = model id, url `https://huggingface.co/{id}`, key `hf:{id}`, `section_hint="models"`, `primary=True`, signals `likes`, `downloads`, `trending_score` when present, extra `pipeline_tag`, `author`.
+4. **`weekly_diff/collect.py`**: `run_collect(cfg, now, dry_run) -> list[Candidate]` runs every collector inside try/except, logs `source failed: <name>: <error>` (redacted) and continues; writes `build/candidates.json` and `build/collect-report.json` (per source: count, error or null, duration). Wire `pipeline.collect` to it; the CLI prints a one-line summary per source.
+
+## Files
+weekly_diff/{http,text,collect}.py, weekly_diff/collectors/{__init__,rss,html_index,github_releases,github_trending,hackernews,huggingface}.py, weekly_diff/pipeline.py (collect only), tests/test_text.py, tests/collectors/test_*.py, tests/fixtures/** (recorded, trimmed responses for every source; you may fetch real samples once while writing fixtures, but tests must not touch the network).
+
+## Acceptance criteria
+- Each collector has tests for: a normal fixture, items outside the window filtered out, and a failing source (HTTP 500 / malformed body) producing an empty list or exception that `run_collect` turns into a logged skip while other sources still return items.
+- Stars-gained tests: counting across two stargazer pages, stopping at the window start, the page cap, and the `data/stars.json` fallback.
+- Release collapsing: three releases from one repo in the window become one candidate listing all tags.
+- `build/candidates.json` round-trips through `Candidate.from_dict`.
+- No test performs real network I/O (`responses` blocks unregistered URLs).
+- All tests pass.
+
+## Test command
+`.venv/bin/python -m pytest -q`

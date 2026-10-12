@@ -1,0 +1,150 @@
+# The Weekly Diff — all settings live here.
+# To rename, go live or pause, edit this file and commit. See README.md.
+
+name: "The Weekly Diff"
+tagline: "The week in AI and developer tools, in plain English."
+
+# false = the Monday post goes to the private preview channel only.
+# true  = the Monday post goes to the public Discord channel.
+publish_enabled: false
+
+# true = scheduled runs do nothing. Manual runs from the Actions tab still work.
+paused: false
+
+site:
+  base_url: "https://327979420.github.io/weekly-diff"   # no trailing slash
+  language: "en"
+  timezone: "Australia/Melbourne"   # dates shown to readers
+  feed_items: 20
+
+issue:
+  lookback_days: 7
+  min_items: 10
+  max_items: 15
+  hard_min_items: 5        # below this the run fails instead of publishing a thin issue
+  top_items: 5             # items in the Discord post
+  max_top_per_section: 2   # keeps the Discord top 5 varied
+  sections:                # page order
+    - key: models
+      title: "New models & labs"
+      min: 2
+      max: 4
+    - key: tools
+      title: "Agent & dev tool updates"
+      min: 2
+      max: 4
+    - key: github
+      title: "Trending on GitHub"
+      min: 3
+      max: 4
+    - key: quick
+      title: "Quick hits"
+      min: 2
+      max: 4
+
+tags:
+  builders: "🛠️ Builders"
+  work: "💼 Work & productivity"
+  beginner: "🌱 Beginner-friendly"
+
+llm:
+  provider: auto                    # auto | anthropic | openai. auto = Anthropic if ANTHROPIC_API_KEY is set, else OpenAI
+  anthropic_model: "claude-haiku-5-5"
+  openai_model: "gpt-5-mini"
+  effort: low                       # Anthropic output_config.effort / OpenAI reasoning effort
+  max_candidates_to_score: 80
+  score_batch_size: 40
+  max_source_chars: 12000           # source text sent to the summariser per item
+  min_score: 5                      # 0–10; items below this are never selected
+
+dedupe:
+  title_similarity: 0.6             # Jaccard on title words; merges the same story from different sources
+  seen_retention_days: 730
+
+discord:
+  color: 5793266                    # embed colour (decimal)
+
+sources:
+  user_agent: "WeeklyDiffBot/1.0 (+https://github.com/327979420/weekly-diff)"
+  timeout_seconds: 20
+
+  # Links on these domains count as primary sources.
+  primary_domains:
+    - openai.com
+    - anthropic.com
+    - claude.com
+    - claude.dev
+    - blog.google
+    - deepmind.google
+    - ai.google.dev
+    - developers.googleblog.com
+    - ai.meta.com
+    - mistral.ai
+    - x.ai
+    - deepseek.com
+    - api-docs.deepseek.com
+    - qwen.ai
+    - qwenlm.github.io
+    - moonshot.ai
+    - kimi.com
+    - z.ai
+    - huggingface.co
+    - github.com
+    - github.blog
+    - cursor.com
+    - cline.bot
+    - aider.chat
+
+  rss:
+    - { name: "OpenAI", url: "https://openai.com/news/rss.xml", section: models }
+    - { name: "Google AI", url: "https://blog.google/technology/ai/rss/", section: models }
+    - { name: "Google DeepMind", url: "https://deepmind.google/blog/rss.xml", section: models }
+    - { name: "Mistral AI", url: "https://mistral.ai/rss.xml", section: models }
+    - { name: "Hugging Face blog", url: "https://huggingface.co/blog/feed.xml", section: quick }
+    - { name: "GitHub Changelog", url: "https://github.blog/changelog/feed/", section: tools }
+    - { name: "Cursor", url: "https://cursor.com/changelog/rss.xml", section: tools }
+
+  # News pages without RSS: links matching link_pattern are opened and kept if their publish date is in the window.
+  html_index:
+    max_articles_per_index: 12
+    pages:
+      - { name: "Anthropic", url: "https://www.anthropic.com/news", link_pattern: '^https://www\.anthropic\.com/news/[a-z0-9-]+/?$', section: models }
+      - { name: "Claude blog", url: "https://claude.com/blog", link_pattern: '^https://claude\.(com|dev)/blog/[a-z0-9-]+/?$', section: tools }
+      - { name: "Meta AI", url: "https://ai.meta.com/blog/", link_pattern: '^https://ai\.meta\.com/blog/[a-z0-9-]+/?$', section: models }
+      - { name: "DeepSeek", url: "https://api-docs.deepseek.com/", link_pattern: '^https://api-docs\.deepseek\.com/news/news\d+/?$', section: models }
+
+  github_releases:
+    include_prereleases: false
+    repos:
+      - { name: "Claude Code", repo: "anthropics/claude-code" }
+      - { name: "Codex CLI", repo: "openai/codex" }
+      - { name: "Gemini CLI", repo: "google-gemini/gemini-cli" }
+      - { name: "Cline", repo: "cline/cline" }
+      - { name: "Aider", repo: "Aider-AI/aider" }
+      - { name: "Continue", repo: "continuedev/continue" }
+      - { name: "OpenCode", repo: "anomalyco/opencode" }
+      - { name: "Goose", repo: "aaif-goose/goose" }
+      - { name: "OpenHands", repo: "OpenHands/OpenHands" }
+
+  # Ranked by stars gained in the lookback window, never by total stars.
+  github_trending:
+    created_within_days: 30
+    candidates: 40                 # repos whose weekly star gain is measured
+    max_stargazer_pages: 10        # 100 stars per page; caps API calls per repo
+    exclude_repos: []
+    queries:                       # {since} = window start, {created_since} = now - created_within_days (YYYY-MM-DD)
+      - "created:>{created_since} stars:>100 topic:llm"
+      - "created:>{created_since} stars:>100 topic:ai-agents"
+      - "created:>{created_since} stars:>100 topic:mcp"
+      - "created:>{created_since} stars:>300"
+      - "pushed:>{since} stars:>2000 topic:llm"
+      - "pushed:>{since} stars:>2000 topic:ai-agents"
+
+  hackernews:
+    min_points: 150
+    keywords: [AI, LLM, LLMs, GPT, OpenAI, Anthropic, Claude, Gemini, Llama, Mistral, DeepSeek, Qwen, Kimi, GLM, xAI, Grok, agent, agents, agentic, Copilot, Cursor, Codex, MCP, RAG, inference, fine-tuning, open-weight, model, models]
+
+  huggingface:
+    trending_limit: 30
+    created_within_days: 30
+    orgs: [openai, google, meta-llama, mistralai, xai-org, deepseek-ai, Qwen, moonshotai, zai-org]
