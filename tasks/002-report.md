@@ -1,0 +1,7 @@
+- Changes: Replaced stargazer API calls with new-repo totals and closest eligible weekly snapshot gains; rank and limit after gains are known.
+- Changes: Store versioned history for all unique search results; migrate flat snapshots, cap at 6 entries, prune repos unseen for over 30 days, preserve dry-run files.
+- Changes: Removed obsolete configuration keys; added configurable history limit and retention; replaced stargazer tests with snapshot regression tests.
+- Testing: `.venv/bin/python -m pytest -q` → 115 passed.
+- Testing: `git diff --check` → passed; source scan found no stargazers endpoint calls or removed configuration keys.
+- Unfinished: None.
+- Questions: None.

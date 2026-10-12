@@ -1,0 +1,20 @@
+[
+  {
+    "id": "google/embeddinggemma-2",
+    "createdAt": "2026-10-08T00:00:00Z",
+    "likes": 1743,
+    "downloads": 98829,
+    "trendingScore": 1609,
+    "pipeline_tag": "feature-extraction",
+    "author": "google"
+  },
+  {
+    "id": "jialinyyzz/humanizer",
+    "createdAt": "2026-09-11T05:00:16.000Z",
+    "likes": 1129,
+    "downloads": 37647,
+    "trendingScore": 983,
+    "pipeline_tag": "text-generation",
+    "author": "jialinyyzz"
+  }
+]

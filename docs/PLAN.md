@@ -48,7 +48,7 @@ All scheduled workflows also have `workflow_dispatch` with a `dry_run` option. `
 | # | Task | Status |
 | --- | --- | --- |
 | 001 | Skeleton, config loader, models, logging, run.py CLI, pytest | done (54 tests) |
-| 002 | Collectors (one module per source), fixture tests | pending |
+| 002 | Collectors (one module per source), fixture tests | done, 1 fix round (115 tests) |
 | 003 | Dedupe, seen.json, LLM module, scoring and selection | pending |
 | 004 | Source text, summariser, validation, build orchestration | pending |
 | 005 | Static website + RSS | pending |
@@ -60,6 +60,7 @@ All scheduled workflows also have `workflow_dispatch` with a `dry_run` option. `
 - 2026-10-12: Codex delegation via `codex exec -s workspace-write` (plugin installed but not loaded in the director session; `--full-auto` no longer exists in Codex CLI 0.162).
 - 2026-10-12: `publish_enabled` gates only the public Discord post. The website updates every week regardless, so the owner can review it before going live.
 - 2026-10-12: Tool release feeds use GitHub Releases; Cursor (closed source) uses its changelog RSS. Roo Code dropped (archived). Labs without RSS (Anthropic, Meta, DeepSeek) use the html_index collector; xAI (blocks bots), Qwen, Kimi and GLM are covered by Hugging Face orgs and Hacker News.
+- 2026-10-12: GitHub no longer lists stargazers (REST 404 for every repo, GraphQL count 0), so "stars gained this week" = total stars for repos created inside the window, otherwise current − snapshot from `data/stars.json` (closest to 7 days, within 5–9). Snapshots are recorded on every non-dry-run collect and committed weekly; a first snapshot was committed at setup so the first issue can rank established repos too.
 
 ## Open issues
 - None yet.

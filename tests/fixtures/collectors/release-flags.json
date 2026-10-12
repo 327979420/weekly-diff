@@ -1,0 +1,26 @@
+[
+  {
+    "tag_name": "v2.1.296",
+    "draft": true,
+    "prerelease": false,
+    "published_at": "2026-10-09T19:28:59Z",
+    "html_url": "https://github.com/anthropics/claude-code/releases/tag/v2.1.296",
+    "body": "## What's changed\n\n- Added a `code` key to the Claude apps gateway's `managed.policies[]`: the same settings as `cli`, also applied in Claude Desktop's Code tab; beside `desktop`, it turns on Claude Desktop's gateway mode\n- Added `autoCompactWindow` to subagent frontmatter and `--agents` definitions, so a subagent can auto-compact earlier than the main conversation's window\n- Added `CLAUDE_CODE_WORKFLOW_SUBAGENT_MODEL` to run every workflow agent on one model while other subagents keep theirs\n- Added `CLAUDE_CODE_OVERLOADED_RETRY_MAX_DELAY_MS` environment variable to set a longer maximum delay for the backoff when retrying an overloaded (529) request\n- Added a note in `/plugin` on a plugin whose hooks are left out because another enabled plugin has the same name\n- Added an `allow_large` option to the Read tool so Claude can read a text file past the usual size limits in one call when it needs the whole file and the context has room\n- Fixed managed-settings `PreToolUse` hooks that deny a tool call with `\"continue\": false`, and managed `prompt` hooks that block one, refusing the call but not ending the turn\n- Fixed PostToolUse hooks in managed settings not applying `updatedMCPToolOutput` in some sessions\n- Fixed headless sessions starting a folder's `.mcp.json` or plugin MCP server that was switched off for that folder, after changing directory or reloading plugins\n- Fixed a Claude apps gateway that serves `allowedProviders` with `\"gateway\"` locking out laptops that name that gateway in user settings\n- Fixed a saved Claude apps gateway sign-in being ignored on machines whose managed settings set `forceLoginMethod` to `gateway` with no `forceLoginGatewayUrl` (regression in 2.1.295)\n- Fixed `--teleport` opening an empty conversation when the session's history could not be r"
+  },
+  {
+    "tag_name": "v2.1.295",
+    "draft": false,
+    "prerelease": true,
+    "published_at": "2026-10-08T19:48:38Z",
+    "html_url": "https://github.com/anthropics/claude-code/releases/tag/v2.1.295",
+    "body": "## What's changed\n\n- Added `onFailure: \"block\"` for command and HTTP hooks: a hook that can't start, times out, or exits with an unexpected code blocks the action instead of letting it through\n- Added Program Status Protocol (OSC 7501) support: terminals that implement it can show whether Claude Code is working, waiting on you, or done\n- Added quoted text to the `/copy` picker, so a drafted message copies without its `>` markers\n- Added a warning to `claude plugin install`, `enable`, `disable` and `marketplace add` when the settings file they write to does not load\n- Added a line on stderr, when it is a terminal, that says what a `claude -p` run is waiting for when it stays open after its last turn\n- Added support for `timeouts.upstream_ttfb_ms` on the Claude apps gateway's Bedrock, Vertex, Foundry and other cloud upstreams: a value you set now limits how long a stream may take to start there, after which it fails over or gets a 502\n- Added a \"Backgrounding cancelled\" message when you stop the turn while `\u2190` is waiting for the current tool to finish\n- Added an optional `models` list to every Claude apps gateway upstream: only the listed models are sent there, on failover too, and one `*` in an entry is a wildcard\n- Added support for `forceLoginMethod: \"gateway\"` and `forceLoginGatewayUrl` in your own user settings on machines with no managed settings, so `/login` opens on that Claude apps gateway\n- Added advice to `claude plugin validate` when a plugin's README has no install line: it prints the line to paste and never changes the exit code, even with `--strict`\n- Added `upstream_request_id` to the Claude apps gateway's `inference` audit event: the request ID from Amazon Bedrock, the Anthropic API or another upstream, for support cases\n- Added `$.ui.notify` for mods: ra"
+  },
+  {
+    "tag_name": "v2.1.294",
+    "draft": false,
+    "prerelease": false,
+    "published_at": "2026-10-08T05:03:54Z",
+    "html_url": "https://github.com/anthropics/claude-code/releases/tag/v2.1.294",
+    "body": "## What's changed\n\n- Fixed `prompt` and `agent` hooks written as instructions (such as \"Block commands that...\") allowing what they should block\n- Improved how `prompt` hooks on Stop and SubagentStop written as instructions (such as \"Carry on if the build is broken\") are judged, so Claude is less likely to stop early\n"
+  }
+]

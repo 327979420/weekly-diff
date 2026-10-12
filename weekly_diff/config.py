@@ -97,27 +97,42 @@ class ReleaseRepoConfig:
 
 @dataclass(frozen=True)
 class GitHubReleasesConfig:
+    per_page: int
+    max_text_chars: int
     include_prereleases: bool
     repos: tuple[ReleaseRepoConfig, ...]
 
 
 @dataclass(frozen=True)
 class GitHubTrendingConfig:
+    name: str
+    search_per_page: int
+    snapshot_min_days: int
+    snapshot_max_days: int
+    snapshot_history_limit: int
+    snapshot_retention_days: int
     created_within_days: int
     candidates: int
-    max_stargazer_pages: int
     exclude_repos: tuple[str, ...]
     queries: tuple[str, ...]
 
 
 @dataclass(frozen=True)
 class HackerNewsConfig:
+    name: str
+    api_url: str
+    item_url: str
+    hits_per_page: int
     min_points: int
     keywords: tuple[str, ...]
 
 
 @dataclass(frozen=True)
 class HuggingFaceConfig:
+    name: str
+    api_url: str
+    base_url: str
+    org_limit: int
     trending_limit: int
     created_within_days: int
     orgs: tuple[str, ...]
@@ -125,6 +140,10 @@ class HuggingFaceConfig:
 
 @dataclass(frozen=True)
 class SourcesConfig:
+    retries: int
+    backoff_seconds: float
+    github_api_url: str
+    github_api_version: str
     user_agent: str
     timeout_seconds: int
     primary_domains: tuple[str, ...]

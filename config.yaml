@@ -65,6 +65,10 @@ discord:
   color: 5793266                    # embed colour (decimal)
 
 sources:
+  retries: 2
+  backoff_seconds: 0.5
+  github_api_url: "https://api.github.com"
+  github_api_version: "2022-11-28"
   user_agent: "WeeklyDiffBot/1.0 (+https://github.com/327979420/weekly-diff)"
   timeout_seconds: 20
 
@@ -114,6 +118,8 @@ sources:
       - { name: "DeepSeek", url: "https://api-docs.deepseek.com/", link_pattern: '^https://api-docs\.deepseek\.com/news/news\d+/?$', section: models }
 
   github_releases:
+    per_page: 20
+    max_text_chars: 8000
     include_prereleases: false
     repos:
       - { name: "Claude Code", repo: "anthropics/claude-code" }
@@ -128,9 +134,14 @@ sources:
 
   # Ranked by stars gained in the lookback window, never by total stars.
   github_trending:
+    name: "GitHub"
+    search_per_page: 50
+    snapshot_min_days: 5
+    snapshot_max_days: 9
+    snapshot_history_limit: 6
+    snapshot_retention_days: 30
     created_within_days: 30
-    candidates: 40                 # repos whose weekly star gain is measured
-    max_stargazer_pages: 10        # 100 stars per page; caps API calls per repo
+    candidates: 40                 # top repos retained after ranking by weekly star gain
     exclude_repos: []
     queries:                       # {since} = window start, {created_since} = now - created_within_days (YYYY-MM-DD)
       - "created:>{created_since} stars:>100 topic:llm"
@@ -141,10 +152,18 @@ sources:
       - "pushed:>{since} stars:>2000 topic:ai-agents"
 
   hackernews:
+    name: "Hacker News"
+    api_url: "https://hn.algolia.com/api/v1/search"
+    item_url: "https://news.ycombinator.com/item"
+    hits_per_page: 500
     min_points: 150
     keywords: [AI, LLM, LLMs, GPT, OpenAI, Anthropic, Claude, Gemini, Llama, Mistral, DeepSeek, Qwen, Kimi, GLM, xAI, Grok, agent, agents, agentic, Copilot, Cursor, Codex, MCP, RAG, inference, fine-tuning, open-weight, model, models]
 
   huggingface:
+    name: "Hugging Face"
+    api_url: "https://huggingface.co/api/models"
+    base_url: "https://huggingface.co"
+    org_limit: 20
     trending_limit: 30
     created_within_days: 30
     orgs: [openai, google, meta-llama, mistralai, xai-org, deepseek-ai, Qwen, moonshotai, zai-org]
