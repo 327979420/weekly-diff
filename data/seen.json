@@ -6,6 +6,12 @@
       "title": "Let AI agents use your signed-in Chrome in background tabs",
       "url": "https://github.com/aindeev/agent-chrome-relay"
     },
+    "github:alchaincyf/huashu-art-motion": {
+      "first_seen": "2026-10-12",
+      "issue": "2026-42",
+      "title": "huashu-art-motion\uff1a\u8ba9\u7f16\u7801\u52a9\u624b\u628a\u540d\u753b\u548c\u7ecf\u5178\u98ce\u683c\u505a\u6210\u4f1a\u52a8\u7684\u89c6\u9891",
+      "url": "https://github.com/alchaincyf/huashu-art-motion"
+    },
     "github:franzenzenhofer/big-arrow-on-the-screen": {
       "first_seen": "2026-10-12",
       "issue": "2026-42",
@@ -23,6 +29,18 @@
       "issue": "2026-42",
       "title": "OpenAI releases 719 AI-produced math manuscripts with partial Lean formalizations",
       "url": "https://github.com/openai/math"
+    },
+    "github:storytold/cadcraft": {
+      "first_seen": "2026-10-12",
+      "issue": "2026-42",
+      "title": "CADCraft: a free, open-source drawing app that works like AutoCAD",
+      "url": "https://github.com/storytold/cadcraft"
+    },
+    "github:storytold/gridcraft": {
+      "first_seen": "2026-10-12",
+      "issue": "2026-42",
+      "title": "GridCraft: an open-source spreadsheet app that works like Excel",
+      "url": "https://github.com/storytold/gridcraft"
     },
     "github:storytold/wordcraft": {
       "first_seen": "2026-10-12",
@@ -47,6 +65,12 @@
       "issue": "2026-42",
       "title": "Qwen-Image-2.1 Open-Sourced for Text-to-Image, Editing and Transparent RGBA Output",
       "url": "https://huggingface.co/Qwen/Qwen-Image-2.1"
+    },
+    "hf:Qwen/Qwen-Image-2.1-Turbo": {
+      "first_seen": "2026-10-12",
+      "issue": "2026-42",
+      "title": "Qwen-Image-2.1-Turbo: a quicker model that makes and edits images",
+      "url": "https://huggingface.co/Qwen/Qwen-Image-2.1-Turbo"
     },
     "hf:google/embeddinggemma-2": {
       "first_seen": "2026-10-12",
@@ -89,6 +113,12 @@
       "issue": "2026-42",
       "title": "Show HN: Let your AI agents paint big arrows, boxes and text on your screen",
       "url": "https://github.com/franzenzenhofer/big-arrow-on-the-screen"
+    },
+    "https://github.com/openai/math/blob/main/history.md": {
+      "first_seen": "2026-10-12",
+      "issue": "2026-42",
+      "title": "OpenAI Pulls 3 Math Papers After Finding a Sign Error",
+      "url": "https://github.com/openai/math/blob/main/history.md"
     },
     "https://openai.com/index/gpt-6-for-everyone": {
       "first_seen": "2026-10-12",
@@ -143,6 +173,12 @@
       "issue": "2026-42",
       "title": "Claude Code v2.1.296 adds subagent auto-compact settings and a workflow model override",
       "url": "https://github.com/anthropics/claude-code/releases/tag/v2.1.296"
+    },
+    "release:cline/cline:desktop-v0.0.45": {
+      "first_seen": "2026-10-12",
+      "issue": "2026-42",
+      "title": "Cline desktop-v0.0.45: SSH remotes work again and the app stops reconnecting too often",
+      "url": "https://github.com/cline/cline/releases/tag/desktop-v0.0.45"
     },
     "release:google-gemini/gemini-cli:v0.63.0": {
       "first_seen": "2026-10-12",
