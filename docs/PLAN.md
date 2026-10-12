@@ -55,6 +55,8 @@ All scheduled workflows also have `workflow_dispatch` with a `dry_run` option. `
 | 006 | Discord sender (preview/publish, publish_enabled) | done (273 tests) |
 | 007 | GitHub Actions workflows, Pages deploy, owner README | done (289 tests) |
 | 008 | Quality fixes from first dry run (HF repacks, empty quick hits, long headlines) | done (349 tests) |
+| 009 | Bilingual (EN/中文) snack-sized content, emoji, source images | done (413 tests) |
+| 010 | Colourful bilingual site (/zh/) and two Discord messages | done (422 tests) |
 
 ## Decisions
 - 2026-10-12: Repo at `~/weekly-diff`, GitHub `327979420/weekly-diff` (public). Pages source: GitHub Actions.

@@ -1,11 +1,12 @@
 {% extends 'base.html' %}
 {% block content %}
-<h1>Archive</h1>
+<h1>{{ strings.archive }}</h1>
 {% for view in views %}
-<article>
+<article class="card archive-card">
   <h2><a href="{{ view.path }}">{{ view.title }}</a></h2>
+  {% if view.missing %}<small>{{ strings.missing }}</small>{% endif %}
   <p class="period">{{ view.period }}</p>
   {% if view.issue.sixty_seconds %}<p>{{ view.issue.sixty_seconds[0] }}</p>{% endif %}
 </article>
-{% else %}<p>{{ cfg.name }} — first issue coming soon.</p>{% endfor %}
+{% else %}<p>{{ cfg.name }} — {{ strings.soon }}</p>{% endfor %}
 {% endblock %}

@@ -1,0 +1,6 @@
+{% macro feed_description(issue, cfg, strings, missing) %}
+{% if missing %}<p>{{ strings.missing }}</p>{% endif %}
+<h2>{{ strings.sixty }}</h2>
+<ul>{% for bullet in issue.sixty_seconds %}<li>{{ bullet }}</li>{% endfor %}</ul>
+<ul>{% for section in cfg.issue.sections %}{% for item in issue.sections.get(section.key, []) %}<li><a href="{{ item.source_url }}">{{ item.headline }}</a></li>{% endfor %}{% endfor %}</ul>
+{% endmacro %}

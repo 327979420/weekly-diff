@@ -2,9 +2,9 @@
 <rss version="2.0">
   <channel>
     <title>{{ cfg.name }}</title>
-    <link>{{ cfg.site.base_url }}/</link>
-    <description>{{ cfg.tagline }}</description>
-    <language>{{ cfg.site.language }}</language>
+    <link>{{ base_url }}</link>
+    <description>{{ tagline }}</description>
+    <language>{{ html_lang }}</language>
     {% for view in views %}
     <item>
       <title>{{ view.title }}</title>
@@ -16,8 +16,3 @@
     {% endfor %}
   </channel>
 </rss>
-{% macro feed_description(issue, cfg) %}
-<h2>This week in 60 seconds</h2>
-<ul>{% for bullet in issue.sixty_seconds %}<li>{{ bullet }}</li>{% endfor %}</ul>
-<ul>{% for section in cfg.issue.sections %}{% for item in issue.sections.get(section.key, []) %}<li><a href="{{ item.source_url }}">{{ item.headline }}</a></li>{% endfor %}{% endfor %}</ul>
-{% endmacro %}

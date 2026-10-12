@@ -1,4 +1,4 @@
 {% extends 'issue.html' %}
 {% block content %}
-{% if view %}{{ super() }}{% else %}<h1>{{ cfg.name }} — first issue coming soon.</h1>{% endif %}
+{% if view %}{{ super() }}{% else %}<h1>{{ cfg.name }} — {{ strings.soon }}</h1>{% endif %}
 {% endblock %}

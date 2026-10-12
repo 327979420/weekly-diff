@@ -77,33 +77,43 @@ def _fit(texts: list[str], budget: int) -> list[str]:
     return result
 
 
-def _description(bullets: list[str], suffix: str, notice: str) -> str:
+def _description(bullets: list[str], suffix: str, notice: str, heading: str) -> str:
     first = f'{notice}\n\n' if notice else ''
-    return first + '**This week in 60 seconds**\n' + '\n'.join(f'• {b}' for b in bullets) + suffix
+    return first + f'**{heading}**\n' + '\n'.join(f'• {b}' for b in bullets) + suffix
 
 
 def _payload(issue: Issue, cfg: Config, preview: bool, run_url: str | None,
-             notice: str = '') -> dict[str, Any]:
-    page = _link_url(cfg.issue_url(issue.id))
-    suffix = f'\n\n[Read the full issue →]({page})'
+             notice: str = '', language: str = 'en') -> dict[str, Any]:
+    chinese = language == 'zh'
+    page = _link_url(f'{cfg.site.base_url}/zh/issues/{issue.id}/' if chinese else cfg.issue_url(issue.id))
+    heading = '60 秒速览' if chinese else 'This week in 60 seconds'
+    read = '阅读全文 →' if chinese else 'Read the full issue →'
+    source = '原文' if chinese else 'Source'
+    suffix = f'\n\n[{read}]({page})'
     if preview and run_url:
         suffix = f'\n\n[View workflow run]({_link_url(run_url)})' + suffix
-    bullets = [_escape(bullet) for bullet in issue.sixty_seconds[:3]]
-    fixed_description = _length(_description([''] * len(bullets), suffix, notice))
+    bullets = [_escape(issue.sixty_seconds_zh[i] if chinese and i < len(issue.sixty_seconds_zh)
+                       and issue.sixty_seconds_zh[i] else bullet)
+               for i, bullet in enumerate(issue.sixty_seconds[:3])]
+    fixed_description = _length(_description([''] * len(bullets), suffix, notice, heading))
     bullets = _fit(bullets, DESCRIPTION_LIMIT - fixed_description)
-    title = _truncate(('[PREVIEW] ' if preview else '') +
-                      _escape(f'{cfg.name} — Issue {issue.id}'), TITLE_LIMIT)
     items = {item.key: item for item in issue.items()}
+    if any(key not in items for key in issue.top[:FIELD_LIMIT]):
+        raise DiscordError('Issue top references a missing item')
+    top = items[issue.top[0]] if issue.top else None
+    emoji = f'{top.emoji} ' if top and top.emoji else ''
+    label = f'第 {issue.id[5:]} 期' if chinese else f'Issue {issue.id}'
+    title = _truncate(('[PREVIEW] ' if preview else '') +
+                      _escape(f'{emoji}{cfg.name} — {label}'), TITLE_LIMIT)
     names, summaries, links = [], [], []
-    for number, key in enumerate(issue.top[:FIELD_LIMIT], 1):
-        if key not in items:
-            raise DiscordError('Issue top references a missing item')
+    for key in issue.top[:FIELD_LIMIT]:
         item = items[key]
-        link = f' [Source]({_link_url(item.source_url)})'
+        text = (item.zh or {}) if chinese else {}
+        link = f' [{source}]({_link_url(item.source_url)})'
         if _length(link) >= FIELD_VALUE_LIMIT:
             raise DiscordError('Source link exceeds Discord field limit')
-        names.append(_truncate(f'{number}. {_escape(item.headline)}', TITLE_LIMIT))
-        summaries.append(_truncate(_escape(item.summary), FIELD_VALUE_LIMIT - _length(link)))
+        names.append(_truncate(_escape(f'{item.emoji or ""} {text.get("headline") or item.headline}'.strip()), TITLE_LIMIT))
+        summaries.append(_truncate(_escape(text.get("summary") or item.summary), FIELD_VALUE_LIMIT - _length(link)))
         links.append(link)
     fixed = fixed_description + sum(map(_length, links))
     if preview:
@@ -113,19 +123,21 @@ def _payload(issue: Issue, cfg: Config, preview: bool, run_url: str | None,
     bullets, parts = parts[:len(bullets)], parts[len(bullets):]
     names, summaries = parts[:len(names)], parts[len(names):]
     embed: dict[str, Any] = {
-        'title': title, 'url': cfg.issue_url(issue.id), 'color': cfg.discord.color,
-        'description': _description(bullets, suffix, notice),
+        'title': title, 'url': page, 'color': cfg.discord.color,
+        'description': _description(bullets, suffix, notice, heading),
         'fields': [{'name': name, 'value': summary + link, 'inline': False}
                    for name, summary, link in zip(names, summaries, links)],
     }
+    if top and top.image_url:
+        embed['image'] = {'url': _link_url(top.image_url)}
     if preview:
         embed['footer'] = {'text': PREVIEW_FOOTER}
     return {'username': cfg.name, 'allowed_mentions': {'parse': []}, 'embeds': [embed]}
 
 
 def build_payload(issue: Issue, cfg: Config, preview: bool,
-                  run_url: str | None) -> dict[str, Any]:
-    return _payload(issue, cfg, preview, run_url)
+                  run_url: str | None, language: str = 'en') -> dict[str, Any]:
+    return _payload(issue, cfg, preview, run_url, language=language)
 
 
 def _retry_after(response: requests.Response) -> float:
@@ -187,9 +199,10 @@ def publish(cfg: Config, issue: Issue, preview_flag: bool, dry_run: bool,
     preview = preview_flag or not cfg.publish_enabled
     target = 'preview' if preview else 'public'
     notice = DISABLED_NOTICE if not preview_flag and not cfg.publish_enabled else ''
-    payload = _payload(issue, cfg, preview, _run_url(env), notice)
+    payloads = [_payload(issue, cfg, preview, _run_url(env), notice, language)
+                for language in ('en', 'zh')]
     if dry_run:
-        output = json.dumps({'target': target, 'payload': payload}, ensure_ascii=False, indent=2)
+        output = json.dumps({'target': target, 'payloads': payloads}, ensure_ascii=False, indent=2)
         print(redact(output))
         return 'dry-run'
     key = 'DISCORD_PREVIEW_WEBHOOK_URL' if preview else 'DISCORD_WEBHOOK_URL'
@@ -201,7 +214,11 @@ def publish(cfg: Config, issue: Issue, preview_flag: bool, dry_run: bool,
         return 'skipped: DISCORD_PREVIEW_WEBHOOK_URL not set'
     http = Http(cfg)
     try:
-        send(payload, webhook, http)
+        send(payloads[0], webhook, http)
+        try:
+            send(payloads[1], webhook, http)
+        except DiscordError as error:
+            raise DiscordError(f'Chinese message failed after English was sent: {error}') from None
     finally:
         http.close()
     return target

@@ -1,0 +1,5 @@
+- Changes: Shared EN/中文 templates, mirrored pages/RSS and counterpart links, field-level fallback, colourful responsive light/dark cards, thumbnails and expandable details.
+- Changes: Ordered English then Chinese Discord messages with localized content/links, top-item image, existing routing/limits/safety, and explicit partial-delivery errors without resending English.
+- Testing: `.venv/bin/python -m pytest -q` → 422 passed; `git diff --check` → passed. Tests cover bilingual fixtures, escaping, fallback, routing, limits, failures, 4.5:1 text contrast and the 60 KB budget.
+- Unfinished: Browser visual inspection blocked: headless Chrome could not start; browser automatic approval review rejected local-preview access because permission was declined.
+- Questions: None. No commits, pushes or configuration changes.

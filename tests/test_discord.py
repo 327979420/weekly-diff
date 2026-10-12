@@ -47,7 +47,7 @@ def test_payload(cfg: Config, issue: Issue) -> None:
     items = {item.key: item for item in issue.items()}
     for n, (key, field) in enumerate(zip(issue.top, embed['fields']), 1):
         headline = items[key].headline.replace('>', '\\>')
-        assert field == {'name': f'{n}. {headline}',
+        assert field == {'name': headline,
                          'value': f'{items[key].summary} [Source]({items[key].source_url})',
                          'inline': False}
     assert 'footer' not in embed
@@ -74,15 +74,20 @@ def test_escaping(cfg: Config, issue: Issue) -> None:
     assert embed['fields'][0]['value'].endswith(f'[Source]({item.source_url})')
 
 
+@pytest.mark.parametrize('language', ['en', 'zh'])
 @pytest.mark.parametrize('count', [5, 30])
-def test_limits(cfg: Config, issue: Issue, count: int) -> None:
+def test_limits(cfg: Config, issue: Issue, count: int, language: str) -> None:
     original = next(issue.items())
     issue.sections = {'models': [replace(original, key=str(n), headline='🛠️*' * 1000,
                                          summary=CASES['markdown'] * 1000) for n in range(count)]}
     issue.top = [item.key for item in issue.items()]
     issue.sixty_seconds = [CASES['markdown'] * 1000] * 3
     cfg = replace(cfg, name='Roundup' * 100)
-    embed = discord.build_payload(issue, cfg, True, None)['embeds'][0]
+    for item in issue.items():
+        item.zh = {'headline': item.headline, 'summary': item.summary}
+    issue.sixty_seconds_zh = issue.sixty_seconds[:]
+    embed = discord.build_payload(issue, cfg, True, None, language)['embeds'][0]
+    source = '原文' if language == 'zh' else 'Source'
     def size(text: str) -> int:
         return len(text.encode('utf-16-le')) // 2
     assert size(embed['title']) <= 256
@@ -92,11 +97,11 @@ def test_limits(cfg: Config, issue: Issue, count: int) -> None:
     for field in embed['fields']:
         assert size(field['name']) <= 256
         assert size(field['value']) <= 1024
-        assert field['value'].endswith(f'[Source]({original.source_url})')
+        assert field['value'].endswith(f'[{source}]({original.source_url})')
         total += size(field['name']) + size(field['value'])
     assert total <= 6000
     assert '…' in str(embed)
-    assert embed['description'].endswith(f'[Read the full issue →]({cfg.issue_url(issue.id)})')
+    assert embed['description'].endswith(f']({embed["url"]})')
 
 
 @pytest.mark.parametrize(('enabled', 'flag', 'target'), [
@@ -109,14 +114,19 @@ def test_routing(cfg: Config, issue: Issue, offline_http: responses.RequestsMock
            **CASES['run_env']}
     offline_http.post(CASES[target] + '?wait=true', json=CASES['success'])
     assert discord.publish(replace(cfg, publish_enabled=enabled), issue, flag, False, env) == target
-    assert len(offline_http.calls) == 1
-    request = offline_http.calls[0].request
-    assert request.url == CASES[target] + '?wait=true'
-    assert request.headers['User-Agent'] == cfg.sources.user_agent
-    embed = json.loads(request.body)['embeds'][0]
-    assert embed['title'].startswith('[PREVIEW]') == (target == 'preview')
-    assert embed['description'].startswith(discord.DISABLED_NOTICE) == (not enabled and not flag)
-    assert ('/actions/runs/1234' in embed['description']) == (target == 'preview')
+    assert len(offline_http.calls) == 2
+    for language, call in zip(('en', 'zh'), offline_http.calls):
+        request = call.request
+        assert request.url == CASES[target] + '?wait=true'
+        assert request.headers['User-Agent'] == cfg.sources.user_agent
+        payload = json.loads(request.body)
+        assert payload['allowed_mentions'] == {'parse': []}
+        embed = payload['embeds'][0]
+        assert embed['title'].startswith('[PREVIEW]') == (target == 'preview')
+        assert embed['description'].startswith(discord.DISABLED_NOTICE) == (not enabled and not flag)
+        assert ('/actions/runs/1234' in embed['description']) == (target == 'preview')
+        assert ('/zh/issues/' in embed['url']) == (language == 'zh')
+        assert ('第 42 期' in embed['title']) == (language == 'zh')
 
 
 def test_missing_hooks(cfg: Config, issue: Issue, offline_http: responses.RequestsMock,
@@ -134,7 +144,8 @@ def test_dry_run(cfg: Config, issue: Issue, offline_http: responses.RequestsMock
     assert discord.publish(replace(cfg, publish_enabled=enabled), issue, False, True, {}) == 'dry-run'
     output = json.loads(capsys.readouterr().out)
     assert output['target'] == ('public' if enabled else 'preview')
-    assert output['payload']['allowed_mentions'] == {'parse': []}
+    assert len(output['payloads']) == 2
+    assert all(payload['allowed_mentions'] == {'parse': []} for payload in output['payloads'])
     assert '/api/webhooks/' not in str(output)
     assert not offline_http.calls
 
@@ -287,3 +298,50 @@ def test_dry_run_prefers_saved_issue(cfg: Config, issue: Issue, tmp_path: Path,
     with patch('weekly_diff.pipeline.publish_discord', return_value='dry-run') as publish:
         pipeline.publish(cfg, Namespace(issue=issue.id, preview=False, dry_run=True))
         assert publish.call_args.args[1] == issue
+
+
+def test_bilingual_payloads(cfg: Config, offline_http: responses.RequestsMock) -> None:
+    issue = Issue.from_dict(json.loads((FIXTURES / 'bilingual_issues/2026-42.json').read_text()))
+    item = next(issue.items())
+    item.zh['headline'] = item.zh['summary'] = CASES['markdown']
+    issue.sixty_seconds_zh[0] = CASES['markdown']
+    offline_http.post(CASES['public'] + '?wait=true', json=CASES['success'])
+    discord.publish(replace(cfg, publish_enabled=True), issue, False, False,
+                    {'DISCORD_WEBHOOK_URL': CASES['public']})
+    english, chinese = [json.loads(call.request.body)['embeds'][0] for call in offline_http.calls]
+    assert english['title'] == f'{item.emoji} {cfg.name} — Issue {issue.id}'
+    assert chinese['title'] == f'{item.emoji} {cfg.name} — 第 42 期'
+    assert chinese['url'] == f'{cfg.site.base_url}/zh/issues/{issue.id}/'
+    assert chinese['description'].startswith('**60 秒速览**')
+    assert chinese['description'].endswith(f'[阅读全文 →]({chinese["url"]})')
+    for embed in (english, chinese):
+        assert embed['image'] == {'url': item.image_url}
+        assert embed['fields'][0]['name'].startswith(item.emoji + ' ')
+    assert chinese['fields'][0]['value'].endswith(f'[原文]({item.source_url})')
+    for text in (chinese['description'], chinese['fields'][0]['name'], chinese['fields'][0]['value']):
+        assert '@everyone' not in text and '@here' not in text
+        assert '@\u200beveryone' in text
+        assert '\\[link\\]' in text
+    item.image_url = None
+    item.zh = {'headline': '中文标题'}
+    chinese = discord.build_payload(issue, cfg, False, None, 'zh')['embeds'][0]
+    assert 'image' not in chinese
+    assert chinese['fields'][0]['name'] == f'{item.emoji} 中文标题'
+    assert chinese['fields'][0]['value'].startswith(item.summary)
+
+
+@pytest.mark.parametrize('status', [500, 429])
+def test_second_message_failure_never_resends_english(cfg: Config, issue: Issue,
+                                                     offline_http: responses.RequestsMock,
+                                                     status: int) -> None:
+    url = CASES['public'] + '?wait=true'
+    offline_http.post(url, json=CASES['success'])
+    offline_http.post(url, status=status, json=CASES['rate_limit'])
+    with patch('weekly_diff.discord.time.sleep'):
+        with pytest.raises(discord.DiscordError, match=f'Chinese message failed after English was sent: {status}'):
+            discord.publish(replace(cfg, publish_enabled=True), issue, False, False,
+                            {'DISCORD_WEBHOOK_URL': CASES['public']})
+    titles = [json.loads(call.request.body)['embeds'][0]['title'] for call in offline_http.calls]
+    assert len(titles) == (4 if status == 429 else 2)
+    assert 'Issue 2026-42' in titles[0]
+    assert all('第 42 期' in title for title in titles[1:])
