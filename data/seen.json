@@ -1,4 +1,113 @@
 {
-  "version": 1,
-  "items": {}
+  "items": {
+    "github:franzenzenhofer/big-arrow-on-the-screen": {
+      "first_seen": "2026-10-12",
+      "issue": "2026-42",
+      "title": "big-arrow-on-the-screen: an MIT-licensed macOS CLI that lets AI agents draw arrows over",
+      "url": "https://github.com/franzenzenhofer/big-arrow-on-the-screen"
+    },
+    "github:openai/math": {
+      "first_seen": "2026-10-12",
+      "issue": "2026-42",
+      "title": "OpenAI releases 719 AI-produced math manuscripts with partial Lean formalizations",
+      "url": "https://github.com/openai/math"
+    },
+    "github:wheresryan22/anatomy": {
+      "first_seen": "2026-10-12",
+      "issue": "2026-42",
+      "title": "Anatomy: a Claude skill that builds technical ideas as interactive isometric machines",
+      "url": "https://github.com/wheresryan22/anatomy"
+    },
+    "github:zhongerxin/iphone-use": {
+      "first_seen": "2026-10-12",
+      "issue": "2026-42",
+      "title": "iPhone Use lets Codex operate a real iPhone over USB through WebDriverAgent",
+      "url": "https://github.com/zhongerxin/iPhone-use"
+    },
+    "hf:Qwen/Qwen-Image-2.1": {
+      "first_seen": "2026-10-12",
+      "issue": "2026-42",
+      "title": "Qwen-Image-2.1 Open-Sourced for Text-to-Image, Editing and Transparent RGBA Output",
+      "url": "https://huggingface.co/Qwen/Qwen-Image-2.1"
+    },
+    "hf:google/embeddinggemma-2": {
+      "first_seen": "2026-10-12",
+      "issue": "2026-42",
+      "title": "Google releases EmbeddingGemma 2, an open multimodal embedding model for text, images",
+      "url": "https://huggingface.co/google/embeddinggemma-2"
+    },
+    "https://github.blog/changelog/2026-10-07-claude-haiku-5-5-in-github-copilot": {
+      "first_seen": "2026-10-12",
+      "issue": "2026-42",
+      "title": "Claude Haiku 5.5 in GitHub Copilot",
+      "url": "https://github.blog/changelog/2026-10-07-claude-haiku-5-5-in-github-copilot"
+    },
+    "https://github.com/docker/docker-agent": {
+      "first_seen": "2026-10-12",
+      "issue": "2026-42",
+      "title": "Docker Agent: build and run AI agents from YAML config as a Docker CLI plugin",
+      "url": "https://github.com/docker/docker-agent"
+    },
+    "https://github.com/franzenzenhofer/big-arrow-on-the-screen": {
+      "first_seen": "2026-10-12",
+      "issue": "2026-42",
+      "title": "Show HN: Let your AI agents paint big arrows, boxes and text on your screen",
+      "url": "https://github.com/franzenzenhofer/big-arrow-on-the-screen"
+    },
+    "https://openai.com/index/gpt-6-for-everyone": {
+      "first_seen": "2026-10-12",
+      "issue": "2026-42",
+      "title": "GPT-6 brings Intelligent UI to ChatGPT, with interactive visual answers",
+      "url": "https://openai.com/index/gpt-6-for-everyone"
+    },
+    "https://openai.com/index/gpt-6-for-everyone/": {
+      "first_seen": "2026-10-12",
+      "issue": "2026-42",
+      "title": "GPT\u20116 and Intelligent UI for everyone",
+      "url": "https://openai.com/index/gpt-6-for-everyone"
+    },
+    "https://openai.com/index/sharing-ai-progress-in-mathematics": {
+      "first_seen": "2026-10-12",
+      "issue": "2026-42",
+      "title": "OpenAI shares new AI-produced math results via GitHub with Lean formalizations",
+      "url": "https://openai.com/index/sharing-ai-progress-in-mathematics"
+    },
+    "https://openai.com/index/sharing-ai-progress-in-mathematics/": {
+      "first_seen": "2026-10-12",
+      "issue": "2026-42",
+      "title": "Sharing AI progress in mathematics",
+      "url": "https://openai.com/index/sharing-ai-progress-in-mathematics"
+    },
+    "https://reflection.ai/blog/introducing-beam": {
+      "first_seen": "2026-10-12",
+      "issue": "2026-42",
+      "title": "Reflection introduces Beam, a 501B open-weight model for coding and agentic work",
+      "url": "https://reflection.ai/blog/introducing-beam"
+    },
+    "https://www.anthropic.com/claude-haiku-5-5": {
+      "first_seen": "2026-10-12",
+      "issue": "2026-42",
+      "title": "Anthropic releases Claude Haiku 5.5, a cheaper, faster small model for high-volume tasks",
+      "url": "https://anthropic.com/claude-haiku-5-5"
+    },
+    "release:OpenHands/OpenHands:v1.26.0": {
+      "first_seen": "2026-10-12",
+      "issue": "2026-42",
+      "title": "OpenHands v1.26.0 adds verify-openhands skill and many UI and accessibility fixes",
+      "url": "https://github.com/OpenHands/OpenHands/releases/tag/v1.26.0"
+    },
+    "release:anthropics/claude-code:v2.1.296": {
+      "first_seen": "2026-10-12",
+      "issue": "2026-42",
+      "title": "Claude Code v2.1.296 adds subagent auto-compact settings and a workflow model override",
+      "url": "https://github.com/anthropics/claude-code/releases/tag/v2.1.296"
+    },
+    "release:openai/codex:rust-v0.162.1": {
+      "first_seen": "2026-10-12",
+      "issue": "2026-42",
+      "title": "Codex CLI rust-v0.162.1 fixes a TUI crash with multiline questions and a startup failure",
+      "url": "https://github.com/openai/codex/releases/tag/rust-v0.162.1"
+    }
+  },
+  "version": 1
 }
