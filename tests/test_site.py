@@ -104,7 +104,7 @@ def test_missing_sections_and_optional_fields(tmp_path: Path) -> None:
     render_site(load_config(), source, tmp_path / 'site')
     soup = BeautifulSoup((tmp_path / 'site/index.html').read_text(), 'html.parser')
     assert [s['id'] for s in soup.select('section[id]')] == ['models']
-    assert 'For builders:' not in soup.get_text()
+    assert 'How to try it:' not in soup.get_text()
     assert 'stars this week' not in soup.get_text()
 
 
@@ -267,3 +267,16 @@ def test_theme_text_contrast() -> None:
         for foreground, background in pairs:
             light, dark = sorted([luminance(colors[foreground]), luminance(colors[background])], reverse=True)
             assert (light + .05) / (dark + .05) >= 4.5, (foreground, background)
+
+
+@pytest.mark.parametrize('fixtures', [FIXTURES, BILINGUAL])
+def test_reader_labels_on_current_and_old_issues(tmp_path: Path, fixtures: Path) -> None:
+    render_site(load_config(), fixtures, tmp_path)
+    for prefix, why, first_step in [('', "Why you'd care:", 'How to try it:'),
+                                     ('zh/', '对你有什么用：', '怎么上手：')]:
+        soup = BeautifulSoup((tmp_path / prefix / 'index.html').read_text(), 'html.parser')
+        labels = [tag.text for tag in soup.select('article strong')]
+        assert why in labels
+        assert first_step in labels
+        assert 'Why it matters:' not in labels
+        assert 'For builders:' not in labels

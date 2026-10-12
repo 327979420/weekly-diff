@@ -89,6 +89,8 @@ def _payload(issue: Issue, cfg: Config, preview: bool, run_url: str | None,
     heading = '60 秒速览' if chinese else 'This week in 60 seconds'
     read = '阅读全文 →' if chinese else 'Read the full issue →'
     source = '原文' if chinese else 'Source'
+    why = '对你有什么用' if chinese else "Why you'd care"
+    builders = '怎么上手' if chinese else 'How to try it'
     suffix = f'\n\n[{read}]({page})'
     if preview and run_url:
         suffix = f'\n\n[View workflow run]({_link_url(run_url)})' + suffix
@@ -113,7 +115,12 @@ def _payload(issue: Issue, cfg: Config, preview: bool, run_url: str | None,
         if _length(link) >= FIELD_VALUE_LIMIT:
             raise DiscordError('Source link exceeds Discord field limit')
         names.append(_truncate(_escape(f'{item.emoji or ""} {text.get("headline") or item.headline}'.strip()), TITLE_LIMIT))
-        summaries.append(_truncate(_escape(text.get("summary") or item.summary), FIELD_VALUE_LIMIT - _length(link)))
+        copy = [_escape(text.get("summary") or item.summary),
+                f'**{why}:** {_escape(text.get("why_it_matters") or item.why_it_matters)}']
+        first_step = text.get("for_builders") or item.for_builders
+        if first_step:
+            copy.append(f'**{builders}:** {_escape(first_step)}')
+        summaries.append(_truncate('\n'.join(copy), FIELD_VALUE_LIMIT - _length(link)))
         links.append(link)
     fixed = fixed_description + sum(map(_length, links))
     if preview:

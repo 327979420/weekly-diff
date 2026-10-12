@@ -67,6 +67,11 @@ def _copy_problems(copy: dict, cfg: Config, *, chinese: bool) -> list[str]:
     summary = copy.get('summary')
     if isinstance(summary, str) and not single_sentence(summary.translate(str.maketrans('。！？', '.!?'))):
         problems.append(f'{prefix}summary must be a single sentence')
+    if isinstance(summary, str):
+        addresses_reader = '你' in summary if chinese else bool(re.search(r'\b(?:you|your)\b', summary, re.I))
+        if not addresses_reader:
+            required = '你' if chinese else 'you or your'
+            problems.append(f'{prefix}summary must address the reader using {required}')
     return problems
 
 

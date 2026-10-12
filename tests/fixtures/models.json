@@ -23,7 +23,7 @@
     "key": "a",
     "section": "models",
     "headline": "Test",
-    "summary": "Summary",
+    "summary": "You can use the updated tool.",
     "why_it_matters": "Context",
     "for_builders": null,
     "tag": "builders",
@@ -35,7 +35,7 @@
     "emoji": "🛠️",
     "zh": {
       "headline": "工具更新",
-      "summary": "工具已更新。",
+      "summary": "你可以使用更新后的工具。",
       "why_it_matters": "方便开发者使用。",
       "for_builders": null
     }

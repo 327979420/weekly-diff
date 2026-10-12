@@ -1,0 +1,7 @@
+- Changes: Rewrote bilingual item and sixty-second prompts for plain, reader-first copy, with source-grounded examples and concrete first steps.
+- Changes: Added English/Chinese reader-address validation using the existing one-retry path; existing numeric checks and JSON fields remain unchanged.
+- Changes: Updated website labels and added labelled relevance/first-step lines to Discord, retaining escaping, source links and payload limits.
+- Testing: `.venv/bin/python -m pytest -q` → 439 passed; covers corrective retries, reader-address boundaries, archived issue rendering and bilingual Discord labels/escaping.
+- Testing: `git diff --check` → passed.
+- Unfinished: None.
+- Questions: None.

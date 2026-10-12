@@ -18,13 +18,13 @@ from weekly_diff.models import Issue
 
 STRINGS = {
     'en': dict(latest='Latest', archive='Archive', sixty='This week in 60 seconds',
-               more='More', why='Why it matters:', builders='For builders:', source='Source ↗',
+               more='More', why="Why you'd care:", builders='How to try it:', source='Source ↗',
                stars='+{n} ★ this week', issue='Issue {id}', soon='first issue coming soon.',
                missing='', skip='Skip to content', navigation='Main navigation',
                browse='Browse all issues', subscribe='Subscribe via RSS',
                not_found='Page not found', lost='This page could not be found.'),
     'zh': dict(latest='最新一期', archive='往期归档', sixty='60 秒速览',
-               more='展开', why='为什么重要：', builders='开发者提示：', source='原文 ↗',
+               more='展开', why='对你有什么用：', builders='怎么上手：', source='原文 ↗',
                stars='本周 +{n} ★', issue='第 {week} 期 · {year}', soon='首期即将发布。',
                missing='本期暂无中文版', skip='跳至正文', navigation='主导航',
                browse='浏览全部期刊', subscribe='通过 RSS 订阅',

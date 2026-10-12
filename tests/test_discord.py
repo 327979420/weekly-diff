@@ -47,8 +47,11 @@ def test_payload(cfg: Config, issue: Issue) -> None:
     items = {item.key: item for item in issue.items()}
     for n, (key, field) in enumerate(zip(issue.top, embed['fields']), 1):
         headline = items[key].headline.replace('>', '\\>')
+        value = f"{items[key].summary}\n**Why you'd care:** {discord._escape(items[key].why_it_matters)}"
+        if items[key].for_builders:
+            value += f"\n**How to try it:** {discord._escape(items[key].for_builders)}"
         assert field == {'name': headline,
-                         'value': f'{items[key].summary} [Source]({items[key].source_url})',
+                         'value': value + f' [Source]({items[key].source_url})',
                          'inline': False}
     assert 'footer' not in embed
     run_url = 'https://github.com/example/roundup/actions/runs/1234'
@@ -345,3 +348,18 @@ def test_second_message_failure_never_resends_english(cfg: Config, issue: Issue,
     assert len(titles) == (4 if status == 429 else 2)
     assert 'Issue 2026-42' in titles[0]
     assert all('第 42 期' in title for title in titles[1:])
+
+
+@pytest.mark.parametrize('language', ['en', 'zh'])
+@pytest.mark.parametrize('first_step', [False, True])
+def test_reader_labels_and_safe_details(cfg: Config, issue: Issue, language: str, first_step: bool) -> None:
+    item = next(issue.items())
+    issue.top = [item.key]
+    item.why_it_matters = CASES['markdown']
+    item.for_builders = CASES['markdown'] if first_step else None
+    item.zh = {'why_it_matters': item.why_it_matters, 'for_builders': item.for_builders}
+    value = discord.build_payload(issue, cfg, False, None, language)['embeds'][0]['fields'][0]['value']
+    why, how = ('对你有什么用', '怎么上手') if language == 'zh' else ("Why you'd care", 'How to try it')
+    assert f'**{why}:** {discord._escape(CASES["markdown"])}' in value
+    assert (f'**{how}:**' in value) == first_step
+    assert '@everyone' not in value and '@here' not in value

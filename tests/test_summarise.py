@@ -115,3 +115,20 @@ def test_bilingual_schema_and_token_budget() -> None:
     assert call['max_tokens'] == cfg.content.summarise_max_tokens
     assert set(call['schema']['properties']['zh']['required']) == set(GOOD['zh'])
     assert 'image_url' not in call['schema']['properties']
+
+
+@pytest.mark.parametrize('chinese', [False, True])
+@pytest.mark.parametrize('corrected', [False, True])
+def test_reader_address_retries_once(chinese: bool, corrected: bool) -> None:
+    row = {**GOOD, 'zh': dict(GOOD['zh'])}
+    if chinese:
+        row['zh']['summary'] = '子代理可以比主对话更早自动压缩上下文。'
+    else:
+        row['summary'] = 'Subagents can auto-compact earlier than the main conversation.'
+    fake = FakeLLM([row, GOOD if corrected else row])
+    item = summarise(SCORED, SOURCE, load_config(), fake)
+    assert (item is not None) == corrected
+    assert len(fake.calls) == 2
+    prefix, required = ('zh.', '你') if chinese else ('', 'you or your')
+    assert json.loads(fake.calls[1]['user'])['validation_problems'] == [
+        f'{prefix}summary must address the reader using {required}']

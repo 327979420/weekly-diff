@@ -76,11 +76,11 @@ def test_issue_rejections(kind: str) -> None:
 def test_saved_evidence_is_revalidated() -> None:
     original = issue()
     item = original.sections['models'][0]
-    item.summary = 'Version v2.1 supports 1,000 requests.'
+    item.summary = 'You can use v2.1 for 1,000 requests.'
     item.extra = {'source_text': 'Supports 1 000 requests.', 'candidate_title': 'Version v2.1'}
     restored = Issue.from_dict(original.to_dict())
     assert not validate_issue(restored, load_config())
-    restored.sections['models'][0].summary = 'Version v2.1 supports 2,000 requests.'
+    restored.sections['models'][0].summary = 'You can use v2.1 for 2,000 requests.'
     assert any('unsupported number' in problem for problem in validate_issue(restored, load_config()))
 
 
@@ -111,7 +111,7 @@ def test_chinese_validation(field: str, value: str, problem: str) -> None:
 
 @pytest.mark.parametrize('field', ['headline', 'summary', 'why_it_matters', 'for_builders'])
 def test_chinese_numbers_require_evidence(field: str) -> None:
-    item = replace(BASE, zh={**BASE.zh, field: '支持 v2.1，处理 999 次请求'})
+    item = replace(BASE, zh={**BASE.zh, field: '你可以用 v2.1 处理 999 次请求'})
     assert any('999' in p for p in validate_item(item, 'v2.1', load_config()))
     assert not validate_item(item, 'v2.1 supports 999 requests', load_config())
 
@@ -124,3 +124,24 @@ def test_invalid_emoji(emoji: str | None) -> None:
 @pytest.mark.parametrize('emoji', ['🚀', '🛠️', '👩🏽\u200d💻', '🇨🇳', '1️⃣'])
 def test_valid_emoji(emoji: str) -> None:
     assert not validate_item(replace(BASE, emoji=emoji), '', load_config())
+
+
+@pytest.mark.parametrize(('summary', 'valid'), [
+    ('You can use the tool.', True), ('It helps YOUR work.', True),
+    ('A tool for young builders.', False), ('A tool for yourself.', False),
+    ('The tool has been updated.', False),
+])
+def test_english_summary_addresses_reader(summary: str, valid: bool) -> None:
+    problems = validate_item(replace(BASE, summary=summary), '', load_config())
+    assert (not problems) == valid
+    if not valid:
+        assert problems == ['summary must address the reader using you or your']
+
+
+@pytest.mark.parametrize(('summary', 'valid'), [('你可以使用这个工具。', True), ('工具已更新。', False)])
+def test_chinese_summary_addresses_reader(summary: str, valid: bool) -> None:
+    item = replace(BASE, zh={**BASE.zh, 'summary': summary})
+    problems = validate_item(item, '', load_config())
+    assert (not problems) == valid
+    if not valid:
+        assert problems == ['zh.summary must address the reader using 你']
