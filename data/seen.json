@@ -1,16 +1,34 @@
 {
   "items": {
+    "github:aindeev/agent-chrome-relay": {
+      "first_seen": "2026-10-12",
+      "issue": "2026-42",
+      "title": "Let AI agents use your signed-in Chrome in background tabs",
+      "url": "https://github.com/aindeev/agent-chrome-relay"
+    },
     "github:franzenzenhofer/big-arrow-on-the-screen": {
       "first_seen": "2026-10-12",
       "issue": "2026-42",
       "title": "big-arrow-on-the-screen: an MIT-licensed macOS CLI that lets AI agents draw arrows over",
       "url": "https://github.com/franzenzenhofer/big-arrow-on-the-screen"
     },
+    "github:morluto/awesome-reverse-engineering": {
+      "first_seen": "2026-10-12",
+      "issue": "2026-42",
+      "title": "A curated reverse-engineering guide, sorted by the task you need to do",
+      "url": "https://github.com/morluto/awesome-reverse-engineering"
+    },
     "github:openai/math": {
       "first_seen": "2026-10-12",
       "issue": "2026-42",
       "title": "OpenAI releases 719 AI-produced math manuscripts with partial Lean formalizations",
       "url": "https://github.com/openai/math"
+    },
+    "github:storytold/wordcraft": {
+      "first_seen": "2026-10-12",
+      "issue": "2026-42",
+      "title": "WordCraft: an open-source Word-style editor rebuilt in pure Rust",
+      "url": "https://github.com/storytold/wordcraft"
     },
     "github:wheresryan22/anatomy": {
       "first_seen": "2026-10-12",
@@ -36,11 +54,29 @@
       "title": "Google releases EmbeddingGemma 2, an open multimodal embedding model for text, images",
       "url": "https://huggingface.co/google/embeddinggemma-2"
     },
+    "hf:mistralai/LIDstral-Arabic": {
+      "first_seen": "2026-10-12",
+      "issue": "2026-42",
+      "title": "LIDstral Arabic classifies Arabic dialects and separates them from non-Arabic languages",
+      "url": "https://huggingface.co/mistralai/LIDstral-Arabic"
+    },
     "https://github.blog/changelog/2026-10-07-claude-haiku-5-5-in-github-copilot": {
       "first_seen": "2026-10-12",
       "issue": "2026-42",
       "title": "Claude Haiku 5.5 in GitHub Copilot",
       "url": "https://github.blog/changelog/2026-10-07-claude-haiku-5-5-in-github-copilot"
+    },
+    "https://github.blog/changelog/2026-10-09-github-copilot-weekly-releases-october-5": {
+      "first_seen": "2026-10-12",
+      "issue": "2026-42",
+      "title": "GitHub Copilot adds local sandboxing, separate accounts and local model picks",
+      "url": "https://github.blog/changelog/2026-10-09-github-copilot-weekly-releases-october-5"
+    },
+    "https://github.blog/changelog/2026-10-10-new-controls-and-chat-improvements-in-copilot-for-jetbrains": {
+      "first_seen": "2026-10-12",
+      "issue": "2026-42",
+      "title": "Copilot for JetBrains adds model defaults, faster diagnostic fixes and MCP startup control",
+      "url": "https://github.blog/changelog/2026-10-10-new-controls-and-chat-improvements-in-copilot-for-jetbrains"
     },
     "https://github.com/docker/docker-agent": {
       "first_seen": "2026-10-12",
@@ -96,11 +132,23 @@
       "title": "OpenHands v1.26.0 adds verify-openhands skill and many UI and accessibility fixes",
       "url": "https://github.com/OpenHands/OpenHands/releases/tag/v1.26.0"
     },
+    "release:aaif-goose/goose:v1.54.0": {
+      "first_seen": "2026-10-12",
+      "issue": "2026-42",
+      "title": "Goose v1.54.0 adds HTML session export and a first-time mode prompt",
+      "url": "https://github.com/aaif-goose/goose/releases/tag/v1.54.0"
+    },
     "release:anthropics/claude-code:v2.1.296": {
       "first_seen": "2026-10-12",
       "issue": "2026-42",
       "title": "Claude Code v2.1.296 adds subagent auto-compact settings and a workflow model override",
       "url": "https://github.com/anthropics/claude-code/releases/tag/v2.1.296"
+    },
+    "release:google-gemini/gemini-cli:v0.63.0": {
+      "first_seen": "2026-10-12",
+      "issue": "2026-42",
+      "title": "Gemini CLI v0.63.0 adds retry progress and fixes auth loops, MCP config and more",
+      "url": "https://github.com/google-gemini/gemini-cli/releases/tag/v0.63.0"
     },
     "release:openai/codex:rust-v0.162.1": {
       "first_seen": "2026-10-12",
