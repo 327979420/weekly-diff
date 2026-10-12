@@ -1,0 +1,58 @@
+name: Friday preview
+
+on:
+  schedule:
+    - cron: '0 9 * * 5'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: dry run
+        type: boolean
+        default: true
+
+permissions: {}
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -r requirements.txt
+      - id: status
+        run: python run.py status --github-output
+      # Build normally inside this disposable runner; never commit its data.
+      - name: Collect and build
+        if: github.event_name != 'schedule' || steps.status.outputs.paused != 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ISSUE_ID: ${{ steps.status.outputs.issue_id }}
+        run: |
+          python run.py collect
+          python run.py build --issue "$ISSUE_ID"
+      - name: Publish private preview
+        if: github.event_name != 'schedule' || steps.status.outputs.paused != 'true'
+        env:
+          DISCORD_PREVIEW_WEBHOOK_URL: ${{ secrets.DISCORD_PREVIEW_WEBHOOK_URL }}
+          DRY_RUN: ${{ inputs.dry_run || false }}
+          ISSUE_ID: ${{ steps.status.outputs.issue_id }}
+        run: |
+          flags=()
+          if [[ "$DRY_RUN" == "true" ]]; then flags+=(--dry-run); fi
+          python run.py publish --preview --issue "$ISSUE_ID" "${flags[@]}"
+      - name: Upload preview site
+        if: github.event_name != 'schedule' || steps.status.outputs.paused != 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: site-preview
+          path: site/
+          if-no-files-found: error

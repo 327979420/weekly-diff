@@ -1,0 +1,6 @@
+- Changes: Added CI, weekly issue, Friday preview, and Pages workflows with pause/dry-run gates, scoped permissions/secrets, shared Pages concurrency, and issue artifact handoff after deployment.
+- Changes: Replaced the placeholder README with a 68-line owner guide; added offline YAML workflow tests.
+- Testing: `.venv/bin/python -m pytest -q` → 289 passed.
+- Testing: `git diff --check` → passed.
+- Unfinished: No implementation work outstanding; live GitHub Actions, Pages deployment, and Discord delivery were not exercised locally.
+- Questions: None.

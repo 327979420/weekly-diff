@@ -1,0 +1,118 @@
+name: Weekly issue
+
+on:
+  schedule:
+    - cron: '0 21 * * 0'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: dry run
+        type: boolean
+        default: true
+
+permissions: {}
+concurrency:
+  group: weekly-diff
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      active: ${{ github.event_name != 'schedule' || steps.status.outputs.paused != 'true' }}
+      issue_id: ${{ steps.status.outputs.issue_id }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -r requirements.txt
+      - id: status
+        run: python run.py status --github-output
+      - name: Collect and build
+        if: github.event_name != 'schedule' || steps.status.outputs.paused != 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          DRY_RUN: ${{ inputs.dry_run || false }}
+          ISSUE_ID: ${{ steps.status.outputs.issue_id }}
+        run: |
+          flags=()
+          if [[ "$DRY_RUN" == "true" ]]; then flags+=(--dry-run); fi
+          python run.py collect "${flags[@]}"
+          python run.py build --issue "$ISSUE_ID" "${flags[@]}"
+      - name: Commit issue data
+        if: (github.event_name != 'schedule' || steps.status.outputs.paused != 'true') && !inputs.dry_run
+        env:
+          ISSUE_ID: ${{ steps.status.outputs.issue_id }}
+        run: |
+          git add data/
+          if ! git diff --cached --quiet; then
+            git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m "Issue $ISSUE_ID"
+            git push
+          fi
+      - name: Upload Pages site
+        if: (github.event_name != 'schedule' || steps.status.outputs.paused != 'true') && !inputs.dry_run
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: site/
+      - name: Upload issue for publishing
+        if: (github.event_name != 'schedule' || steps.status.outputs.paused != 'true') && !inputs.dry_run
+        uses: actions/upload-artifact@v7
+        with:
+          name: weekly-issue
+          path: data/issues/${{ steps.status.outputs.issue_id }}.json
+          if-no-files-found: error
+      - name: Upload dry run preview
+        if: (github.event_name != 'schedule' || steps.status.outputs.paused != 'true') && inputs.dry_run
+        uses: actions/upload-artifact@v7
+        with:
+          name: site-preview
+          path: |
+            site/
+            build/dry-run/${{ steps.status.outputs.issue_id }}.json
+          if-no-files-found: error
+
+  deploy:
+    needs: build
+    if: needs.build.outputs.active == 'true' && !inputs.dry_run
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5
+
+  publish:
+    needs: [build, deploy]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -r requirements.txt
+      - uses: actions/download-artifact@v8
+        with:
+          name: weekly-issue
+          path: data/issues/
+      - name: Publish to Discord
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          DISCORD_PREVIEW_WEBHOOK_URL: ${{ secrets.DISCORD_PREVIEW_WEBHOOK_URL }}
+          ISSUE_ID: ${{ needs.build.outputs.issue_id }}
+        run: python run.py publish --issue "$ISSUE_ID"

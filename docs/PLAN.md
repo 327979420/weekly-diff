@@ -53,7 +53,7 @@ All scheduled workflows also have `workflow_dispatch` with a `dry_run` option. `
 | 004 | Source text, summariser, validation, build orchestration | done (229 tests; live LLM run pending key) |
 | 005 | Static website + RSS | done (240 tests) |
 | 006 | Discord sender (preview/publish, publish_enabled) | done (273 tests) |
-| 007 | GitHub Actions workflows, Pages deploy, owner README | pending |
+| 007 | GitHub Actions workflows, Pages deploy, owner README | done (289 tests) |
 
 ## Decisions
 - 2026-10-12: Repo at `~/weekly-diff`, GitHub `327979420/weekly-diff` (public). Pages source: GitHub Actions.
