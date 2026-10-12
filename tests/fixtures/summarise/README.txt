@@ -1,0 +1,1 @@
+source.md is the release body from collectors/releases.json. card.md wraps it in controlled YAML front matter. candidates.json uses controlled identities and sections over that recorded body to exercise quotas and backfill without fuzzy-title collisions. summary.json is a deterministic fake completion grounded in that body. No external calls are used.

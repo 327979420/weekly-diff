@@ -50,7 +50,7 @@ All scheduled workflows also have `workflow_dispatch` with a `dry_run` option. `
 | 001 | Skeleton, config loader, models, logging, run.py CLI, pytest | done (54 tests) |
 | 002 | Collectors (one module per source), fixture tests | done, 1 fix round (115 tests) |
 | 003 | Dedupe, seen.json, LLM module, scoring and selection | done (166 tests) |
-| 004 | Source text, summariser, validation, build orchestration | pending |
+| 004 | Source text, summariser, validation, build orchestration | done (229 tests; live LLM run pending key) |
 | 005 | Static website + RSS | pending |
 | 006 | Discord sender (preview/publish, publish_enabled) | pending |
 | 007 | GitHub Actions workflows, Pages deploy, owner README | pending |

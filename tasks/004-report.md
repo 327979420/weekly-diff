@@ -1,0 +1,4 @@
+- Changes: Added source fetching, grounded summaries with retry/backfill, item/issue validation, sixty-second bullets with fallback, ranked top items, saved build orchestration, and CLI wiring; added offline fixtures/tests.
+- Testing: `.venv/bin/python -m pytest -q` → 229 passed; `git diff --check` → passed.
+- Unfinished: None for task 004; site rendering is guarded and logged pending task 005.
+- Questions: None.

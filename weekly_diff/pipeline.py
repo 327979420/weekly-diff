@@ -5,6 +5,7 @@ import json
 
 from weekly_diff import paths
 from weekly_diff.collect import run_collect
+from weekly_diff.build import run_build
 from weekly_diff.log import redact
 from weekly_diff.config import Config
 
@@ -18,7 +19,7 @@ def collect(cfg: Config, args: Namespace) -> None:
 
 
 def build(cfg: Config, args: Namespace) -> None:
-    raise NotImplementedError("task 004")
+    run_build(cfg, args.issue, datetime.now(timezone.utc), args.dry_run)
 
 
 def render(cfg: Config, args: Namespace) -> None:
