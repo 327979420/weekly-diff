@@ -1,0 +1,6 @@
+{
+  "candidate": {"key": "news:1", "title": "Atlas releases a new reasoning model", "url": "https://openai.com/news/atlas", "source_name": "Lab", "source_type": "rss", "published_at": "2026-10-10T00:00:00+00:00", "text": "Atlas is a new reasoning model.", "primary": true, "section_hint": "models", "signals": {}, "extra": {}},
+  "row": {"id": "news:1", "relevant": true, "section": "models", "tag": "builders", "score": 8, "reason": "A useful new model for builders"},
+  "anthropic": {"stop_reason": "end_turn", "content": [{"type": "text", "text": "{\"items\": []}"}], "usage": {"input_tokens": 12, "output_tokens": 6}},
+  "openai": {"status": "completed", "output": [{"type": "message", "content": [{"type": "output_text", "text": "{\"items\": []}"}]}], "output_text": "{\"items\": []}", "usage": {"input_tokens": 12, "output_tokens": 6}}
+}

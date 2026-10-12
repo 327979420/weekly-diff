@@ -1,0 +1,6 @@
+- Changes: Added canonical URLs, persistent seen identities, primary-source/story/Hugging Face deduplication, and merged-source provenance.
+- Changes: Added swappable Anthropic/OpenAI structured-output clients, safe errors and usage logging, FakeLLM, batched scoring, section selection, backups, and build/selection.json persistence.
+- Testing: `.venv/bin/python -m pytest -q` → 166 passed; all provider calls mocked.
+- Testing: `git diff --check` → passed.
+- Unfinished: None within task 003; build orchestration remains reserved for task 004.
+- Questions: None.
