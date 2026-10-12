@@ -12,5 +12,16 @@
   {"path": ["sources", "rss"], "value": {}, "error": "sources.rss"},
   {"path": ["sources", "html_index", "pages", 0, "url"], "delete": true, "error": "sources.html_index.pages[0].url"},
   {"path": ["paused"], "value": "false", "error": "paused"},
-  {"path": ["llm"], "value": null, "error": "llm"}
+  {"path": ["llm"], "value": null, "error": "llm"},
+  {"path": ["llm", "timeout_seconds"], "value": 0, "error": "llm.timeout_seconds"},
+  {"path": ["llm", "timeout_seconds"], "value": -1, "error": "llm.timeout_seconds"},
+  {"path": ["llm", "timeout_seconds"], "value": true, "error": "llm.timeout_seconds"},
+  {"path": ["llm", "timeout_seconds"], "value": "180", "error": "llm.timeout_seconds"},
+  {"path": ["llm", "timeout_seconds"], "value": null, "error": "llm.timeout_seconds"},
+  {"path": ["llm", "max_retries"], "value": 0, "error": "llm.max_retries"},
+  {"path": ["llm", "max_retries"], "value": -1, "error": "llm.max_retries"},
+  {"path": ["llm", "max_retries"], "value": true, "error": "llm.max_retries"},
+  {"path": ["llm", "max_retries"], "value": "2", "error": "llm.max_retries"},
+  {"path": ["llm", "max_retries"], "value": 1.5, "error": "llm.max_retries"},
+  {"path": ["llm", "max_retries"], "value": null, "error": "llm.max_retries"}
 ]

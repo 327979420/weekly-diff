@@ -1,5 +1,6 @@
 """Strict, immutable configuration loaded from YAML."""
-from dataclasses import dataclass, fields, is_dataclass
+from dataclasses import MISSING, dataclass, fields, is_dataclass
+from math import isfinite
 from pathlib import Path
 from typing import Any, TypeVar, get_args, get_origin, get_type_hints
 from urllib.parse import urlsplit
@@ -55,6 +56,8 @@ class LLMConfig:
     score_batch_size: int
     max_source_chars: int
     min_score: float
+    timeout_seconds: float = 180
+    max_retries: int = 2
 
 
 @dataclass(frozen=True)
@@ -192,6 +195,9 @@ def _convert(value: Any, kind: type[T], path: str) -> T:
         for field in fields(kind):
             child = f"{path}.{field.name}" if path else field.name
             if field.name not in value:
+                if field.default is not MISSING:
+                    result[field.name] = field.default
+                    continue
                 raise ConfigError(f"{child}: required key missing")
             result[field.name] = _convert(value[field.name], hints[field.name], child)
         return kind(**result)
@@ -223,6 +229,10 @@ def _validate(cfg: Config) -> None:
         raise ConfigError("issue.sections: missing required section keys")
     if cfg.llm.provider not in {"auto", "anthropic", "openai"}:
         raise ConfigError("llm.provider: expected auto, anthropic or openai")
+    if not isfinite(cfg.llm.timeout_seconds) or cfg.llm.timeout_seconds <= 0:
+        raise ConfigError("llm.timeout_seconds: must be a positive finite number")
+    if cfg.llm.max_retries <= 0:
+        raise ConfigError("llm.max_retries: must be a positive integer")
 
 
 def load_config(path: str | Path = "config.yaml") -> Config:

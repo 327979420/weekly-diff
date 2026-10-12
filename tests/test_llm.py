@@ -48,15 +48,15 @@ def test_provider_selection(provider: str, keys: list[str], expected: str | None
     for key in keys:
         monkeypatch.setenv(f'{key.upper()}_API_KEY', 'test-placeholder')
     cfg = load_config()
-    cfg = replace(cfg, llm=replace(cfg.llm, provider=provider))
+    cfg = replace(cfg, llm=replace(cfg.llm, provider=provider, timeout_seconds=240, max_retries=4))
     if expected is None:
         with pytest.raises(LLMNotConfigured, match='Set ANTHROPIC_API_KEY or OPENAI_API_KEY'):
             get_client(cfg)
         assert not any(mock.called for mock in sdk_mocks.values())
     else:
         get_client(cfg)
-        sdk_mocks[expected].assert_called_once_with(timeout=cfg.sources.timeout_seconds,
-            max_retries=cfg.sources.retries, default_headers={'User-Agent': cfg.sources.user_agent})
+        sdk_mocks[expected].assert_called_once_with(timeout=cfg.llm.timeout_seconds,
+            max_retries=cfg.llm.max_retries, default_headers={'User-Agent': cfg.sources.user_agent})
 
 
 @pytest.mark.parametrize('provider', ['anthropic', 'openai'])
@@ -64,6 +64,7 @@ def test_request_and_usage(provider: str, sdk_mocks: dict[str, Mock], monkeypatc
                            caplog: pytest.LogCaptureFixture) -> None:
     monkeypatch.setenv(f'{provider.upper()}_API_KEY', 'test-placeholder')
     cfg = load_config()
+    monkeypatch.setattr(f'weekly_diff.llm.{provider}_client.monotonic', Mock(side_effect=[10.0, 12.5]))
     client = get_client(cfg)
     with caplog.at_level(logging.INFO):
         assert client.complete_json('private system', 'private prompt', {'type': 'object', 'properties': {}}, 512) == {'items': []}
@@ -82,6 +83,7 @@ def test_request_and_usage(provider: str, sdk_mocks: dict[str, Mock], monkeypatc
         assert call['reasoning']['effort'] == cfg.llm.effort
         assert call['text']['format']['strict'] is True
         assert call['max_output_tokens'] == 512
+    assert 'duration_seconds=2.500' in caplog.text
     assert 'input_tokens=12 output_tokens=6' in caplog.text
     assert call['model'] in caplog.text
     assert 'private' not in caplog.text and 'test-placeholder' not in caplog.text
@@ -252,3 +254,24 @@ def test_status_error_details_redacted(provider: str, status: int, sdk_mocks: di
     assert len(message.split(': ', 1)[1]) == 300
     assert 'private' not in message and 'test-placeholder' not in message
     assert error.value.__suppress_context__
+
+
+@pytest.mark.parametrize('provider', ['anthropic', 'openai'])
+@pytest.mark.parametrize('timeout', [180, 240.5])
+def test_sdk_timeout(provider: str, timeout: float, sdk_mocks: dict[str, Mock],
+                     monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture) -> None:
+    monkeypatch.setenv(f'{provider.upper()}_API_KEY', 'test-placeholder')
+    module = anthropic if provider == 'anthropic' else openai
+    sdk = sdk_mocks[provider].return_value
+    method = sdk.messages.create if provider == 'anthropic' else sdk.responses.create
+    method.side_effect = module.APITimeoutError(request=Mock())
+    monkeypatch.setattr(f'weekly_diff.llm.{provider}_client.monotonic', Mock(side_effect=[10.0, 12.5]))
+    cfg = load_config()
+    cfg = replace(cfg, llm=replace(cfg.llm, timeout_seconds=timeout))
+    with caplog.at_level(logging.INFO), pytest.raises(LLMError) as caught:
+        get_client(cfg).complete_json('private system', 'private prompt', {}, 10)
+    label = 'Anthropic' if provider == 'anthropic' else 'OpenAI'
+    assert str(caught.value) == f'{label} request timed out after {timeout:g}s'
+    assert caught.value.__suppress_context__
+    assert 'duration_seconds=2.500' in caplog.text
+    assert 'private' not in caplog.text and 'test-placeholder' not in caplog.text

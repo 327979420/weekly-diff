@@ -1,5 +1,6 @@
 """Anthropic structured outputs, with safe failure messages."""
 import logging
+from time import monotonic
 
 import anthropic
 
@@ -15,11 +16,12 @@ class AnthropicClient:
         self.cfg = cfg
         # SDK debug logging includes request bodies; the application logs usage only.
         logging.getLogger('anthropic').setLevel(logging.WARNING)
-        self.client = anthropic.Anthropic(timeout=cfg.sources.timeout_seconds,
-                                          max_retries=cfg.sources.retries,
+        self.client = anthropic.Anthropic(timeout=cfg.llm.timeout_seconds,
+                                          max_retries=cfg.llm.max_retries,
                                           default_headers={'User-Agent': cfg.sources.user_agent})
 
     def complete_json(self, system: str, user: str, schema: dict, max_tokens: int) -> dict:
+        started = monotonic()
         try:
             response = self.client.messages.create(
                 model=self.cfg.llm.anthropic_model, max_tokens=max_tokens, system=system,
@@ -28,10 +30,15 @@ class AnthropicClient:
                                'effort': self.cfg.llm.effort})
         except anthropic.APIStatusError as error:
             raise LLMError(api_status_message('Anthropic', error.status_code, error.body)) from None
+        except anthropic.APITimeoutError:
+            raise LLMError(f'Anthropic request timed out after {self.cfg.llm.timeout_seconds:g}s') from None
         except anthropic.APIConnectionError:
             raise LLMError('Anthropic connection error') from None
         except anthropic.APIError:
             raise LLMError('Anthropic API error') from None
+        finally:
+            logger.info('LLM model=%s duration_seconds=%.3f',
+                        self.cfg.llm.anthropic_model, monotonic() - started)
         logger.info('LLM model=%s input_tokens=%s output_tokens=%s',
                     self.cfg.llm.anthropic_model, response.usage.input_tokens, response.usage.output_tokens)
         if response.stop_reason in {'refusal', 'max_tokens'}:

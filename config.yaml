@@ -48,6 +48,8 @@ tags:
   beginner: "🌱 Beginner-friendly"
 
 llm:
+  timeout_seconds: 180
+  max_retries: 2
   provider: auto                    # auto | anthropic | openai. auto = Anthropic if ANTHROPIC_API_KEY is set, else OpenAI
   anthropic_model: "claude-haiku-5-5"
   openai_model: "gpt-5-mini"

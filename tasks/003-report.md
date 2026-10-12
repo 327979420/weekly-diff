@@ -1,6 +1,4 @@
-- Changes: Sanitise Anthropic schemas after strict_schema; preserve full OpenAI schemas; validate original numeric, string and array constraints client-side with retry-compatible LLMError subclasses.
-- Changes: Include HTTP status and redacted API error type/message in both providers' status errors; truncate details to 300 characters after redaction.
-- Testing: `.venv/bin/python -m pytest -q` → 311 passed; covers schema payloads, invalid score/overview retries, constraint limits and safe 400/429 errors.
-- Testing: `git diff --check` → passed.
+- Changes: Added validated LLM timeout (180s) and retry (2) settings; both clients use them, report explicit timeout errors, and log call duration beside token usage.
+- Testing: `.venv/bin/python -m pytest -q` → 327 passed; constructor settings, timeout messages, duration logs, and config validation covered with mocks/fixtures.
 - Unfinished: None.
 - Questions: None.

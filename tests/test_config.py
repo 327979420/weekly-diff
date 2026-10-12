@@ -16,6 +16,8 @@ def test_real_config() -> None:
     assert cfg.base_path == "/weekly-diff"
     assert cfg.issue_url("2026-41") == f"{cfg.site.base_url}/issues/2026-41/"
     assert cfg.sources.github_releases.repos
+    assert cfg.llm.timeout_seconds == 180
+    assert cfg.llm.max_retries == 2
     with pytest.raises(FrozenInstanceError):
         cfg.site.language = "fr"
     assert isinstance(cfg.issue.sections, tuple)
@@ -43,3 +45,14 @@ def test_fixture_and_missing_file(tmp_path: Path) -> None:
     assert load_config(FIXTURES / "config.yaml").base_path == "/roundup"
     with pytest.raises(ConfigError, match="config"):
         load_config(tmp_path / "absent")
+
+
+def test_llm_defaults(tmp_path: Path) -> None:
+    raw = yaml.safe_load((FIXTURES / "config.yaml").read_text())
+    del raw['llm']['timeout_seconds']
+    del raw['llm']['max_retries']
+    path = tmp_path / 'config.yaml'
+    path.write_text(yaml.safe_dump(raw))
+    cfg = load_config(path)
+    assert cfg.llm.timeout_seconds == 180
+    assert cfg.llm.max_retries == 2
