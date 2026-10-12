@@ -163,3 +163,24 @@ def test_final_validation_blocks_save(workspace: Config, monkeypatch: pytest.Mon
     with pytest.raises(ValueError, match='Invalid issue: top'):
         build.run_build(cfg, '2026-41', NOW, False)
     assert not paths.DATA.exists()
+
+
+@pytest.mark.parametrize('quick_first', [False, True])
+def test_shared_quick_backups_consumed_once(workspace: Config, quick_first: bool) -> None:
+    models = [Scored(Candidate.from_dict(row), True, 'models', 'builders', 8, '') for row in ROWS[:4]]
+    quick = replace(models[1], section='quick')
+    chosen = {'models': [models[0]], 'quick': [quick]}
+    if quick_first:
+        chosen = dict(reversed(list(chosen.items())))
+    selection = Selection(chosen, {'models': models[2:],
+                                   'quick': [replace(item, section='quick') for item in models[2:]]})
+    fake = FakeLLM([{**GOOD, 'supported': False}] * 2 + [GOOD] * 2)
+    http = build.Http(workspace)
+    try:
+        result = build._write_items(selection, workspace, http, fake)
+    finally:
+        http.close()
+    assert len(result['models']) == len(result['quick']) == 1
+    assert {item.key for rows in result.values() for item in rows} == {item.candidate.key for item in models[2:]}
+    assert all(item.section == section for section, rows in result.items() for item in rows)
+    assert len(fake.calls) == 4

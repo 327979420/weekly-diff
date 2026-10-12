@@ -51,12 +51,16 @@ def _write_items(selection: Selection, cfg: Config, http: Http, llm: LLMClient) 
                 sections[item.section].append(item)
     limits = {section.key: section.max for section in cfg.issue.sections}
     backups = {section: list(items) for section, items in selection.backups.items()}
+    attempted = {scored.candidate.key for items in selection.chosen.values() for scored in items}
     for section in missing:
         filled = False
         for replacement_section in dict.fromkeys((section, 'quick')):
             pool = backups.get(replacement_section, [])
             while pool and len(sections[replacement_section]) < limits[replacement_section]:
                 scored = pool.pop(0)
+                if scored.candidate.key in attempted:
+                    continue
+                attempted.add(scored.candidate.key)
                 source = fetch_source_text(scored.candidate, http, cfg.llm.max_source_chars)
                 item = summarise(scored, source, cfg, llm)
                 if item is not None:

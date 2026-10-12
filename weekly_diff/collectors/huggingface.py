@@ -1,11 +1,21 @@
 """Recent trending and configured organization models from Hugging Face."""
 from datetime import datetime, timedelta
+import re
 
 from weekly_diff.collectors import in_window, valid_url
 from weekly_diff.config import Config
 from weekly_diff.http import Http
 from weekly_diff.models import Candidate
 from weekly_diff.text import parse_date
+
+
+def _is_repack(name: str, author: str, cfg: Config) -> bool:
+    settings = cfg.sources.huggingface
+    if author.casefold() in {value.casefold() for value in settings.repack_authors}:
+        return True
+    return (author.casefold() not in {value.casefold() for value in settings.orgs}
+            and bool(re.search(r'GGUF|MLX|AWQ|GPTQ|EXL2|FP8|bnb|4bit|8bit',
+                               name.partition('/')[2], re.I)))
 
 
 def collect(cfg: Config, window: tuple[datetime, datetime], http: Http) -> list[Candidate]:
@@ -23,6 +33,9 @@ def collect(cfg: Config, window: tuple[datetime, datetime], http: Http) -> list[
                 if not in_window(date, period):
                     continue
                 name = model['id']
+                author = model.get('author') or name.partition('/')[0]
+                if _is_repack(name, author, cfg):
+                    continue
                 url = f'{settings.base_url}/{name}'
                 if not valid_url(url):
                     continue
@@ -32,7 +45,7 @@ def collect(cfg: Config, window: tuple[datetime, datetime], http: Http) -> list[
                 candidate = Candidate(f'hf:{name}', name, url, settings.name, 'huggingface',
                                       date, name, True, 'models', signals,
                                       {'pipeline_tag': model.get('pipeline_tag'),
-                                       'author': model.get('author') or name.partition('/')[0]})
+                                       'author': author})
                 if name in result:
                     result[name].signals.update(signals)
                 else:

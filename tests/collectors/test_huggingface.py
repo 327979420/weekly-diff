@@ -35,3 +35,21 @@ def test_malformed(cfg: Config, window: tuple[datetime, datetime], http: Http, o
     offline_http.get(cfg.sources.huggingface.api_url, json=data('error.json'))
     assert huggingface.collect(cfg, window, http) == []
     assert http.errors
+
+
+def test_repacks_are_dropped_and_official_formats_kept(cfg: Config, window: tuple[datetime, datetime],
+                                                      http: Http, offline_http: responses.RequestsMock) -> None:
+    cases = data('hf-repack-cases.json')
+    settings = replace(cfg.sources.huggingface, orgs=('google', 'unsloth'))
+    cfg = replace(cfg, sources=replace(cfg.sources, huggingface=settings))
+    offline_http.get(settings.api_url, json=[case['model'] for case in cases])
+    result = huggingface.collect(cfg, window, http)
+    assert {item.title for item in result} == {case['model']['id'] for case in cases if case['keep']}
+    assert not http.errors
+
+
+def test_orphan_repack_does_not_create_original(cfg: Config, window: tuple[datetime, datetime],
+                                               http: Http, offline_http: responses.RequestsMock) -> None:
+    offline_http.get(cfg.sources.huggingface.api_url, json=[data('hf-repack-cases.json')[-1]['model']])
+    assert huggingface.collect(cfg, window, http) == []
+    assert not http.errors

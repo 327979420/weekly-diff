@@ -10,6 +10,7 @@ issue:
   hard_min_items: 5
   top_items: 5
   max_top_per_section: 2
+  max_headline_chars: 90
   sections:
     - {key: models, title: Models, min: 2, max: 4}
     - {key: tools, title: Tools, min: 2, max: 4}
@@ -34,4 +35,4 @@ sources:
   github_releases: {per_page: 20, max_text_chars: 8000, include_prereleases: false, repos: [{name: Test, repo: example/test}]}
   github_trending: {name: "GitHub", search_per_page: 50, snapshot_min_days: 5, snapshot_max_days: 9, snapshot_history_limit: 6, snapshot_retention_days: 30, created_within_days: 30, candidates: 40, exclude_repos: [], queries: ['stars:>100']}
   hackernews: {name: "Hacker News", api_url: "https://hn.algolia.com/api/v1/search", item_url: "https://news.ycombinator.com/item", hits_per_page: 500, min_points: 150, keywords: [AI]}
-  huggingface: {name: "Hugging Face", api_url: "https://huggingface.co/api/models", base_url: "https://huggingface.co", org_limit: 20, trending_limit: 30, created_within_days: 30, orgs: [example]}
+  huggingface: {name: "Hugging Face", api_url: "https://huggingface.co/api/models", base_url: "https://huggingface.co", org_limit: 20, trending_limit: 30, created_within_days: 30, orgs: [example], repack_authors: [unsloth, bartowski, lmstudio-community, mlx-community, TheBloke, QuantFactory, MaziyarPanahi]}

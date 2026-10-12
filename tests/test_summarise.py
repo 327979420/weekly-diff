@@ -49,3 +49,31 @@ def test_unsupported_and_empty() -> None:
     assert len(fake.calls) == 1
     assert summarise(SCORED, '', load_config(), fake) is None
     assert len(fake.calls) == 1
+
+
+@pytest.mark.parametrize(('headline', 'expected'), [
+    ('A useful model update, with more details to follow', 'A useful model update'),
+    ('A useful model update — with more details to follow', 'A useful model update'),
+    ('A useful model update with more details to follow', 'A useful model update'),
+])
+def test_long_headline_shortened_only_after_retry(headline: str, expected: str) -> None:
+    cfg = load_config()
+    cfg = replace(cfg, issue=replace(cfg.issue, max_headline_chars=24))
+    fake = FakeLLM([{**GOOD, 'headline': headline}] * 2)
+    item = summarise(SCORED, SOURCE, cfg, fake)
+    assert item is not None and item.headline == expected
+    assert len(fake.calls) == 2
+    assert 'at most 24 characters' in fake.calls[0]['system']
+    assert 'headline exceeds 24 characters' in fake.calls[1]['user']
+
+
+@pytest.mark.parametrize('extra', [{'summary': 'Invented 99999 gains.'}, {'summary': ''},
+                                  {'tag': 'invalid'}, {'supported': False}])
+def test_long_headline_does_not_hide_other_errors(extra: dict) -> None:
+    fake = FakeLLM([{**GOOD, 'headline': 'A useful model update ' * 6, **extra}] * 2)
+    assert summarise(SCORED, SOURCE, load_config(), fake) is None
+
+
+def test_long_headline_without_word_boundary_is_dropped() -> None:
+    fake = FakeLLM([{**GOOD, 'headline': 'x' * 100}] * 2)
+    assert summarise(SCORED, SOURCE, load_config(), fake) is None

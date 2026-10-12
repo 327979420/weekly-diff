@@ -37,8 +37,8 @@ def validate_item(item: Item, source_text: str, cfg: Config) -> list[str]:
             problems.append(f'{field} must be non-empty')
     if item.for_builders is not None and not _nonempty(item.for_builders):
         problems.append('for_builders must be null or non-empty')
-    if isinstance(item.headline, str) and len(item.headline) > 80:
-        problems.append('headline exceeds 80 characters')
+    if isinstance(item.headline, str) and len(item.headline) > cfg.issue.max_headline_chars:
+        problems.append(f'headline exceeds {cfg.issue.max_headline_chars} characters')
     for field, limit in (('summary', 35), ('why_it_matters', 40), ('for_builders', 30)):
         value = getattr(item, field)
         if isinstance(value, str) and len(value.split()) > limit:

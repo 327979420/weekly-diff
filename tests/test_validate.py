@@ -19,7 +19,7 @@ BASE = Item.from_dict(DATA['item'])
     ({'source_url': 'https:///missing'}, 'http(s)'),
     ({'tag': 'invalid'}, 'invalid tag'), ({'section': 'invalid'}, 'invalid section'),
     ({'summary': '@everyone read this.'}, 'mention'), ({'why_it_matters': '@here'}, 'mention'),
-    ({'for_builders': ''}, 'non-empty'), ({'headline': 'x' * 81}, '80'),
+    ({'for_builders': ''}, 'non-empty'), ({'headline': 'x' * 91}, '90'),
     ({'summary': 'word ' * 36}, '35'), ({'why_it_matters': 'word ' * 41}, '40'),
     ({'for_builders': 'word ' * 31}, '30'), ({'headline': '🚀 New'}, 'emoji')])
 def test_item_rejections(change: dict, problem: str) -> None:
@@ -81,3 +81,12 @@ def test_saved_evidence_is_revalidated() -> None:
     assert not validate_issue(restored, load_config())
     restored.sections['models'][0].summary = 'Version v2.1 supports 2,000 requests.'
     assert any('unsupported number' in problem for problem in validate_issue(restored, load_config()))
+
+
+@pytest.mark.parametrize('limit', [24, 90, 110])
+def test_configured_headline_limit(limit: int) -> None:
+    cfg = load_config()
+    cfg = replace(cfg, issue=replace(cfg.issue, max_headline_chars=limit))
+    assert not validate_item(replace(BASE, headline='x' * limit), '', cfg)
+    assert validate_item(replace(BASE, headline='x' * (limit + 1)), '', cfg) == [
+        f'headline exceeds {limit} characters']

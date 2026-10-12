@@ -77,3 +77,32 @@ def test_total_cap_even_when_minima_exceed_it(tmp_path: Path, monkeypatch: pytes
     cfg = replace(cfg, issue=replace(cfg.issue, max_items=3, min_items=3))
     result = select([item for section in cfg.issue.sections for item in items(section.key, 3)], cfg)
     assert sum(map(len, result.chosen.values())) == 3
+
+
+@pytest.mark.parametrize('cap', [12, 13, 15])
+def test_empty_quick_section_gets_minimum(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, cap: int) -> None:
+    monkeypatch.setattr(paths, 'BUILD', tmp_path)
+    cfg = load_config()
+    cfg = replace(cfg, issue=replace(cfg.issue, max_items=cap))
+    scored = (items('models', 8, 'huggingface') + items('tools', 8, 'github_release')
+              + items('github', 6, 'github_trending'))
+    scored += [replace(items('models', 1)[0], candidate=replace(scored[0].candidate, key='irrelevant'), relevant=False),
+               replace(items('models', 1)[0], candidate=replace(scored[0].candidate, key='low'), score=4)]
+    result = select(scored, cfg)
+    assert len(result.chosen['quick']) == 2
+    assert len(result.chosen['github']) == 4
+    assert sum(map(len, result.chosen.values())) == min(cap, 14)
+    for section in cfg.issue.sections:
+        assert section.min <= len(result.chosen[section.key]) <= section.max
+    chosen = [item for pool in result.chosen.values() for item in pool]
+    assert len({item.candidate.key for item in chosen}) == len(chosen)
+    assert all(item.section == 'quick' for item in result.chosen['quick'] + result.backups['quick'])
+    assert all(item.candidate.source_type != 'github_trending' for item in result.backups['quick'])
+    assert all(item.candidate.key not in {'irrelevant', 'low'} for item in result.backups['quick'] + chosen)
+    assert [item.score for item in result.backups['quick']] == sorted(
+        (item.score for item in result.backups['quick']), reverse=True)
+    if cap == 12:
+        # Both equally large news sections donate their lowest-scored selected item.
+        assert len(result.chosen['models']) == len(result.chosen['tools']) == 3
+        assert min(item.score for item in result.chosen['models']) == 9
+        assert min(item.score for item in result.chosen['tools']) == 9

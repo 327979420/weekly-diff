@@ -3,6 +3,8 @@ from copy import deepcopy
 import json
 import logging
 from pathlib import Path
+import re
+import unicodedata
 
 from weekly_diff.config import Config
 from weekly_diff.llm.base import LLMClient, LLMError, strict_schema
@@ -18,6 +20,14 @@ def _schema(cfg: Config) -> dict:
     return strict_schema({'type': 'object', 'properties': properties})
 
 
+def _shorten_headline(headline: str, limit: int) -> str:
+    ends = [match.end() for match in re.finditer(r'\S+', headline) if match.end() <= limit]
+    shortened = headline[:ends[-1]].rstrip() if ends else ''
+    while shortened and unicodedata.category(shortened[-1]).startswith('P'):
+        shortened = shortened[:-1].rstrip()
+    return shortened
+
+
 def summarise(scored: Scored, source_text: str, cfg: Config, llm: LLMClient) -> Item | None:
     logger = logging.getLogger(__name__)
     candidate = scored.candidate
@@ -25,6 +35,7 @@ def summarise(scored: Scored, source_text: str, cfg: Config, llm: LLMClient) -> 
         logger.warning('Dropped item: no source text')
         return None
     system = Path(__file__).with_name('prompts').joinpath('summarise.md').read_text(encoding='utf-8')
+    system = system.format(max_headline_chars=cfg.issue.max_headline_chars)
     payload = dict(section=scored.section, title=candidate.title, source_name=candidate.source_name,
                    url=candidate.url, SOURCE=source_text)
     schema = _schema(cfg)
@@ -48,6 +59,9 @@ def summarise(scored: Scored, source_text: str, cfg: Config, llm: LLMClient) -> 
                         row['for_builders'], row['tag'], candidate.url, candidate.source_name,
                         candidate.published_at, scored.score, extra)
             problems = validate_item(item, source_text, cfg)
+            if attempt == 1 and problems == [f'headline exceeds {cfg.issue.max_headline_chars} characters']:
+                item.headline = _shorten_headline(item.headline, cfg.issue.max_headline_chars)
+                problems = validate_item(item, source_text, cfg)
             if not problems:
                 return item
         except (LLMError, json.JSONDecodeError):

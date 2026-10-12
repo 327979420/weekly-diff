@@ -23,5 +23,9 @@
   {"path": ["llm", "max_retries"], "value": true, "error": "llm.max_retries"},
   {"path": ["llm", "max_retries"], "value": "2", "error": "llm.max_retries"},
   {"path": ["llm", "max_retries"], "value": 1.5, "error": "llm.max_retries"},
-  {"path": ["llm", "max_retries"], "value": null, "error": "llm.max_retries"}
+  {"path": ["llm", "max_retries"], "value": null, "error": "llm.max_retries"},
+  {"path": ["issue", "max_headline_chars"], "value": 0, "error": "issue.max_headline_chars"},
+  {"path": ["issue", "max_headline_chars"], "value": -1, "error": "issue.max_headline_chars"},
+  {"path": ["issue", "max_headline_chars"], "value": true, "error": "issue.max_headline_chars"},
+  {"path": ["issue", "max_headline_chars"], "value": "90", "error": "issue.max_headline_chars"}
 ]

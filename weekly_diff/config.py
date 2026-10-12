@@ -36,6 +36,7 @@ class IssueConfig:
     hard_min_items: int
     top_items: int
     max_top_per_section: int
+    max_headline_chars: int
     sections: tuple[SectionConfig, ...]
 
 
@@ -139,6 +140,7 @@ class HuggingFaceConfig:
     trending_limit: int
     created_within_days: int
     orgs: tuple[str, ...]
+    repack_authors: tuple[str, ...]
 
 
 @dataclass(frozen=True)
@@ -214,6 +216,8 @@ def _convert(value: Any, kind: type[T], path: str) -> T:
 
 
 def _validate(cfg: Config) -> None:
+    if cfg.issue.max_headline_chars <= 0:
+        raise ConfigError("issue.max_headline_chars: must be a positive integer")
     if cfg.site.base_url.endswith("/"):
         raise ConfigError("site.base_url: must not have a trailing slash")
     if cfg.issue.min_items > cfg.issue.max_items:

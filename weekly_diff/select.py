@@ -60,9 +60,30 @@ def select(scored: list[Scored], cfg: Config) -> Selection:
         best = min(available, key=_rank)
         chosen[best.section].append(pools[best.section].pop(0))
         total += 1
-    # Flexible news overflow can become quick hits; collector-mandated sections stay fixed.
+    for key, section in settings.items():
+        while len(chosen[key]) < section.min:
+            eligible = [item for origin, pool in pools.items() for item in pool
+                        if origin == key or (key == 'quick' and origin != 'github')]
+            if not eligible:
+                break
+            best = min(eligible, key=_section_rank if key != 'quick' else _rank)
+            if total >= cfg.issue.max_items:
+                donors = [origin for origin in chosen if origin not in {key, 'github'}
+                          and len(chosen[origin]) > settings[origin].min]
+                if not donors:
+                    break
+                largest = max(len(chosen[origin]) for origin in donors)
+                worst = max((item for origin in donors if len(chosen[origin]) == largest
+                             for item in chosen[origin]), key=_rank)
+                chosen[worst.section].remove(worst)
+                pools[worst.section].append(worst)
+                total -= 1
+            pools[best.section].remove(best)
+            chosen[key].append(replace(best, section=key))
+            total += 1
+    # Further news overflow can still help meet the overall issue minimum.
     leftovers = sorted((item for pool in pools.values() for item in pool
-                        if item.candidate.source_type not in {'github_trending', 'github_release', 'huggingface'}),
+                        if item.section != 'github'),
                        key=_rank)
     for item in leftovers:
         if (total >= min(cfg.issue.min_items, cfg.issue.max_items)
@@ -75,6 +96,11 @@ def select(scored: list[Scored], cfg: Config) -> Selection:
         raise InsufficientItems(f'Only {total} qualifying items; need {cfg.issue.hard_min_items}')
     for items in chosen.values():
         items.sort(key=_section_rank)
+    # Backups may serve their original section or quick; build consumes each key once.
+    pools['quick'] = [replace(item, section='quick')
+                      for origin, pool in pools.items() if origin != 'github' for item in pool]
+    for pool in pools.values():
+        pool.sort(key=_section_rank)
     selection = Selection(chosen, pools)
     paths.ensure_directory(paths.BUILD)
     (paths.BUILD / 'selection.json').write_text(json.dumps(selection.to_dict(), indent=2, sort_keys=True)

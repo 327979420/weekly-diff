@@ -24,6 +24,7 @@ issue:
   hard_min_items: 5        # below this the run fails instead of publishing a thin issue
   top_items: 5             # items in the Discord post
   max_top_per_section: 2   # keeps the Discord top 5 varied
+  max_headline_chars: 90
   sections:                # page order
     - key: models
       title: "New models & labs"
@@ -169,3 +170,4 @@ sources:
     trending_limit: 30
     created_within_days: 30
     orgs: [openai, google, meta-llama, mistralai, xai-org, deepseek-ai, Qwen, moonshotai, zai-org]
+    repack_authors: [unsloth, bartowski, lmstudio-community, mlx-community, TheBloke, QuantFactory, MaziyarPanahi]
