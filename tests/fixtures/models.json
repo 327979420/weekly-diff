@@ -1,0 +1,5 @@
+{
+  "candidate": {"key":"a", "title":"Test", "url":"https://example.com/a", "source_name":"Test", "source_type":"rss", "published_at":"2026-10-11T21:00:00+00:00", "text":"Source text", "primary":true, "section_hint":"models", "signals":{"stars":42,"score":8.5}, "extra":{"labels":["test"]}},
+  "item": {"key":"a", "section":"models", "headline":"Test", "summary":"Summary", "why_it_matters":"Context", "for_builders":null, "tag":"builders", "source_url":"https://example.com/a", "source_name":"Test", "published_at":"2026-10-11T21:00:00+00:00", "score":8.5, "extra":{}},
+  "issue": {"id":"2026-41", "name":"Test Roundup", "published_at":"2026-10-11T21:00:00+00:00", "period_start":"2026-10-05T00:00:00+00:00", "period_end":"2026-10-11T00:00:00+00:00", "sixty_seconds":["Test"], "sections":{}, "top":["a"]}
+}

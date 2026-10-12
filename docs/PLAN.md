@@ -47,7 +47,7 @@ All scheduled workflows also have `workflow_dispatch` with a `dry_run` option. `
 ## Tasks
 | # | Task | Status |
 | --- | --- | --- |
-| 001 | Skeleton, config loader, models, logging, run.py CLI, pytest | pending |
+| 001 | Skeleton, config loader, models, logging, run.py CLI, pytest | done (54 tests) |
 | 002 | Collectors (one module per source), fixture tests | pending |
 | 003 | Dedupe, seen.json, LLM module, scoring and selection | pending |
 | 004 | Source text, summariser, validation, build orchestration | pending |

@@ -1,0 +1,5 @@
+- Changes: Added the Python 3.12 virtualenv and dependencies, frozen typed config, JSON models, UTC date helpers, secret-safe logging, on-demand paths, pipeline stubs, CLI, data seeds, and fixture-based tests.
+- Testing: `.venv/bin/python -m pytest -q` → 54 passed.
+- Testing: `.venv/bin/python run.py status` and `.venv/bin/python run.py --help` → exit 0; `git diff --check` → passed.
+- Unfinished: None for task 001; pipeline stages intentionally raise their assigned future-task placeholders.
+- Questions: None.

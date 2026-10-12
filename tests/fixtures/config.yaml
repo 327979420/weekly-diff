@@ -1,0 +1,33 @@
+name: Test Roundup
+tagline: Weekly test news
+publish_enabled: false
+paused: false
+site: {base_url: 'https://example.com/roundup', language: en, timezone: Australia/Melbourne, feed_items: 20}
+issue:
+  lookback_days: 7
+  min_items: 10
+  max_items: 15
+  hard_min_items: 5
+  top_items: 5
+  max_top_per_section: 2
+  sections:
+    - {key: models, title: Models, min: 2, max: 4}
+    - {key: tools, title: Tools, min: 2, max: 4}
+    - {key: github, title: GitHub, min: 3, max: 4}
+    - {key: quick, title: Quick, min: 2, max: 4}
+tags: {builders: Builders, work: Work, beginner: Beginner}
+llm: {provider: auto, anthropic_model: test-anthropic, openai_model: test-openai, effort: low, max_candidates_to_score: 80, score_batch_size: 40, max_source_chars: 12000, min_score: 5}
+dedupe: {title_similarity: 0.6, seen_retention_days: 730}
+discord: {color: 5793266}
+sources:
+  user_agent: TestBot
+  timeout_seconds: 20
+  primary_domains: [example.com]
+  rss: [{name: Test, url: 'https://example.com/rss', section: models}]
+  html_index:
+    max_articles_per_index: 12
+    pages: [{name: Test, url: 'https://example.com/news', link_pattern: '^https://example.com/news/', section: models}]
+  github_releases: {include_prereleases: false, repos: [{name: Test, repo: example/test}]}
+  github_trending: {created_within_days: 30, candidates: 40, max_stargazer_pages: 10, exclude_repos: [], queries: ['stars:>100']}
+  hackernews: {min_points: 150, keywords: [AI]}
+  huggingface: {trending_limit: 30, created_within_days: 30, orgs: [example]}
