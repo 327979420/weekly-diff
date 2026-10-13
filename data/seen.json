@@ -42,6 +42,12 @@
       "title": "A curated reverse-engineering guide, sorted by the task you need to do",
       "url": "https://github.com/morluto/awesome-reverse-engineering"
     },
+    "github:onehumanbeing/esp32-iphone-agent": {
+      "first_seen": "2026-10-13",
+      "issue": "2026-42",
+      "title": "ESP32 iPhone Agent: let an AI model tap a real iPhone",
+      "url": "https://github.com/onehumanbeing/esp32-iphone-agent"
+    },
     "github:openai/math": {
       "first_seen": "2026-10-12",
       "issue": "2026-42",
@@ -102,6 +108,18 @@
       "title": "LIDstral Arabic classifies Arabic dialects and separates them from non-Arabic languages",
       "url": "https://huggingface.co/mistralai/LIDstral-Arabic"
     },
+    "https://blog.google/innovation-and-ai/technology/developers-tools/embeddinggemma-2/": {
+      "first_seen": "2026-10-13",
+      "issue": "2026-42",
+      "title": "EmbeddingGemma 2: a small open model that turns text, images",
+      "url": "https://blog.google/innovation-and-ai/technology/developers-tools/embeddinggemma-2"
+    },
+    "https://deepmind.google/blog/embeddinggemma-2-an-open-lightweight-multimodal-embedding-model/": {
+      "first_seen": "2026-10-13",
+      "issue": "2026-42",
+      "title": "EmbeddingGemma 2: an open, lightweight multimodal embedding model",
+      "url": "https://deepmind.google/blog/embeddinggemma-2-an-open-lightweight-multimodal-embedding-model"
+    },
     "https://github.blog/changelog/2026-10-07-claude-haiku-5-5-in-github-copilot": {
       "first_seen": "2026-10-12",
       "issue": "2026-42",
@@ -131,6 +149,12 @@
       "issue": "2026-42",
       "title": "Show HN: Let your AI agents paint big arrows, boxes and text on your screen",
       "url": "https://github.com/franzenzenhofer/big-arrow-on-the-screen"
+    },
+    "https://github.com/openai/codex/issues/48195": {
+      "first_seen": "2026-10-13",
+      "issue": "2026-42",
+      "title": "Codex CLI 0.157.0 starts a background helper by default",
+      "url": "https://github.com/openai/codex/issues/48195"
     },
     "https://github.com/openai/math/blob/main/history.md": {
       "first_seen": "2026-10-12",
