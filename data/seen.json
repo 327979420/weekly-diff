@@ -12,11 +12,29 @@
       "title": "huashu-art-motion\uff1a\u8ba9\u7f16\u7801\u52a9\u624b\u628a\u540d\u753b\u548c\u7ecf\u5178\u98ce\u683c\u505a\u6210\u4f1a\u52a8\u7684\u89c6\u9891",
       "url": "https://github.com/alchaincyf/huashu-art-motion"
     },
+    "github:fayazara/robot-heads": {
+      "first_seen": "2026-10-13",
+      "issue": "2026-42",
+      "title": "robot-heads: animated 3D robot heads for React that show what your agent is doing",
+      "url": "https://github.com/fayazara/robot-heads"
+    },
     "github:franzenzenhofer/big-arrow-on-the-screen": {
       "first_seen": "2026-10-12",
       "issue": "2026-42",
       "title": "big-arrow-on-the-screen: an MIT-licensed macOS CLI that lets AI agents draw arrows over",
       "url": "https://github.com/franzenzenhofer/big-arrow-on-the-screen"
+    },
+    "github:juliobsz/skills": {
+      "first_seen": "2026-10-13",
+      "issue": "2026-42",
+      "title": "/awwwards: an agent skill that builds a polished website from one line",
+      "url": "https://github.com/juliobsz/skills"
+    },
+    "github:lingcore/winshun": {
+      "first_seen": "2026-10-13",
+      "issue": "2026-42",
+      "title": "WinShun\uff1a\u6309\u4e24\u4e0b Ctrl \u5c31\u80fd\u641c\u6574\u53f0 Windows \u7535\u8111\u7684\u514d\u8d39\u5de5\u5177",
+      "url": "https://github.com/LingCore/WinShun"
     },
     "github:morluto/awesome-reverse-engineering": {
       "first_seen": "2026-10-12",
@@ -120,6 +138,12 @@
       "title": "OpenAI Pulls 3 Math Papers After Finding a Sign Error",
       "url": "https://github.com/openai/math/blob/main/history.md"
     },
+    "https://github.com/rociiu/talorys": {
+      "first_seen": "2026-10-13",
+      "issue": "2026-42",
+      "title": "Talorys: a free personal AI assistant that runs in your own Cloudflare account",
+      "url": "https://github.com/rociiu/talorys"
+    },
     "https://openai.com/index/gpt-6-for-everyone": {
       "first_seen": "2026-10-12",
       "issue": "2026-42",
@@ -149,6 +173,12 @@
       "issue": "2026-42",
       "title": "Reflection introduces Beam, a 501B open-weight model for coding and agentic work",
       "url": "https://reflection.ai/blog/introducing-beam"
+    },
+    "https://simonwillison.net/2026/Oct/7/claude-haiku-5-5/": {
+      "first_seen": "2026-10-13",
+      "issue": "2026-42",
+      "title": "Claude Haiku 5.5",
+      "url": "https://simonwillison.net/2026/Oct/7/claude-haiku-5-5"
     },
     "https://www.anthropic.com/claude-haiku-5-5": {
       "first_seen": "2026-10-12",
