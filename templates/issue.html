@@ -9,7 +9,7 @@
   </div></aside>
   <div class="issue-content">
     {{ navigation(previous, next) }}
-    <p class="issue-kicker">{{ cfg.name|upper }}</p>
+    <p class="issue-kicker">{{ name|upper }}</p>
     <h1>{{ view.short_label }}</h1>
     {% if view.og_image %}<img class="issue-hero" src="{{ cfg.base_path }}/{{ view.hero.extra.image_local }}" alt="{{ view.hero.headline }}" width="640" height="360" loading="lazy" decoding="async">{% endif %}
     {% if view.missing %}<p class="fallback">{{ strings.missing }}</p>{% endif %}

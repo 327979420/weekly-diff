@@ -34,7 +34,7 @@ def issue() -> Issue:
 
 def test_payload(cfg: Config, issue: Issue) -> None:
     payload = discord.build_payload(issue, cfg, False, None)
-    assert payload['username'] == cfg.name
+    assert payload['username'] == cfg.name_zh
     assert payload['allowed_mentions'] == {'parse': []}
     assert '第 42 期' in payload['content']
     assert len(payload['embeds']) == 7
@@ -357,3 +357,12 @@ def test_missing_top_reference(cfg: Config, issue: Issue) -> None:
     issue.top = ['missing']
     with pytest.raises(discord.DiscordError, match='missing item'):
         discord.build_payload(issue, cfg, False, None)
+
+
+@pytest.mark.parametrize('language', ['zh', 'en'])
+def test_localized_brand(cfg: Config, issue: Issue, language: str) -> None:
+    cfg = replace(cfg, name='Vibe Weekly', name_zh='Vibe 周刊')
+    name = cfg.name_zh if language == 'zh' else cfg.name
+    payload = discord.build_payload(issue, cfg, False, None, language=language)
+    assert payload['username'] == name
+    assert name in payload['content']

@@ -1,10 +1,11 @@
-# The Weekly Diff — all settings live here.
+# Vibe Weekly — all settings live here.
 # To rename, go live or pause, edit this file and commit. See README.md.
 
-name: "The Weekly Diff"
-tagline: "The week in AI and developer tools, in plain English."
+name: "Vibe Weekly"
+name_zh: "Vibe 周刊"
+tagline: "The weekly AI digest for vibe coders."
 
-tagline_zh: "每周 AI 与开发者工具速览，一分钟看完。"
+tagline_zh: "给 vibe coder 的每周 AI 工具速览。"
 tags_zh: {try: "🚀 马上能试", learn: "📚 学一招", watch: "👀 值得关注"}
 
 content:

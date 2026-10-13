@@ -1,0 +1,6 @@
+- Changes: Added required, validated name_zh; localized website titles, wordmarks, kickers, Open Graph, RSS, 404, footer and Discord usernames/content; V favicon; renamed README.md and docs/PLAN.md wording as requested.
+- Testing: `.venv/bin/python -m pytest -q` → 583 passed in 11.19s.
+- Testing: `.venv/bin/python run.py render` → exit 0; rendered English/Chinese home titles and wordmarks verified.
+- Testing: `git diff --check` → passed; requested old-brand search returned no matches; config diff limited to name, name_zh, tagline and tagline_zh.
+- Unfinished: None. No commit/push; publish_enabled, repository name and site URL unchanged.
+- Questions: None.

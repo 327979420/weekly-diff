@@ -1,7 +1,7 @@
 {% extends 'issue.html' %}
 {% from 'history.html' import row with context %}
 {% block content %}
-{% if view %}{{ super() }}{% else %}<div class="simple-page"><h1>{{ cfg.name }} — {{ strings.soon }}</h1></div>{% endif %}
+{% if view %}{{ super() }}{% else %}<div class="simple-page"><h1>{{ name }} — {{ strings.soon }}</h1></div>{% endif %}
 {% endblock %}
 {% block history %}
 {% if view %}<aside class="past-issues" aria-label="{{ strings.past }}"><h2>{{ strings.past }}</h2>

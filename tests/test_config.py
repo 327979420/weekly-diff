@@ -17,6 +17,7 @@ def test_real_config() -> None:
 def test_fixture_config() -> None:
     cfg = load_config(FIXTURES / "config.yaml")
     assert cfg.name == "Test Roundup"
+    assert cfg.name_zh == "测试周刊"
     assert cfg.base_path == "/roundup"
     assert cfg.issue_url("2026-41") == f"{cfg.site.base_url}/issues/2026-41/"
     assert cfg.sources.github_releases.repos
@@ -62,7 +63,7 @@ def test_llm_defaults(tmp_path: Path) -> None:
     assert cfg.llm.max_retries == 2
 
 
-@pytest.mark.parametrize('path', [('tagline_zh',), ('tags_zh', 'try'),
+@pytest.mark.parametrize('path', [('name_zh',), ('tagline_zh',), ('tags_zh', 'try'),
                                   ('issue', 'sections', 0, 'title_zh')])
 @pytest.mark.parametrize('value', ['', '  ', None, 42])
 def test_chinese_labels_validated(path: tuple, value: object, tmp_path: Path) -> None:
@@ -74,4 +75,13 @@ def test_chinese_labels_validated(path: tuple, value: object, tmp_path: Path) ->
     config = tmp_path / 'config.yaml'
     config.write_text(yaml.safe_dump(raw))
     with pytest.raises(ConfigError):
+        load_config(config)
+
+
+def test_chinese_name_required(tmp_path: Path) -> None:
+    raw = yaml.safe_load((FIXTURES / 'config.yaml').read_text())
+    del raw['name_zh']
+    config = tmp_path / 'config.yaml'
+    config.write_text(yaml.safe_dump(raw))
+    with pytest.raises(ConfigError, match='name_zh: required key missing'):
         load_config(config)

@@ -1,8 +1,10 @@
-# The Weekly Diff
+# Vibe Weekly / Vibe 周刊
 
-A fully automatic weekly roundup of AI and developer news in plain English: what happened, why it matters, and links to the sources.
+The weekly AI digest for vibe coders, in English and Chinese: what happened, why it matters, and links to the sources.
 
 Read it at **https://327979420.github.io/weekly-diff/**.
+
+The repository name `weekly-diff` and the site URL above are unchanged.
 
 ## What arrives when
 
@@ -20,7 +22,7 @@ In GitHub, open **config.yaml → pencil icon**, make your change, then choose *
 | Go live on public Discord | `publish_enabled: false` to `publish_enabled: true` |
 | Pause scheduled runs | `paused: false` to `paused: true` |
 | Resume scheduled runs | `paused: true` to `paused: false` |
-| Rename the roundup | `name:` and, if wanted, `tagline:` |
+| Rename the roundup | `name:` and `name_zh:`; optionally `tagline:` and `tagline_zh:` |
 
 A rename updates the website within a few minutes. Pausing stops the Friday and Monday schedules; manual runs and website updates from edits still work.
 

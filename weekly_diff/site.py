@@ -129,7 +129,7 @@ def _view(issue: Issue, cfg: Config, env: Environment, language: str) -> dict[st
                      if hero_item(issue) and local_image(hero_item(issue), issue.id) else None),
         'missing': missing, 'label': label,
         'issue': issue,
-        'title': f'{cfg.name} — {label}',
+        'title': f'{cfg.name_zh if language == "zh" else cfg.name} — {label}',
         'period': _period(issue, cfg.site.timezone, language),
         'url': f'{cfg.site.base_url}{prefix}/issues/{issue.id}/',
         'path': f'{cfg.base_path}{prefix}/issues/{issue.id}/',
@@ -192,9 +192,10 @@ def render_site(cfg: Config, issues_dir: Path, out_dir: Path, *,
         root = f'{cfg.base_path}/{prefix}'
         base_url = f'{cfg.site.base_url}/{prefix}'
         strings = STRINGS[language]
+        name = cfg.name_zh if language == 'zh' else cfg.name
         tagline = cfg.tagline_zh if language == 'zh' else cfg.tagline
         common = dict(language=language, html_lang='zh-CN' if language == 'zh' else 'en',
-                      strings=strings, root=root, base_url=base_url, tagline=tagline,
+                      strings=strings, root=root, base_url=base_url, name=name, tagline=tagline,
                       tags=tag_labels(cfg.tags_zh if language == 'zh' else cfg.tags),
                       icons=SECTION_ICONS)
 
@@ -206,7 +207,7 @@ def render_site(cfg: Config, issues_dir: Path, out_dir: Path, *,
                   zh_url=f'{cfg.site.base_url}/zh/{route}')
 
         latest = views[0] if views else None
-        page('index.html', 'home.html', view=latest, past=views[1:7], previous=None, next=None, title=cfg.name,
+        page('index.html', 'home.html', view=latest, past=views[1:7], previous=None, next=None, title=name,
              description=latest['description'] if latest else tagline)
         for index, view in enumerate(views):
             page(f"issues/{view['issue'].id}/index.html", 'issue.html', view=view,
@@ -214,8 +215,8 @@ def render_site(cfg: Config, issues_dir: Path, out_dir: Path, *,
                  previous=views[index + 1] if index + 1 < len(views) else None,
                  next=views[index - 1] if index else None)
         page('archive/index.html', 'archive.html', views=views,
-             title=f"{strings['archive']} · {cfg.name}", description=tagline)
-        page('404.html', '404.html', title=f"{strings['not_found']} · {cfg.name}", description=tagline)
+             title=f"{strings['archive']} · {name}", description=tagline)
+        page('404.html', '404.html', title=f"{strings['not_found']} · {name}", description=tagline)
         write(prefix + 'feed.xml', 'feed.xml', **common, views=views[:max(0, cfg.site.feed_items)])
     (out_dir / '.nojekyll').touch()
     (out_dir / 'assets').mkdir(exist_ok=True)

@@ -1,6 +1,6 @@
-# The Weekly Diff — plan
+# Vibe Weekly / Vibe 周刊 — plan
 
-A fully automatic weekly roundup of AI and developer news for an English-speaking public audience (builders, professionals, beginners). The name lives in `config.yaml`.
+A fully automatic weekly roundup of AI and developer news for an English-speaking public audience (builders, professionals, beginners). The English and Chinese names live in `config.yaml`.
 
 ## Outputs (from the same weekly data)
 1. **Discord post** every Monday about 08:00 Melbourne: 60-second summary, top 5 items, link to the full issue.
@@ -67,6 +67,7 @@ All scheduled workflows also have `workflow_dispatch` with a `dry_run` option. `
 | 018 | Editorial copy, product dedupe, 5 design follow-ups | done (556 tests) |
 | 019 | Tests independent of live config.yaml | done (564 tests) |
 | 020 | Self-hosted images; Chinese-first card-style Discord | done (574 tests) |
+| 021 | Rename to Vibe Weekly / Vibe 周刊 | done (583 tests) |
 
 ## Decisions
 - 2026-10-12: Repo at `~/weekly-diff`, GitHub `327979420/weekly-diff` (public). Pages source: GitHub Actions.

@@ -1,4 +1,5 @@
 name: Test Roundup
+name_zh: 测试周刊
 tagline: Weekly test news
 tagline_zh: "每周 AI 与开发者工具速览，一分钟看完。"
 tags_zh: {try: "🚀 马上能试", learn: "📚 学一招", watch: "👀 值得关注"}

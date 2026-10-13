@@ -422,8 +422,10 @@ def test_issue_heading_and_text_accent(tmp_path: Path) -> None:
     for prefix, heading in [('', 'Issue 42'), ('zh/', '第 42 期')]:
         soup = BeautifulSoup((out / prefix / 'issues/2026-42/index.html').read_text(), 'html.parser')
         assert soup.h1.text == heading
-        assert soup.select_one('.issue-kicker').text == load_config(Path(__file__).parent / 'fixtures/config.yaml').name.upper()
-        assert soup.select_one('.brand').text == load_config(Path(__file__).parent / 'fixtures/config.yaml').name
+        cfg = load_config(Path(__file__).parent / 'fixtures/config.yaml')
+        name = cfg.name_zh if prefix else cfg.name
+        assert soup.select_one('.issue-kicker').text == name.upper()
+        assert soup.select_one('.brand').text == name
     css = (out / 'assets/style.css').read_text()
     assert '--accent-text: #C2410C' in css
     assert 'a:hover { color: var(--accent-text);' in css
@@ -467,3 +469,30 @@ for (const systemDark of [false, true]) {
 '''.replace('SCRIPT', json.dumps(script))
     result = subprocess.run([node, '-e', harness], capture_output=True, text=True, timeout=10)
     assert result.returncode == 0, result.stderr
+
+
+@pytest.mark.parametrize('empty', [False, True])
+def test_localized_brand_everywhere(issue_fixtures: Path, tmp_path: Path, empty: bool) -> None:
+    cfg = replace(load_config(Path(__file__).parent / 'fixtures/config.yaml'),
+                  name='Vibe Weekly & <EN>', name_zh='Vibe 周刊 & <中文>')
+    out = tmp_path / 'site'
+    render_site(cfg, tmp_path / 'missing' if empty else issue_fixtures, out)
+    for prefix, name in [('', cfg.name), ('zh', cfg.name_zh)]:
+        root = out / prefix
+        for route in ['index.html', 'archive/index.html', '404.html'] + (
+                [] if empty else ['issues/2026-42/index.html']):
+            html = (root / route).read_text()
+            soup = BeautifulSoup(html, 'html.parser')
+            assert name in soup.title.text
+            assert name in soup.select_one('meta[property="og:title"]')['content']
+            assert soup.select_one('.brand').text == name
+            assert name in soup.select_one('.site-footer').text
+            assert soup.select_one('link[type="application/rss+xml"]')['title'] == name
+            assert '%3EV%3C' in soup.select_one('link[rel="icon"]')['href']
+            assert '&lt;' in html
+            if kicker := soup.select_one('.issue-kicker'):
+                assert kicker.text == name.upper()
+        feed = ElementTree.fromstring((root / 'feed.xml').read_text())
+        assert feed.findtext('channel/title') == name
+        for entry in feed.findall('channel/item'):
+            assert name in entry.findtext('title')

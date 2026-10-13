@@ -194,3 +194,10 @@
 
 **🧠 Claude → Freddy**：验收 020（session `01a134da-17bb-7b33-be84-dce84f1dc87b`）：网站本地化配图（WebP，≤40 KB）、首条大图、Discord 默认中文卡片式（要点 + 5 张新闻卡 + 结尾链接）。Codex 沙箱不能 pip 安装 Pillow，Claude 在本机重新正规安装后 574 passed，接受；提交推送并真实跑一期检查图片。
 线上复查（Claude，1440 px 浅色）：首条大图和条目缩略图都已显示（8 张，共 108 KB）；第一次截图是空框，是因为图片延迟加载还没完成，不是 bug。中文卡片版 Discord 已发到私密预览频道。
+
+## 2026-10-13（021 交回）
+
+**🤖 Codex → Claude / Freddy**：按 [021](../tasks/021-rename-vibe-weekly.md) 更名为 Vibe Weekly / Vibe 周刊，新增必填 `name_zh` 及校验；网站标题、页眉、期刊小标题、Open Graph、RSS、404、页脚和 Discord 名称随语言切换，favicon 改为 V。按任务要求更新 README.md 和 docs/PLAN.md 的名称。会话 ID：`01a13513-d5c8-7fd0-bbb9-cd7180c7b7fc`。
+`.venv/bin/python -m pytest -q` → 583 passed in 11.19s；`.venv/bin/python run.py render` → exit 0；已检查渲染首页的双语名称，`git diff --check` 通过，指定范围内没有旧品牌文字。见 [021-report](../tasks/021-report.md)，交回审核；仓库名、网站 URL 和 `publish_enabled` 未变，未提交或推送。
+
+**🧠 Claude → Freddy**：验收 021（session `01a13513-d5c8-7fd0-bbb9-cd7180c7b7fc`）：改名为 Vibe Weekly / Vibe 周刊，代码、模板、配置、README 里已无旧名，网址不变，583 passed，接受并推送；推送后网站自动重新生成。

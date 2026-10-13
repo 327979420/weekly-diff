@@ -74,13 +74,14 @@ def _embed_length(embed: dict[str, Any]) -> int:
 def _payload(issue: Issue, cfg: Config, preview: bool, run_url: str | None,
              notice: str = '', language: str = 'zh') -> dict[str, Any]:
     chinese = language == 'zh'
+    name = cfg.name_zh if chinese else cfg.name
     root = f'{cfg.site.base_url}/' + ('zh/' if chinese else '')
     page = _link_url(f'{root}issues/{issue.id}/')
     label = f'第 {int(issue.id[5:])} 期' if chinese else f'Issue {int(issue.id[5:])}'
     period = _period(issue, cfg.site.timezone, language)
     period = period.removesuffix(f' · {issue.period_end.year}') if chinese else period
     prefix = ('【预览】' if chinese else '[PREVIEW] ') if preview else ''
-    content = _truncate(prefix + f'📰 **{_escape(cfg.name)} · {label}** '
+    content = _truncate(prefix + f'📰 **{_escape(name)} · {label}** '
                         + ('已更新' if chinese else 'is out') + f' · {period}', 2000)
     bullets = [_escape(issue.sixty_seconds_zh[i] if chinese and i < len(issue.sixty_seconds_zh)
                        and issue.sixty_seconds_zh[i] else bullet)
@@ -134,7 +135,7 @@ def _payload(issue: Issue, cfg: Config, preview: bool, run_url: str | None,
         cards.pop()
     if _embed_length(header) + _embed_length(last) > TOTAL_LIMIT:
         header['description'] = _truncate(header['description'], max(1, TOTAL_LIMIT - _embed_length(last) - _length(header['title'])))
-    return {'username': cfg.name, 'content': content, 'allowed_mentions': {'parse': []},
+    return {'username': name, 'content': content, 'allowed_mentions': {'parse': []},
             'embeds': [header, *cards, last]}
 
 

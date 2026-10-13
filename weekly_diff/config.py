@@ -204,6 +204,7 @@ class SourcesConfig:
 @dataclass(frozen=True)
 class Config:
     name: str
+    name_zh: str
     tagline: str
     tagline_zh: str
     tags_zh: dict[str, str]
@@ -276,7 +277,7 @@ def _validate(cfg: Config) -> None:
         labels = getattr(cfg, name)
         if set(labels) != {'try', 'learn', 'watch'} or any(not v.strip() for v in labels.values()):
             raise ConfigError(f'{name}: expected non-empty try, learn and watch labels')
-    labels = {'tagline_zh': cfg.tagline_zh, **{
+    labels = {'name_zh': cfg.name_zh, 'tagline_zh': cfg.tagline_zh, **{
         f'tags_zh.{key}': value for key, value in cfg.tags_zh.items()}, **{
         f'issue.sections[{i}].title_zh': section.title_zh
         for i, section in enumerate(cfg.issue.sections)}}

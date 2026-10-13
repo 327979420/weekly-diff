@@ -8,11 +8,11 @@
   <link rel="alternate" hreflang="en" href="{{ en_url }}">
   <link rel="alternate" hreflang="zh-CN" href="{{ zh_url }}">
   <link rel="canonical" href="{{ canonical }}">
-  <link rel="alternate" type="application/rss+xml" title="{{ cfg.name }}" href="{{ root }}feed.xml">
+  <link rel="alternate" type="application/rss+xml" title="{{ name }}" href="{{ root }}feed.xml">
   <meta property="og:title" content="{{ title }}">
   <meta property="og:description" content="{{ description }}">
   <meta property="og:url" content="{{ canonical }}">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext y='50' font-size='52'%3E📰%3C/text%3E%3C/svg%3E">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext y='50' font-size='52'%3EV%3C/text%3E%3C/svg%3E">
   {% if view is defined and view and view.og_image %}<meta property="og:image" content="{{ view.og_image }}">{% endif %}
   <script>
 try { const theme = localStorage.getItem('theme'); if (theme === 'light' || theme === 'dark') document.documentElement.dataset.theme = theme; } catch (_) {}
@@ -22,13 +22,13 @@ try { const theme = localStorage.getItem('theme'); if (theme === 'light' || them
 <body id="top">
   <a class="skip-link" href="{{ page_path }}#main">{{ strings.skip }}</a>
   <header class="site-header"><div class="header-inner">
-    <a class="brand" href="{{ root }}">{{ cfg.name }}</a>
+    <a class="brand" href="{{ root }}">{{ name }}</a>
     <nav class="main-nav" aria-label="{{ strings.navigation }}"><a class="desktop-nav" href="{{ root }}">{{ strings.latest }}</a><a href="{{ root }}archive/">{{ strings.archive }}</a><a class="desktop-nav" href="{{ root }}feed.xml">RSS</a></nav>
     <nav class="languages" aria-label="EN | 中文"><a href="{{ en_url }}" lang="en" hreflang="en"{% if language == "en" %} aria-current="page"{% endif %}>EN</a><a href="{{ zh_url }}" lang="zh-CN" hreflang="zh-CN"{% if language == "zh" %} aria-current="page"{% endif %}>中文</a></nav>
     <button class="theme-toggle" hidden type="button" aria-label="{{ strings.theme }}"><span aria-hidden="true">◐</span></button>
   </div></header>
   <main id="main" tabindex="-1">{% block content %}{% endblock %}</main>
-  <footer class="site-footer"><p>{{ tagline }}</p><p>{{ strings.footer }}</p><p><a href="{{ cfg.base_path }}/feed.xml">RSS · EN</a> / <a href="{{ cfg.base_path }}/zh/feed.xml">RSS · 中文</a></p>{% block history %}{% endblock %}</footer>
+  <footer class="site-footer"><p>{{ name }} · {{ tagline }}</p><p>{{ strings.footer }}</p><p><a href="{{ cfg.base_path }}/feed.xml">RSS · EN</a> / <a href="{{ cfg.base_path }}/zh/feed.xml">RSS · 中文</a></p>{% block history %}{% endblock %}</footer>
   <script>
 const toggle = document.querySelector('.theme-toggle');
 toggle.hidden = false;
