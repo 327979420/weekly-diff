@@ -23,3 +23,8 @@ Claude is the project director for The Weekly Diff. Codex writes the application
 
 ## Safety
 - `publish_enabled: false` in config.yaml stays false until the owner says go live. Only the owner flips it.
+
+## Shared collaboration log (docs/COLLAB-LOG.md)
+- Read docs/COLLAB-LOG.md before starting any work; it is the shared conversation between the owner (Freddy), Claude and Codex.
+- After each turn, append one entry at the bottom in the same format: date, `**Sender → Receiver**`, what was asked or done, and the result (tests, accepted / sent back and why). Write in simple Chinese; keep file names and commands as they are.
+- Entries starting with **Freddy →** are the owner's instructions: follow them.
