@@ -24,6 +24,12 @@
       "title": "big-arrow-on-the-screen: an MIT-licensed macOS CLI that lets AI agents draw arrows over",
       "url": "https://github.com/franzenzenhofer/big-arrow-on-the-screen"
     },
+    "github:jakeschincariol/founder-skill": {
+      "first_seen": "2026-10-13",
+      "issue": "2026-42",
+      "title": "Founder: free Claude skills that test a business idea before you launch",
+      "url": "https://github.com/Jakeschincariol/founder-skill"
+    },
     "github:juliobsz/skills": {
       "first_seen": "2026-10-13",
       "issue": "2026-42",
@@ -108,6 +114,12 @@
       "title": "LIDstral Arabic classifies Arabic dialects and separates them from non-Arabic languages",
       "url": "https://huggingface.co/mistralai/LIDstral-Arabic"
     },
+    "hf:openbmb/MiniCPM-V-4.7-35B-A3B": {
+      "first_seen": "2026-10-13",
+      "issue": "2026-42",
+      "title": "MiniCPM-V 4.7 is a vision model that can run on an iPhone",
+      "url": "https://huggingface.co/openbmb/MiniCPM-V-4.7-35B-A3B"
+    },
     "https://blog.google/innovation-and-ai/technology/developers-tools/embeddinggemma-2/": {
       "first_seen": "2026-10-13",
       "issue": "2026-42",
@@ -168,6 +180,18 @@
       "title": "Talorys: a free personal AI assistant that runs in your own Cloudflare account",
       "url": "https://github.com/rociiu/talorys"
     },
+    "https://mistral.ai/news/mistral-large-4/": {
+      "first_seen": "2026-10-13",
+      "issue": "2026-42",
+      "title": "Mistral Large 4 is a new open-weight model you can try through a preview API now",
+      "url": "https://mistral.ai/news/mistral-large-4"
+    },
+    "https://mistral.ai/news/mistral-large-4/\\": {
+      "first_seen": "2026-10-13",
+      "issue": "2026-42",
+      "title": "Mistral Large 4",
+      "url": "https://mistral.ai/news/mistral-large-4/\\"
+    },
     "https://openai.com/index/gpt-6-for-everyone": {
       "first_seen": "2026-10-12",
       "issue": "2026-42",
@@ -198,11 +222,29 @@
       "title": "Reflection introduces Beam, a 501B open-weight model for coding and agentic work",
       "url": "https://reflection.ai/blog/introducing-beam"
     },
+    "https://simonwillison.net/2026/Oct/6/hn-49982139/": {
+      "first_seen": "2026-10-13",
+      "issue": "2026-42",
+      "title": "Mistral Large 4",
+      "url": "https://simonwillison.net/2026/Oct/6/hn-49982139"
+    },
+    "https://simonwillison.net/2026/Oct/6/le-chonk/": {
+      "first_seen": "2026-10-13",
+      "issue": "2026-42",
+      "title": "Introducing Mistral Large 4: Le chonk",
+      "url": "https://simonwillison.net/2026/Oct/6/le-chonk"
+    },
     "https://simonwillison.net/2026/Oct/7/claude-haiku-5-5/": {
       "first_seen": "2026-10-13",
       "issue": "2026-42",
       "title": "Claude Haiku 5.5",
       "url": "https://simonwillison.net/2026/Oct/7/claude-haiku-5-5"
+    },
+    "https://vercel.com/changelog/claude-haiku-5-5-now-available-on-ai-gateway": {
+      "first_seen": "2026-10-13",
+      "issue": "2026-42",
+      "title": "Claude Haiku 5.5 now available on AI Gateway",
+      "url": "https://vercel.com/changelog/claude-haiku-5-5-now-available-on-ai-gateway"
     },
     "https://www.anthropic.com/claude-haiku-5-5": {
       "first_seen": "2026-10-12",
