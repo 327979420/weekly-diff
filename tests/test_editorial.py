@@ -37,9 +37,9 @@ def test_phrase_retry_then_strip(chinese: bool, corrected: bool) -> None:
     copy = row['zh'] if chinese else row
     copy['why_it_matters'] = ('赋能' if chinese else 'Revolutionary ') + copy['why_it_matters']
     fake = FakeLLM([row, GOOD if corrected else row])
-    item = summarise(SCORED, SOURCE, load_config(), fake)
+    item = summarise(SCORED, SOURCE, load_config(Path(__file__).parent / 'fixtures/config.yaml'), fake)
     assert item is not None
-    assert not validate_item(item, SOURCE, load_config())
+    assert not validate_item(item, SOURCE, load_config(Path(__file__).parent / 'fixtures/config.yaml'))
     assert len(fake.calls) == 2
     assert 'banned phrase:' in fake.calls[1]['user']
     assert item.zh['why_it_matters'] == GOOD['zh']['why_it_matters']
@@ -48,17 +48,17 @@ def test_phrase_retry_then_strip(chinese: bool, corrected: bool) -> None:
 
 def test_phrase_removal_does_not_hide_evidence_error() -> None:
     row = {**GOOD, 'summary': 'Revolutionary gains of 99999.'}
-    assert summarise(SCORED, SOURCE, load_config(), FakeLLM([row, row])) is None
+    assert summarise(SCORED, SOURCE, load_config(Path(__file__).parent / 'fixtures/config.yaml'), FakeLLM([row, row])) is None
 
 
 @pytest.mark.parametrize('response', [GOOD, LLMError('failed'), {**GOOD, 'summary': 'Costs 99999.'}])
 def test_variety_retry_keeps_valid_original_on_failure_or_repetition(response: dict | Exception) -> None:
-    item = summarise(SCORED, SOURCE, load_config(), FakeLLM([GOOD]))
+    item = summarise(SCORED, SOURCE, load_config(Path(__file__).parent / 'fixtures/config.yaml'), FakeLLM([GOOD]))
     assert item is not None
     sections = {'models': [item, replace(item, key='second'), replace(item, key='third')]}
     original = deepcopy(sections)
     fake = FakeLLM([response, response])
-    vary_openings(sections, load_config(), fake)
+    vary_openings(sections, load_config(Path(__file__).parent / 'fixtures/config.yaml'), fake)
     assert len(fake.calls) == 2  # Adjacent You can / 你可以, even before the third occurrence.
     assert all('vary the opening; do not start with' in call['user'] for call in fake.calls)
     assert [row.summary for row in sections['models']] == [row.summary for row in original['models']]
@@ -70,7 +70,7 @@ def test_general_opening_limit_and_successful_rewrite(chinese: bool) -> None:
     row = deepcopy(GOOD)
     row['summary'] = 'Subagents compact the context before the main conversation.'
     row['zh']['summary'] = '子代理会提前压缩上下文。'
-    item = summarise(SCORED, SOURCE, load_config(), FakeLLM([row]))
+    item = summarise(SCORED, SOURCE, load_config(Path(__file__).parent / 'fixtures/config.yaml'), FakeLLM([row]))
     assert item is not None
     # Vary the other language so the general four-word/character rule is isolated.
     rows = [deepcopy(replace(item, key=str(i))) for i in range(3)]
@@ -84,7 +84,7 @@ def test_general_opening_limit_and_successful_rewrite(chinese: bool) -> None:
     revised['zh']['summary'] = '提前压缩上下文的时机可以配置。'
     fake = FakeLLM([revised])
     sections = {'models': rows[:2], 'tools': rows[2:]}
-    vary_openings(sections, load_config(), fake)
+    vary_openings(sections, load_config(Path(__file__).parent / 'fixtures/config.yaml'), fake)
     assert len(fake.calls) == 1
     assert sections['tools'][0].summary == revised['summary']
     notes = json.loads(fake.calls[0]['user'])['validation_problems']

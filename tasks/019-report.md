@@ -1,0 +1,5 @@
+- Changes: 所有业务测试及 CLI 测试改用 `tests/fixtures/config.yaml`；真实配置仅保留解析校验 smoke test，固定值与不可变性断言移到 fixture 测试；域名和中文长度条件显式覆盖。
+- Testing: `.venv/bin/python -m pytest -q` → 564 passed in 10.30s（当前 `llm.min_score: 4`）；临时设为 5 后同一命令 → 564 passed in 10.34s。
+- Testing: `git diff --check` 通过；搜索确认 `tests/` 仅 smoke test 保留 `load_config()`；`config.yaml` 已按原始字节恢复，SHA-256 为 `47b2b96ea265f84cc8f14ec17d4b5c1248dd3b9a8c1ed7a93b89941f870649a4`。
+- Unfinished: 无；未修改应用代码或 `publish_enabled`，未提交或推送。
+- Questions: 无。

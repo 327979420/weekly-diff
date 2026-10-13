@@ -28,7 +28,7 @@ def issue_fixtures(tmp_path_factory: pytest.TempPathFactory) -> Path:
 
 
 def test_complete_site(issue_fixtures: Path, tmp_path: Path) -> None:
-    cfg = load_config()
+    cfg = load_config(Path(__file__).parent / 'fixtures/config.yaml')
     out = tmp_path / 'site'
     out.mkdir()
     (out / 'stale.html').touch()
@@ -71,7 +71,7 @@ def test_complete_site(issue_fixtures: Path, tmp_path: Path) -> None:
 
 
 def test_feed_and_escaping(issue_fixtures: Path, tmp_path: Path) -> None:
-    cfg = load_config()
+    cfg = load_config(Path(__file__).parent / 'fixtures/config.yaml')
     render_site(cfg, issue_fixtures, tmp_path)
     html = (tmp_path / 'index.html').read_text()
     xml = (tmp_path / 'feed.xml').read_text()
@@ -95,7 +95,7 @@ def test_feed_and_escaping(issue_fixtures: Path, tmp_path: Path) -> None:
 
 
 def test_empty_and_config_changes(tmp_path: Path) -> None:
-    cfg = load_config()
+    cfg = load_config(Path(__file__).parent / 'fixtures/config.yaml')
     cfg = replace(cfg, name='Renamed & <roundup>', tagline='New tagline',
                   site=replace(cfg.site, base_url='https://example.org/news', language='fr'))
     out = tmp_path / 'site'
@@ -113,7 +113,7 @@ def test_missing_sections_and_optional_fields(tmp_path: Path) -> None:
     source = tmp_path / 'issues'
     source.mkdir()
     (source / '2026-42.json').write_text(json.dumps(data))
-    render_site(load_config(), source, tmp_path / 'site')
+    render_site(load_config(Path(__file__).parent / 'fixtures/config.yaml'), source, tmp_path / 'site')
     soup = BeautifulSoup((tmp_path / 'site/index.html').read_text(), 'html.parser')
     assert [s['id'] for s in soup.select('section[id]')] == ['models']
     assert 'How to try it:' not in soup.get_text()
@@ -134,7 +134,7 @@ def test_period(start: str, end: str, expected: str) -> None:
 def test_pipeline_render(issue_fixtures: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(paths, 'ISSUES', issue_fixtures)
     monkeypatch.setattr(paths, 'SITE', tmp_path / 'site')
-    pipeline.render(load_config(), Namespace(dry_run=True))
+    pipeline.render(load_config(Path(__file__).parent / 'fixtures/config.yaml'), Namespace(dry_run=True))
     assert (paths.SITE / 'issues/2026-42/index.html').exists()
 
 
@@ -146,12 +146,12 @@ def test_dry_run_combines_archive_and_replaces_same_week(issue_fixtures: Path, t
     before = {p.name: p.read_bytes() for p in source.iterdir()}
     issue = Issue.from_dict(json.loads(before['2026-42.json']))
     issue.sixty_seconds[0] = 'Preview replacement'
-    build._render(load_config(), issue, True)
+    build._render(load_config(Path(__file__).parent / 'fixtures/config.yaml'), issue, True)
     assert 'Preview replacement' in (paths.SITE / 'index.html').read_text()
     assert (paths.SITE / 'issues/2026-41/index.html').exists()
     assert len(feedparser.parse((paths.SITE / 'feed.xml').read_text()).entries) == 2
     issue.id = '2026-43'
-    build._render(load_config(), issue, True)
+    build._render(load_config(Path(__file__).parent / 'fixtures/config.yaml'), issue, True)
     assert 'Issue 43' in (paths.SITE / 'index.html').read_text()
     assert (paths.SITE / 'issues/2026-42/index.html').exists()
     assert before == {p.name: p.read_bytes() for p in source.iterdir()}
@@ -171,20 +171,20 @@ def test_invalid_paths_and_links_preserve_output(tmp_path: Path, field: str, val
     out.mkdir()
     (out / 'sentinel').touch()
     with pytest.raises(ValueError):
-        render_site(load_config(), source, out)
+        render_site(load_config(Path(__file__).parent / 'fixtures/config.yaml'), source, out)
     assert (out / 'sentinel').exists()
 
 
 def test_output_cannot_delete_input(tmp_path: Path) -> None:
     with pytest.raises(ValueError, match='must not contain'):
-        render_site(load_config(), tmp_path / 'issues', tmp_path)
+        render_site(load_config(Path(__file__).parent / 'fixtures/config.yaml'), tmp_path / 'issues', tmp_path)
 
 
 BILINGUAL = FIXTURES.parent / 'bilingual_issues'
 
 
 def test_bilingual_pages_and_counterparts(tmp_path: Path) -> None:
-    cfg = load_config()
+    cfg = load_config(Path(__file__).parent / 'fixtures/config.yaml')
     render_site(cfg, BILINGUAL, tmp_path)
     for path in tmp_path.rglob('*.html'):
         relative = path.relative_to(tmp_path).as_posix()
@@ -239,7 +239,7 @@ def test_partial_translation_falls_back_per_field(tmp_path: Path) -> None:
     source = tmp_path / 'issues'
     source.mkdir()
     (source / 'issue.json').write_text(json.dumps(data))
-    render_site(load_config(), source, tmp_path / 'site')
+    render_site(load_config(Path(__file__).parent / 'fixtures/config.yaml'), source, tmp_path / 'site')
     soup = BeautifulSoup((tmp_path / 'site/zh/index.html').read_text(), 'html.parser')
     card = soup.select_one('.story')
     assert card.h3.text == '部分翻译'
@@ -275,7 +275,7 @@ def test_theme_text_contrast() -> None:
 @pytest.mark.parametrize('bilingual', [False, True])
 def test_reader_labels_on_current_and_old_issues(tmp_path: Path, issue_fixtures: Path, bilingual: bool) -> None:
     out = tmp_path / 'site'
-    render_site(load_config(), BILINGUAL if bilingual else issue_fixtures, out)
+    render_site(load_config(Path(__file__).parent / 'fixtures/config.yaml'), BILINGUAL if bilingual else issue_fixtures, out)
     for prefix, why, first_step in [('', "Why you'd care:", 'How to try it:'),
                                      ('zh/', '值得看：', '上手：')]:
         soup = BeautifulSoup((out / prefix / 'index.html').read_text(), 'html.parser')
@@ -357,7 +357,7 @@ def test_allowed_thumbnails_og_and_saved_bullet_targets(tmp_path: Path, prefix: 
 
 def test_redesign_structure_and_interaction(tmp_path: Path) -> None:
     """Both languages retain working anchors, accessible controls and a small page."""
-    render_site(load_config(), BILINGUAL, tmp_path)
+    render_site(load_config(Path(__file__).parent / 'fixtures/config.yaml'), BILINGUAL, tmp_path)
     for prefix in ('', 'zh/'):
         html = (tmp_path / prefix / 'index.html').read_text()
         page = BeautifulSoup(html, 'html.parser')
@@ -418,12 +418,12 @@ def test_compact_chinese_period(start: str, end: str, expected: str) -> None:
 
 def test_issue_heading_and_text_accent(tmp_path: Path) -> None:
     out = tmp_path / 'site'
-    render_site(load_config(), BILINGUAL, out)
+    render_site(load_config(Path(__file__).parent / 'fixtures/config.yaml'), BILINGUAL, out)
     for prefix, heading in [('', 'Issue 42'), ('zh/', '第 42 期')]:
         soup = BeautifulSoup((out / prefix / 'issues/2026-42/index.html').read_text(), 'html.parser')
         assert soup.h1.text == heading
-        assert soup.select_one('.issue-kicker').text == load_config().name.upper()
-        assert soup.select_one('.brand').text == load_config().name
+        assert soup.select_one('.issue-kicker').text == load_config(Path(__file__).parent / 'fixtures/config.yaml').name.upper()
+        assert soup.select_one('.brand').text == load_config(Path(__file__).parent / 'fixtures/config.yaml').name
     css = (out / 'assets/style.css').read_text()
     assert '--accent-text: #C2410C' in css
     assert 'a:hover { color: var(--accent-text);' in css
@@ -439,7 +439,7 @@ def test_theme_first_click_resolves_system(tmp_path: Path) -> None:
     if node is None:
         pytest.skip('Node is needed to execute the theme toggle JavaScript')
     out = tmp_path / 'site'
-    render_site(load_config(), BILINGUAL, out)
+    render_site(load_config(Path(__file__).parent / 'fixtures/config.yaml'), BILINGUAL, out)
     soup = BeautifulSoup((out / 'index.html').read_text(), 'html.parser')
     script = soup.select('script')[-1].text
     harness = '''

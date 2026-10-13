@@ -1,9 +1,10 @@
+from pathlib import Path
 from weekly_diff.config import load_config
 from weekly_diff.tags import tag_labels
 
 
 def test_legacy_labels_both_languages() -> None:
-    cfg = load_config()
+    cfg = load_config(Path(__file__).parent / 'fixtures/config.yaml')
     for labels in (cfg.tags, cfg.tags_zh):
         assert set(labels) == {'try', 'learn', 'watch'}
         mapped = tag_labels(labels)

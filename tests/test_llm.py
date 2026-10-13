@@ -47,7 +47,7 @@ def test_provider_selection(provider: str, keys: list[str], expected: str | None
                             sdk_mocks: dict[str, Mock], monkeypatch: pytest.MonkeyPatch) -> None:
     for key in keys:
         monkeypatch.setenv(f'{key.upper()}_API_KEY', 'test-placeholder')
-    cfg = load_config()
+    cfg = load_config(Path(__file__).parent / 'fixtures/config.yaml')
     cfg = replace(cfg, llm=replace(cfg.llm, provider=provider, timeout_seconds=240, max_retries=4))
     if expected is None:
         with pytest.raises(LLMNotConfigured, match='Set ANTHROPIC_API_KEY or OPENAI_API_KEY'):
@@ -63,7 +63,7 @@ def test_provider_selection(provider: str, keys: list[str], expected: str | None
 def test_request_and_usage(provider: str, sdk_mocks: dict[str, Mock], monkeypatch: pytest.MonkeyPatch,
                            caplog: pytest.LogCaptureFixture) -> None:
     monkeypatch.setenv(f'{provider.upper()}_API_KEY', 'test-placeholder')
-    cfg = load_config()
+    cfg = load_config(Path(__file__).parent / 'fixtures/config.yaml')
     monkeypatch.setattr(f'weekly_diff.llm.{provider}_client.monotonic', Mock(side_effect=[10.0, 12.5]))
     client = get_client(cfg)
     with caplog.at_level(logging.INFO):
@@ -105,7 +105,7 @@ def test_refusal_and_truncation(provider: str, failure: str, sdk_mocks: dict[str
     method = sdk.messages.create if provider == 'anthropic' else sdk.responses.create
     method.return_value = namespace(raw)
     with pytest.raises(LLMError) as error:
-        get_client(load_config()).complete_json('', '', {}, 10)
+        get_client(load_config(Path(__file__).parent / 'fixtures/config.yaml')).complete_json('', '', {}, 10)
     assert 'private' not in str(error.value)
 
 
@@ -122,7 +122,7 @@ def test_sdk_errors_are_safe(provider: str, kind: str, sdk_mocks: dict[str, Mock
     sdk = sdk_mocks[provider].return_value
     (sdk.messages.create if provider == 'anthropic' else sdk.responses.create).side_effect = error
     with pytest.raises(LLMError) as caught:
-        get_client(load_config()).complete_json('', '', {}, 10)
+        get_client(load_config(Path(__file__).parent / 'fixtures/config.yaml')).complete_json('', '', {}, 10)
     assert 'private' not in str(caught.value)
     assert caught.value.__suppress_context__
 
@@ -161,7 +161,7 @@ def test_constraint_payload_validation_and_retry(provider: str, scenario: str,
     from weekly_diff.sixty import sixty
 
     monkeypatch.setenv(f'{provider.upper()}_API_KEY', 'test-placeholder')
-    cfg = load_config()
+    cfg = load_config(Path(__file__).parent / 'fixtures/config.yaml')
     client = get_client(cfg)
     sdk = sdk_mocks[provider].return_value
     method = sdk.messages.create if provider == 'anthropic' else sdk.responses.create
@@ -247,7 +247,7 @@ def test_status_error_details_redacted(provider: str, status: int, sdk_mocks: di
     method = sdk.messages.create if provider == 'anthropic' else sdk.responses.create
     method.side_effect = error_class('private prompt and headers', response=Mock(status_code=status), body=body)
     with pytest.raises(LLMError) as error:
-        get_client(load_config()).complete_json('', '', {}, 10)
+        get_client(load_config(Path(__file__).parent / 'fixtures/config.yaml')).complete_json('', '', {}, 10)
     message = str(error.value)
     label = 'Anthropic' if provider == 'anthropic' else 'OpenAI'
     assert message.startswith(f'{label} API error {status} invalid_request_error: Unsupported schema constraint; ***')
@@ -266,7 +266,7 @@ def test_sdk_timeout(provider: str, timeout: float, sdk_mocks: dict[str, Mock],
     method = sdk.messages.create if provider == 'anthropic' else sdk.responses.create
     method.side_effect = module.APITimeoutError(request=Mock())
     monkeypatch.setattr(f'weekly_diff.llm.{provider}_client.monotonic', Mock(side_effect=[10.0, 12.5]))
-    cfg = load_config()
+    cfg = load_config(Path(__file__).parent / 'fixtures/config.yaml')
     cfg = replace(cfg, llm=replace(cfg.llm, timeout_seconds=timeout))
     with caplog.at_level(logging.INFO), pytest.raises(LLMError) as caught:
         get_client(cfg).complete_json('private system', 'private prompt', {}, 10)

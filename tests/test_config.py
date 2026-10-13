@@ -11,9 +11,13 @@ FIXTURES = Path(__file__).parent / "fixtures"
 
 
 def test_real_config() -> None:
-    cfg = load_config()
-    assert cfg.name == "The Weekly Diff"
-    assert cfg.base_path == "/weekly-diff"
+    load_config()
+
+
+def test_fixture_config() -> None:
+    cfg = load_config(FIXTURES / "config.yaml")
+    assert cfg.name == "Test Roundup"
+    assert cfg.base_path == "/roundup"
     assert cfg.issue_url("2026-41") == f"{cfg.site.base_url}/issues/2026-41/"
     assert cfg.sources.github_releases.repos
     assert cfg.llm.timeout_seconds == 180

@@ -32,7 +32,7 @@ def workspace(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, offline_http: res
     (paths.BUILD / 'candidates.json').write_text(json.dumps(ROWS))
     for row in ROWS:
         offline_http.get(row['url'], body=(FIX / 'image.html').read_text())
-    return load_config()
+    return load_config(Path(__file__).parent / 'fixtures/config.yaml')
 
 
 def fake_response(system: str, user: str, schema: dict, max_tokens: int) -> dict:
@@ -193,7 +193,7 @@ def test_top_prefers_try_now_preserving_diversity() -> None:
     from weekly_diff.models import Item
     row = json.loads((Path(__file__).parent / 'fixtures/models.json').read_text())['item']
     base = Item.from_dict(row)
-    cfg = load_config()
+    cfg = load_config(Path(__file__).parent / 'fixtures/config.yaml')
     items = [replace(base, key='watch', score=10, extra={}),
              replace(base, key='try', score=5, extra={'try_now': True})]
     assert build.top_items(items, cfg)[0] == 'try'

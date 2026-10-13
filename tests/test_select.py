@@ -21,14 +21,14 @@ def items(section: str, count: int, source_type: str = 'rss') -> list[Scored]:
 
 
 def small_config() -> Config:
-    cfg = load_config()
+    cfg = load_config(Path(__file__).parent / 'fixtures/config.yaml')
     return replace(cfg, issue=replace(cfg.issue, min_items=6, max_items=8, hard_min_items=3,
                    sections=tuple(replace(s, min=1, max=2) for s in cfg.issue.sections)))
 
 
 def test_quotas_cap_backups_and_github_order(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(paths, 'BUILD', tmp_path)
-    cfg = load_config()
+    cfg = load_config(Path(__file__).parent / 'fixtures/config.yaml')
     scored = [item for section in cfg.issue.sections for item in items(section.key, 8)]
     result = select(scored, cfg)
     assert sum(map(len, result.chosen.values())) == cfg.issue.max_items
@@ -82,7 +82,7 @@ def test_total_cap_even_when_minima_exceed_it(tmp_path: Path, monkeypatch: pytes
 @pytest.mark.parametrize('cap', [12, 13, 15])
 def test_empty_quick_section_gets_minimum(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, cap: int) -> None:
     monkeypatch.setattr(paths, 'BUILD', tmp_path)
-    cfg = load_config()
+    cfg = load_config(Path(__file__).parent / 'fixtures/config.yaml')
     cfg = replace(cfg, issue=replace(cfg.issue, max_items=cap))
     scored = (items('models', 8, 'huggingface') + items('tools', 8, 'github_release')
               + items('github', 6, 'github_trending'))
@@ -127,7 +127,7 @@ def test_try_now_preferred_with_quotas_and_threshold(section: str, tmp_path: Pat
 
 def test_extra_pass_priority_floor_and_quick_overflow() -> None:
     from weekly_diff.select import select_extra
-    cfg = load_config()
+    cfg = load_config(Path(__file__).parent / 'fixtures/config.yaml')
     counts = {'models': 2, 'tools': 1, 'github': 3, 'quick': 2}
     model = replace(items('models', 1)[0], score=9)
     tool = replace(items('tools', 1)[0], score=4)

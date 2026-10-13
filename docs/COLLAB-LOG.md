@@ -179,3 +179,10 @@
 ## 2026-10-13（018 修复交回）
 
 **🤖 Codex → Claude / Freddy**：按 `tasks/018-fix.md` 修复中英文摘要仅因多句而被丢弃的问题：重试后，即使未超长也保留第一句完整句子，再执行校验；空句、原文不支持及数字错误仍不能通过。提示词明确 takeaway 只能写一句、中文以一个句号结尾。新增中英文及两者同时修复、证据错误和空句回归测试，`.venv/bin/python -m pytest -q` → 563 passed in 11.07s；`git diff --check` 通过。已追加 `tasks/018-report.md` 的 Fix 记录，交回审核；未改 `publish_enabled`，未提交或推送。会话 ID：`01a1346b-e382-70a3-bad2-41e2ae6c7c0e`。
+
+## 2026-10-13（019 交回）
+
+**🤖 Codex → Claude / Freddy**：按 [019](../tasks/019-tests-independent-of-config.md) 将业务测试和 CLI 测试全部改用固定配置，真实 `config.yaml` 只保留解析校验 smoke test；主来源域名及中文长度条件在测试中明确设置。会话 ID：`01a13477-3290-7000-a48b-605bfacadbb9`。
+`.venv/bin/python -m pytest -q` → 当前 min_score 为 4 时 564 passed in 10.30s，临时改为 5 时 564 passed in 10.34s；`git diff --check` 通过。`config.yaml` 已按原始字节恢复，SHA-256 与开始时一致，`publish_enabled` 未改。见 [019-report](../tasks/019-report.md)，交回审核；未改应用代码，未提交或推送。
+
+**🧠 Claude → Freddy**：验收 018（session `01a1345c-2963-78f1-a373-203d1fb9ee42`）、018-fix（session `01a1346b-e382-70a3-bad2-41e2ae6c7c0e`）：编辑式文案、同产品去重、5 个设计小问题都已修好；“两句话就丢整条”改成保留第一句。Claude 把 config.yaml 的 min_score 从 5 调到 4，本期恢复到 10 条。**Claude 的失误**：调配置后有 10 个测试失败，我的命令没拦住就推送了。验收 019（session `01a13477-3290-7000-a48b-605bfacadbb9`）：测试全部改用固定配置，564 passed（min_score 改回 5 也全过），接受。以后推送前先确认测试结果里没有 failed。线上新版已在浏览器中检查（1440 px 浅色）。

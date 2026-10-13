@@ -9,6 +9,8 @@ ROOT = Path(__file__).resolve().parent.parent
 
 
 def cli(*args: str, env: dict[str, str] | None = None) -> subprocess.CompletedProcess[str]:
+    if "--config" not in args:
+        args = ("--config", str(ROOT / "tests/fixtures/config.yaml"), *args)
     return subprocess.run([sys.executable, str(ROOT / "run.py"), *args], cwd=ROOT,
                           env=env, text=True, capture_output=True, timeout=10)
 
@@ -18,7 +20,7 @@ def test_status_github_output(tmp_path: Path) -> None:
     output.write_text("existing=value\n")
     result = cli("status", "--issue", "2026-41", "--github-output", env={**os.environ, "GITHUB_OUTPUT": str(output)})
     assert result.returncode == 0
-    assert set(result.stdout.splitlines()) == {"name=The Weekly Diff", "issue_id=2026-41", "paused=false", "publish_enabled=false"}
+    assert set(result.stdout.splitlines()) == {"name=Test Roundup", "issue_id=2026-41", "paused=false", "publish_enabled=false"}
     assert output.read_text() == "existing=value\npaused=false\npublish_enabled=false\nissue_id=2026-41\n"
 
 

@@ -45,7 +45,7 @@ def test_committed_legacy_issue_loads_and_renders(tmp_path: Path) -> None:
     issues = tmp_path / 'issues'
     issues.mkdir()
     (issues / source.name).write_text(raw)
-    render_site(load_config(), issues, tmp_path / 'site')
+    render_site(load_config(Path(__file__).parent / 'fixtures/config.yaml'), issues, tmp_path / 'site')
     page = (tmp_path / 'site/issues/2026-42/index.html').read_text()
     assert '2026-42' in page and next(issue.items()).source_url in page
     chinese_page = (tmp_path / 'site/zh/issues/2026-42/index.html').read_text()

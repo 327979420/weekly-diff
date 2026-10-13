@@ -233,7 +233,7 @@ def test_cli_dry_run(issue: Issue, tmp_path: Path, monkeypatch: pytest.MonkeyPat
                      capsys: pytest.CaptureFixture[str]) -> None:
     monkeypatch.setattr(paths, 'ISSUES', tmp_path)
     (tmp_path / f'{issue.id}.json').write_text(json.dumps(issue.to_dict()))
-    assert run.main(['publish', '--issue', issue.id, '--preview', '--dry-run']) == 0
+    assert run.main(['--config', str(FIXTURES / 'config.yaml'), 'publish', '--issue', issue.id, '--preview', '--dry-run']) == 0
     assert capsys.readouterr().out.endswith('\ndry-run\n')
 
 

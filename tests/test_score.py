@@ -19,7 +19,7 @@ def generated(system: str, user: str, schema: dict, max_tokens: int) -> dict:
 
 
 def test_batching_cap_reservation_and_payload() -> None:
-    cfg = load_config()
+    cfg = load_config(Path(__file__).parent / 'fixtures/config.yaml')
     cfg = replace(cfg, llm=replace(cfg.llm, max_candidates_to_score=12, score_batch_size=5))
     base = Candidate.from_dict(DATA['candidate'])
     candidates = [replace(base, key=f'news:{i}', signals={'hn_points': 100000}, text='x' * 500) for i in range(20)]
@@ -42,7 +42,7 @@ def test_hard_sections_unknown_and_missing_ids() -> None:
     candidates = [replace(base, key=kind, source_type=kind) for kind in ('github_trending', 'github_release', 'huggingface', 'rss')]
     fake = FakeLLM([{'items': [{**DATA['row'], 'id': kind, 'section': 'quick'}
                               for kind in ('github_trending', 'github_release', 'huggingface', 'unknown')]}])
-    result = {s.candidate.key: s for s in score(candidates, load_config(), fake)}
+    result = {s.candidate.key: s for s in score(candidates, load_config(Path(__file__).parent / 'fixtures/config.yaml'), fake)}
     assert len(result) == 4
     assert [result[k].section for k in ('github_trending', 'github_release', 'huggingface')] == ['github', 'tools', 'models']
     assert result['rss'].relevant is False
@@ -56,22 +56,22 @@ def test_invalid_fields_retry_once(change: dict) -> None:
     good = {'items': [DATA['row']]}
     candidate = Candidate.from_dict(DATA['candidate'])
     fake = FakeLLM([bad, good])
-    assert score([candidate], load_config(), fake)[0].relevant
+    assert score([candidate], load_config(Path(__file__).parent / 'fixtures/config.yaml'), fake)[0].relevant
     assert len(fake.calls) == 2
     with pytest.raises(LLMError, match='after retry'):
-        score([candidate], load_config(), FakeLLM([bad, bad]))
+        score([candidate], load_config(Path(__file__).parent / 'fixtures/config.yaml'), FakeLLM([bad, bad]))
 
 
 def test_invalid_json_retry_and_transport_no_retry() -> None:
     candidate = Candidate.from_dict(DATA['candidate'])
     fake = FakeLLM([InvalidJSON('Invalid JSON completion'), {'items': [DATA['row']]}])
-    assert score([candidate], load_config(), fake)[0].score == 8
+    assert score([candidate], load_config(Path(__file__).parent / 'fixtures/config.yaml'), fake)[0].score == 8
     failing = FakeLLM([LLMError('Connection error')])
     with pytest.raises(LLMError, match='Connection error'):
-        score([candidate], load_config(), failing)
+        score([candidate], load_config(Path(__file__).parent / 'fixtures/config.yaml'), failing)
     assert len(failing.calls) == 1
     empty = FakeLLM()
-    assert score([], load_config(), empty) == []
+    assert score([], load_config(Path(__file__).parent / 'fixtures/config.yaml'), empty) == []
     assert empty.calls == []
 
 
@@ -91,13 +91,13 @@ def test_try_now_requires_boolean(value: object) -> None:
     candidate = Candidate.from_dict(DATA['candidate'])
     bad = {'items': [{**DATA['row'], 'try_now': value}]}
     with pytest.raises(LLMError):
-        score([candidate], load_config(), FakeLLM([bad, bad]))
+        score([candidate], load_config(Path(__file__).parent / 'fixtures/config.yaml'), FakeLLM([bad, bad]))
 
 
 def test_spaces_stay_in_quick_and_legacy_selection_loads() -> None:
     candidate = replace(Candidate.from_dict(DATA['candidate']), key='hfspace:demo/app',
                         source_type='huggingface', section_hint='quick')
-    result = score([candidate], load_config(), FakeLLM(generated))[0]
+    result = score([candidate], load_config(Path(__file__).parent / 'fixtures/config.yaml'), FakeLLM(generated))[0]
     assert result.section == 'quick' and result.try_now
     old = result.to_dict()
     del old['try_now']

@@ -12,7 +12,7 @@ FIXTURE = Path(__file__).parent / 'fixtures/collectors/hf.json'
 
 
 def client() -> Http:
-    cfg = load_config()
+    cfg = load_config(Path(__file__).parent / 'fixtures/config.yaml')
     return Http(replace(cfg, sources=replace(cfg.sources, backoff_seconds=0)))
 
 
@@ -38,7 +38,7 @@ def test_two_retries(failure: int | Exception, offline_http: responses.RequestsM
                      monkeypatch: pytest.MonkeyPatch) -> None:
     delays = []
     monkeypatch.setattr('weekly_diff.http.time.sleep', delays.append)
-    http = Http(load_config())
+    http = Http(load_config(Path(__file__).parent / 'fixtures/config.yaml'))
     kwargs = {'status': failure} if isinstance(failure, int) else {'body': failure}
     for _ in range(2):
         offline_http.get('https://example.com/test', **kwargs)

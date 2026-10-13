@@ -13,7 +13,7 @@ DATA = json.loads((Path(__file__).parent / 'fixtures/shortlist.json').read_text(
 
 
 def test_url_merge_and_seen_aliases() -> None:
-    cfg = load_config()
+    cfg = load_config(Path(__file__).parent / 'fixtures/config.yaml')
     lab = Candidate.from_dict(DATA['candidate'])
     hn = replace(lab, key='hn:1', source_name='HN', source_type='hackernews', primary=True,
                  title='An aggregator headline', text='Short snippet', url=lab.url + '/?utm_source=hn',
@@ -33,7 +33,8 @@ def test_url_merge_and_seen_aliases() -> None:
 
 
 def test_near_primary_signals_and_dates() -> None:
-    cfg = load_config()
+    cfg = load_config(Path(__file__).parent / 'fixtures/config.yaml')
+    cfg = replace(cfg, sources=replace(cfg.sources, primary_domains=('openai.com',)))
     lab = Candidate.from_dict(DATA['candidate'])
     other = replace(lab, key='other', title='Atlas releases new reasoning model',
                     url='https://example.com/story', primary=False, signals={'hn_points': 500})
@@ -53,17 +54,17 @@ def test_hf_variants_and_distinct_authors() -> None:
               for name, likes in [('lab/Atlas-7B-Instruct-FP8', 12), ('lab/Atlas-70B-GGUF', 40),
                                   ('lab/Atlas-7B-Base', 2), ('other/Atlas-7B-AWQ', 100),
                                   ('lab/Atlas-Next-7B', 50)]]
-    result = dedupe(models, load_config(), {'version': 1, 'items': {}}, '2026-41')
+    result = dedupe(models, load_config(Path(__file__).parent / 'fixtures/config.yaml'), {'version': 1, 'items': {}}, '2026-41')
     assert len(result) == 3
     winner = next(c for c in result if c.title == 'lab/Atlas-70B-GGUF')
     assert winner.extra['variants'] == ['lab/Atlas-7B-Base', 'lab/Atlas-7B-Instruct-FP8']
     seen = {'version': 1, 'items': {}}
     mark_seen(seen, [winner], '2026-41', date(2026, 10, 10))
-    assert dedupe([models[0]], load_config(), seen, '2026-42') == []
+    assert dedupe([models[0]], load_config(Path(__file__).parent / 'fixtures/config.yaml'), seen, '2026-42') == []
 
 
 def test_embeddinggemma_cross_source_primary_and_aliases() -> None:
-    cfg = load_config()
+    cfg = load_config(Path(__file__).parent / 'fixtures/config.yaml')
     base = Candidate.from_dict(DATA['candidate'])
     hf = replace(base, key='hf:google/embeddinggemma-2', title='google/embeddinggemma-2-GGUF',
                  source_type='huggingface', source_name='Hugging Face',

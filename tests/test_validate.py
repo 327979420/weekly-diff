@@ -23,14 +23,14 @@ BASE = replace(Item.from_dict(DATA['item']), tag='try')
     ({'summary': 'word ' * 26}, '25'), ({'why_it_matters': 'word ' * 41}, '40'),
     ({'for_builders': 'word ' * 31}, '30'), ({'headline': '🚀 New'}, 'emoji')])
 def test_item_rejections(change: dict, problem: str) -> None:
-    assert any(problem in p for p in validate_item(replace(BASE, **change), '', load_config()))
+    assert any(problem in p for p in validate_item(replace(BASE, **change), '', load_config(Path(__file__).parent / 'fixtures/config.yaml')))
 
 
 def test_number_normalisation_and_title() -> None:
     assert not number_problems('$1,000 and 40% on v2.1 with 4.5', '$1 000 40% v2.1 4.5')
     assert number_problems('40', '140 4.0')
     assert number_problems('2.1', '2.10')
-    assert not validate_item(replace(BASE, headline='Version v2.1', extra={'candidate_title': 'v2.1'}), '', load_config())
+    assert not validate_item(replace(BASE, headline='Version v2.1', extra={'candidate_title': 'v2.1'}), '', load_config(Path(__file__).parent / 'fixtures/config.yaml'))
 
 
 @pytest.mark.parametrize('text', ['Version v2.1 ships.', 'Costs $4.5 per call.', 'Try it, e.g. locally.'])
@@ -50,9 +50,9 @@ def issue() -> Issue:
 
 def test_issue_valid_and_duplicate_url() -> None:
     good = issue()
-    assert not validate_issue(good, load_config())
+    assert not validate_issue(good, load_config(Path(__file__).parent / 'fixtures/config.yaml'))
     good.sections['tools'][0].source_url = good.sections['models'][0].source_url + '?utm_source=test'
-    assert 'duplicate source URL' in validate_issue(good, load_config())
+    assert 'duplicate source URL' in validate_issue(good, load_config(Path(__file__).parent / 'fixtures/config.yaml'))
 
 
 @pytest.mark.parametrize('kind', ['bullets', 'count', 'keys', 'top', 'section', 'item'])
@@ -70,7 +70,7 @@ def test_issue_rejections(kind: str) -> None:
         bad.sections['models'][0].section = 'tools'
     else:
         bad.sections['models'][0].summary = 'Invented 100.'
-    assert validate_issue(bad, load_config())
+    assert validate_issue(bad, load_config(Path(__file__).parent / 'fixtures/config.yaml'))
 
 
 def test_saved_evidence_is_revalidated() -> None:
@@ -79,14 +79,14 @@ def test_saved_evidence_is_revalidated() -> None:
     item.summary = 'You can use v2.1 for 1,000 requests.'
     item.extra = {'source_text': 'Supports 1 000 requests.', 'candidate_title': 'Version v2.1'}
     restored = Issue.from_dict(original.to_dict())
-    assert not validate_issue(restored, load_config())
+    assert not validate_issue(restored, load_config(Path(__file__).parent / 'fixtures/config.yaml'))
     restored.sections['models'][0].summary = 'You can use v2.1 for 2,000 requests.'
-    assert any('unsupported number' in problem for problem in validate_issue(restored, load_config()))
+    assert any('unsupported number' in problem for problem in validate_issue(restored, load_config(Path(__file__).parent / 'fixtures/config.yaml')))
 
 
 @pytest.mark.parametrize('limit', [24, 90, 110])
 def test_configured_headline_limit(limit: int) -> None:
-    cfg = load_config()
+    cfg = load_config(Path(__file__).parent / 'fixtures/config.yaml')
     cfg = replace(cfg, issue=replace(cfg.issue, max_headline_chars=limit))
     assert not validate_item(replace(BASE, headline='x' * limit), '', cfg)
     assert validate_item(replace(BASE, headline='x' * (limit + 1)), '', cfg) == [
@@ -105,41 +105,44 @@ def test_configured_headline_limit(limit: int) -> None:
     ('summary', '@everyone', 'mention'),
 ])
 def test_chinese_validation(field: str, value: str, problem: str) -> None:
+    cfg = load_config(Path(__file__).parent / 'fixtures/config.yaml')
+    cfg = replace(cfg, content=replace(cfg.content, max_summary_chars_zh=70,
+                                      max_why_chars_zh=100, max_builders_chars_zh=90))
     item = replace(BASE, zh={**BASE.zh, field: value})
-    assert any(problem in p for p in validate_item(item, '', load_config()))
+    assert any(problem in p for p in validate_item(item, '', cfg))
 
 
 @pytest.mark.parametrize('field', ['headline', 'summary', 'why_it_matters', 'for_builders'])
 def test_chinese_numbers_require_evidence(field: str) -> None:
     item = replace(BASE, zh={**BASE.zh, field: '你可以用 v2.1 处理 999 次请求'})
-    assert any('999' in p for p in validate_item(item, 'v2.1', load_config()))
-    assert not validate_item(item, 'v2.1 supports 999 requests', load_config())
+    assert any('999' in p for p in validate_item(item, 'v2.1', load_config(Path(__file__).parent / 'fixtures/config.yaml')))
+    assert not validate_item(item, 'v2.1 supports 999 requests', load_config(Path(__file__).parent / 'fixtures/config.yaml'))
 
 
 @pytest.mark.parametrize('emoji', [None, '', 'abc', '🚀🚀', '🛠️工具', '\u200d', '👩\u200d'])
 def test_invalid_emoji(emoji: str | None) -> None:
-    assert any('emoji' in p for p in validate_item(replace(BASE, emoji=emoji), '', load_config()))
+    assert any('emoji' in p for p in validate_item(replace(BASE, emoji=emoji), '', load_config(Path(__file__).parent / 'fixtures/config.yaml')))
 
 
 @pytest.mark.parametrize('emoji', ['🚀', '🛠️', '👩🏽\u200d💻', '🇨🇳', '1️⃣'])
 def test_valid_emoji(emoji: str) -> None:
-    assert not validate_item(replace(BASE, emoji=emoji), '', load_config())
+    assert not validate_item(replace(BASE, emoji=emoji), '', load_config(Path(__file__).parent / 'fixtures/config.yaml'))
 
 
 @pytest.mark.parametrize('summary', ['You can use the tool.', 'The tool has been updated.'])
 def test_second_person_is_optional(summary: str) -> None:
-    assert not validate_item(replace(BASE, summary=summary), '', load_config())
-    assert not validate_item(replace(BASE, zh={**BASE.zh, 'summary': '工具已更新。'}), '', load_config())
+    assert not validate_item(replace(BASE, summary=summary), '', load_config(Path(__file__).parent / 'fixtures/config.yaml'))
+    assert not validate_item(replace(BASE, zh={**BASE.zh, 'summary': '工具已更新。'}), '', load_config(Path(__file__).parent / 'fixtures/config.yaml'))
 
 
 @pytest.mark.parametrize('tag', ['try', 'learn', 'watch'])
 def test_new_tags_accepted(tag: str) -> None:
-    assert not validate_item(replace(BASE, tag=tag), '', load_config())
+    assert not validate_item(replace(BASE, tag=tag), '', load_config(Path(__file__).parent / 'fixtures/config.yaml'))
 
 
 @pytest.mark.parametrize('tag', ['builders', 'work', 'beginner'])
 def test_legacy_tags_not_generated(tag: str) -> None:
-    assert 'invalid tag' in validate_item(replace(BASE, tag=tag), '', load_config())
+    assert 'invalid tag' in validate_item(replace(BASE, tag=tag), '', load_config(Path(__file__).parent / 'fixtures/config.yaml'))
 
 
 def test_final_product_guard() -> None:
@@ -148,4 +151,4 @@ def test_final_product_guard() -> None:
     issue.sections = {'tools': rows}
     rows[0].extra = {**rows[0].extra, 'candidate_title': 'google/embeddinggemma-2-GGUF'}
     rows[1].extra = {**rows[1].extra, 'candidate_title': 'Introducing EmbeddingGemma 2 for search'}
-    assert 'duplicate product name' in validate_issue(issue, load_config())
+    assert 'duplicate product name' in validate_issue(issue, load_config(Path(__file__).parent / 'fixtures/config.yaml'))
