@@ -32,7 +32,7 @@ def test_retry_and_evidence() -> None:
     assert payload['SOURCE'] == SOURCE and payload['section'] == 'models'
 
 
-@pytest.mark.parametrize('bad', [{**GOOD, 'summary': ''}, {**GOOD, 'summary': 'First. Second.'},
+@pytest.mark.parametrize('bad', [{**GOOD, 'summary': ''},
                                  {**GOOD, 'supported': 'yes'}, {**GOOD, 'for_builders': []},
                                  {**GOOD, 'source_url': 'https://example.com/injected'},
                                  InvalidJSON('bad'), LLMError('failed')])
@@ -167,4 +167,46 @@ def test_overlong_multisentence_summary_keeps_complete_first_sentence(chinese: b
     item = summarise(SCORED, SOURCE, load_config(), fake)
     assert item is not None
     assert (item.zh['summary'] if chinese else item.summary) == first
+    assert len(fake.calls) == 2
+
+
+@pytest.mark.parametrize('languages', [('en',), ('zh',), ('en', 'zh')])
+def test_short_multisentence_summary_repaired_after_retry(languages: tuple[str, ...]) -> None:
+    from weekly_diff.validate import validate_item
+    row = {**GOOD, 'zh': dict(GOOD['zh'])}
+    cfg = load_config()
+    for language in languages:
+        copy = row['zh'] if language == 'zh' else row
+        copy['summary'] += ('开发者可以配置压缩时机。' if language == 'zh'
+                            else ' Builders can configure when a subagent compacts its context.')
+    assert len(row['summary'].split()) <= cfg.content.max_summary_words
+    assert len(row['zh']['summary']) <= cfg.content.max_summary_chars_zh
+    fake = FakeLLM([row, row])
+    item = summarise(SCORED, SOURCE, cfg, fake)
+    assert item is not None
+    assert item.summary == GOOD['summary']
+    assert item.zh['summary'] == GOOD['zh']['summary']
+    assert not validate_item(item, SOURCE, cfg)
+    assert len(fake.calls) == 2
+    assert 'must be a single sentence' in fake.calls[1]['user']
+    assert 'exactly one sentence' in fake.calls[0]['system']
+    assert '中文以一个句号结尾' in fake.calls[0]['system']
+
+
+@pytest.mark.parametrize('chinese', [False, True])
+@pytest.mark.parametrize('unsupported', [False, True])
+def test_sentence_repair_does_not_hide_evidence_errors(chinese: bool, unsupported: bool) -> None:
+    row = {**GOOD, 'zh': dict(GOOD['zh'])}
+    copy = row['zh'] if chinese else row
+    copy['summary'] = ('支持 99999 个工具。开发者可以配置。' if chinese
+                       else 'Supports 99999 tools. Builders can configure them.')
+    row['supported'] = not unsupported
+    fake = FakeLLM([row, row])
+    assert summarise(SCORED, SOURCE, load_config(), fake) is None
+
+
+def test_sentence_repair_revalidates_empty_first_sentence() -> None:
+    row = {**GOOD, 'summary': 'First.Second'}
+    fake = FakeLLM([row, row])
+    assert summarise(SCORED, SOURCE, load_config(), fake) is None
     assert len(fake.calls) == 2

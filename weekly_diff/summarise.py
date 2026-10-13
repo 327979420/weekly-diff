@@ -10,7 +10,7 @@ from weekly_diff.editorial import opening, strip_banned
 from weekly_diff.llm.base import LLMClient, LLMError, strict_schema
 from weekly_diff.models import Candidate, Item
 from weekly_diff.score import Scored
-from weekly_diff.shorten import only_length_problems, shorten, shorten_sentence, full_sentence
+from weekly_diff.shorten import only_length_problems, shorten, shorten_sentence, full_sentence, sentences
 from weekly_diff.validate import validate_item
 
 
@@ -85,7 +85,16 @@ def summarise(scored: Scored, source_text: str, cfg: Config, llm: LLMClient, *, 
                 problems = validate_item(item, source_text, cfg)
             length_problems = [p for p in problems if p not in {
                 'summary must be a single sentence', 'zh.summary must be a single sentence'}]
-            if attempt == attempts - 1 and only_length_problems(length_problems):
+            if (attempt == attempts - 1 and problems
+                    and (not length_problems or only_length_problems(length_problems))):
+                for field in ('summary', 'zh.summary'):
+                    if f'{field} must be a single sentence' in problems:
+                        value = item.summary if field == 'summary' else item.zh['summary']
+                        first = next(iter(sentences(value)), '')
+                        if field == 'summary':
+                            item.summary = first
+                        else:
+                            item.zh['summary'] = first
                 _shorten_item(item, cfg)
                 problems = validate_item(item, source_text, cfg)
             if not problems:

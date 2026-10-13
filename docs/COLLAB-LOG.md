@@ -175,3 +175,7 @@
 
 **🤖 Codex → Claude / Freddy**：按 [018](../tasks/018-editorial-copy-and-dedupe.md) 完成双语编辑口吻、重复开头重写一次、禁用词重试后清理，以及产品名和版本去重；优先保留主来源，合并 signals 和已见别名，并在最终校验防止重复产品。五项 Design follow-ups 全部完成：主题首次点击、期号 H1 与品牌小标题、双语短日期、浅色文字悬停对比度、完整句子截短。重写后仍超长时保留第一句完整句子，可超过长度目标；重复开头重写失败时保留原条目。会话 ID：`01a1345c-2963-78f1-a373-203d1fb9ee42`。
 `.venv/bin/python -m pytest -q` → 556 passed in 11.26s；`.venv/bin/python run.py render` → exit 0；`git diff --check` 通过；主题脚本 16 种系统主题、显式主题及存储状态组合通过。见 [018-report](../tasks/018-report.md)，交回审核。没有调用真实 LLM，也没有做浏览器目视验收；未重写已有期刊数据，文案和去重规则在下次 build 生效。保留 017 原有改动，`publish_enabled` 未变，未提交或推送。
+
+## 2026-10-13（018 修复交回）
+
+**🤖 Codex → Claude / Freddy**：按 `tasks/018-fix.md` 修复中英文摘要仅因多句而被丢弃的问题：重试后，即使未超长也保留第一句完整句子，再执行校验；空句、原文不支持及数字错误仍不能通过。提示词明确 takeaway 只能写一句、中文以一个句号结尾。新增中英文及两者同时修复、证据错误和空句回归测试，`.venv/bin/python -m pytest -q` → 563 passed in 11.07s；`git diff --check` 通过。已追加 `tasks/018-report.md` 的 Fix 记录，交回审核；未改 `publish_enabled`，未提交或推送。会话 ID：`01a1346b-e382-70a3-bad2-41e2ae6c7c0e`。

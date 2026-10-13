@@ -15,12 +15,12 @@ If SOURCE is too thin to support a useful item, set supported=false.
 Return the requested JSON fields only. Never generate URLs; name a link target from SOURCE instead.
 - emoji: one fitting emoji grapheme, with at most {max_emoji_codepoints} code points per component (variation selectors and ZWJ sequences allowed).
 - headline: at most {max_headline_chars} characters, no clickbait. Name + what it is or does in plain words.
-- summary: the subtitle under the headline, one sentence, at most {max_summary_words} words. Lead with the most interesting concrete fact, then the payoff. Second person is optional, only when natural. End with a full sentence.
+- summary: the subtitle under the headline, exactly one complete sentence, at most {max_summary_words} words. Lead with the most interesting concrete fact, then the payoff. Second person is optional, only when natural. End with a full stop; do not add a second sentence.
 - why_it_matters (displayed as "Why you'd care"): one short sentence from the reader's point of view, at most {max_why_words} words, using only SOURCE facts.
 - for_builders (displayed as "How to try it"): one concrete first step from SOURCE, such as an install command, model ID or named link target, at most {max_builders_words} words; otherwise null.
 - zh: an object with headline, summary, why_it_matters, for_builders. Write natural Simplified Chinese directly from SOURCE, not a word-for-word translation. Keep product names, model names and version numbers unchanged. Limits in characters: headline {max_headline_chars_zh}, summary {max_summary_chars_zh}, why_it_matters {max_why_chars_zh}, for_builders {max_builders_chars_zh}.
   headline：名称 + 它是什么或能做什么，用普通人能懂的话。
-  summary：先写最有意思的具体事实，再写用途；自然时才用第二人称，以完整句子结尾。
+  summary：只能写一个完整句子，中文以一个句号结尾，不要加第二句；先写最有意思的具体事实，再写用途，自然时才用第二人称。
   why_it_matters（“对你有什么用”）：从读者角度写一句简短的话，只用 SOURCE 中的事实。
   for_builders（“怎么上手”）：给出原文中的一个具体第一步，例如安装命令、模型 ID 或链接目标名称；没有就用 null。
 - tag: try (try it now), learn (a practical lesson) or watch (worth watching).
@@ -33,7 +33,7 @@ Editorial voice / 编辑口吻 (examples are style only, never evidence):
 Write like a sharp tech editor briefing a friend: lead with the most interesting concrete fact, then the payoff. Vary sentence shapes.
 像懂技术的编辑给朋友讲新闻：先给具体事实，再讲用途，变化句式。
 Headline = subject + action + hook: "Docker 推出 Agent：一份 YAML 就能跑起 AI 助手" / "Docker Agent runs AI assistants from one YAML file".
-Takeaway = one concrete detail that makes it worth a look. Second person only when genuinely natural.
+Takeaway (summary / zh.summary) = exactly one sentence with one concrete detail that makes it worth a look; 中文以一个句号结尾. Second person only when genuinely natural.
 No more than 2 takeaways per issue may start with "你可以" / "You can", never two in a row. Avoid repeating the same first four characters/words.
 值得看 / Why it's worth a look: the practical angle for a vibe coder (cost, speed, what it enables), not generic "this matters because".
 上手 / Try it: an imperative with a concrete command, model ID, button or URL target from SOURCE; do not invent a step.

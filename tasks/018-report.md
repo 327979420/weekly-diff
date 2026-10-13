@@ -5,3 +5,4 @@
 - Testing: `.venv/bin/python run.py render` → exit 0; `git diff --check` → passed; theme JavaScript checked across 16 system/theme/storage combinations.
 - Unfinished: None within task 018. Live LLM and visual browser review were not run; saved issue data remains unchanged, so editorial/dedupe changes apply on the next build.
 - Questions: None. Sentence fallback may exceed the length target after one rewrite, as requested; existing task 017 edits preserved, publish_enabled unchanged, no commit or push.
+- Fix: Repair EN/ZH multiple-sentence summaries after retry even within length limits, retain the first complete sentence and revalidate; clarify exactly-one-sentence prompts. `.venv/bin/python -m pytest -q` → 563 passed in 11.07s; `git diff --check` passed. No unfinished work; publish_enabled unchanged, no commit/push.
