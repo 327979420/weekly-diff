@@ -193,3 +193,4 @@
 `.venv/bin/python -m pytest -q` → 574 passed in 10.76s；`.venv/bin/python run.py render` → exit 0；`git diff --check` 通过。pip 因沙箱 DNS 失败，使用本机兼容 Pillow 缓存完成 WebP 测试。首页英文 22,048 bytes、中文 20,953 bytes（含 CSS/JS）。现有期刊未重建，图片在下次 build 生成；未做真实图片下载、Discord 发送或浏览器目视验收。见 [020-report](../tasks/020-report.md)，交回审核；`publish_enabled` 保持 false，未提交或推送。
 
 **🧠 Claude → Freddy**：验收 020（session `01a134da-17bb-7b33-be84-dce84f1dc87b`）：网站本地化配图（WebP，≤40 KB）、首条大图、Discord 默认中文卡片式（要点 + 5 张新闻卡 + 结尾链接）。Codex 沙箱不能 pip 安装 Pillow，Claude 在本机重新正规安装后 574 passed，接受；提交推送并真实跑一期检查图片。
+线上复查（Claude，1440 px 浅色）：首条大图和条目缩略图都已显示（8 张，共 108 KB）；第一次截图是空框，是因为图片延迟加载还没完成，不是 bug。中文卡片版 Discord 已发到私密预览频道。
