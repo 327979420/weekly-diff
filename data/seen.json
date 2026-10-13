@@ -12,6 +12,12 @@
       "title": "huashu-art-motion\uff1a\u8ba9\u7f16\u7801\u52a9\u624b\u628a\u540d\u753b\u548c\u7ecf\u5178\u98ce\u683c\u505a\u6210\u4f1a\u52a8\u7684\u89c6\u9891",
       "url": "https://github.com/alchaincyf/huashu-art-motion"
     },
+    "github:bherbruck/solidcraft": {
+      "first_seen": "2026-10-13",
+      "issue": "2026-42",
+      "title": "SolidCraft: open-source 3D CAD app that AI agents can drive through MCP",
+      "url": "https://github.com/bherbruck/solidcraft"
+    },
     "github:fayazara/robot-heads": {
       "first_seen": "2026-10-13",
       "issue": "2026-42",
@@ -89,6 +95,24 @@
       "issue": "2026-42",
       "title": "iPhone Use lets Codex operate a real iPhone over USB through WebDriverAgent",
       "url": "https://github.com/zhongerxin/iPhone-use"
+    },
+    "github:zhuyansen/new-term-radar": {
+      "first_seen": "2026-10-13",
+      "issue": "2026-42",
+      "title": "new-term-radar: a daily report of AI names that are starting to surge",
+      "url": "https://github.com/zhuyansen/new-term-radar"
+    },
+    "hf:Cloudflare/clef": {
+      "first_seen": "2026-10-13",
+      "issue": "2026-42",
+      "title": "Cloudflare's Clef scores business decisions from text, JSON, images or video",
+      "url": "https://huggingface.co/Cloudflare/clef"
+    },
+    "hf:Cloudflare/clef-flash": {
+      "first_seen": "2026-10-13",
+      "issue": "2026-42",
+      "title": "Cloudflare Clef-Flash: a 9B model that picks answers from your options, not free text",
+      "url": "https://huggingface.co/Cloudflare/clef-flash"
     },
     "hf:LiquidAI/d1-3B": {
       "first_seen": "2026-10-13",
