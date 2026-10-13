@@ -21,7 +21,7 @@ from weekly_diff.select import Selection, select, select_extra
 from weekly_diff.site import render_site
 from weekly_diff.sixty import sixty
 from weekly_diff.source_text import fetch_source_text
-from weekly_diff.summarise import summarise
+from weekly_diff.summarise import summarise, vary_openings
 from weekly_diff.validate import validate_issue
 
 
@@ -116,6 +116,7 @@ def run_build(cfg: Config, issue_id: str, now: datetime, dry_run: bool) -> Issue
         sections = _write_items(selection, cfg, http, llm, scored)
     finally:
         http.close()
+    vary_openings(sections, cfg, llm)
     items = [item for rows in sections.values() for item in rows]
     if len(items) < max(3, cfg.issue.hard_min_items):
         raise ValueError('Too few validated items to publish')

@@ -32,6 +32,9 @@ def _near(left: Candidate, right: Candidate, cfg: Config) -> bool:
     # Different model families/authors must not disappear through fuzzy title matching.
     if _family(left) and _family(right):
         return _family(left) == _family(right)
+    left_names, right_names = product_names(left.title), product_names(right.title)
+    if left_names and right_names and not left_names & right_names:
+        return False
     if left.published_at is None or right.published_at is None:
         return False
     if abs(left.published_at - right.published_at) > timedelta(days=3):
@@ -48,6 +51,10 @@ def _merge(left: Candidate, right: Candidate, cfg: Config, variants: bool) -> Ca
         # HN inherits the linked domain's primary flag, but its text is commentary.
         winner, other = sorted((left, right), key=lambda c: (
             c.source_type != 'hackernews', *_preference(c, cfg)), reverse=True)
+    elif product_names(left.title) & product_names(right.title):
+        winner, other = sorted((left, right), key=lambda c: (is_primary(c.url, cfg.sources.primary_domains),
+            c.primary, c.source_type in {'rss', 'html_index', 'github_release'},
+            *_preference(c, cfg)), reverse=True)
     else:
         winner, other = sorted((left, right), key=lambda c: _preference(c, cfg), reverse=True)
     result = deepcopy(winner)
@@ -76,7 +83,8 @@ def dedupe(candidates: list[Candidate], cfg: Config, seen: Seen, issue_id: str) 
         while index < len(result):
             other = result[index]
             variants = _family(merged) is not None and _family(merged) == _family(other)
-            if variants or canonical_url(merged.url) == canonical_url(other.url) or _near(merged, other, cfg):
+            same_product = bool(product_names(merged.title) & product_names(other.title))
+            if variants or same_product or canonical_url(merged.url) == canonical_url(other.url) or _near(merged, other, cfg):
                 merged = _merge(merged, result.pop(index), cfg, variants)
                 index = 0
             else:
@@ -84,3 +92,14 @@ def dedupe(candidates: list[Candidate], cfg: Config, seen: Seen, issue_id: str) 
         result.append(merged)
     return [c for c in result if not any(is_seen(seen, a['key'], a['url'], issue_id)
             for a in [{'key': c.key, 'url': c.url}, *c.extra.get('dedupe_aliases', [])])]
+
+
+def product_names(title: str) -> set[str]:
+    """Conservative name+version identities, independent of org and packaging."""
+    title = re.sub(r'\b[\w.-]+/', '', title.casefold())
+    title = re.sub(r'[\s_-]+v(?=\d)', ' ', title)
+    # A named version is evidence of identity; generic numbers/specs are not.
+    matches = re.finditer(r'\b([a-z]+(?:[-_][a-z]+)*)[\s_-]*v?(\d+(?:[._-]\d+)*)\b', title)
+    generic = _STOPWORDS | {'version', 'release', 'model', 'models', 'supports', 'with', 'top', 'v'}
+    return {re.sub(r'[-_]', '', match[1]) + ':' + re.sub(r'[_-]', '.', match[2])
+            for match in matches if match[1] not in generic}

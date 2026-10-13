@@ -10,9 +10,7 @@ from urllib.parse import quote, urlsplit
 
 import requests
 
-from weekly_diff.tags import tag_labels
 from weekly_diff.images import allowed_image
-from weekly_diff.site import _period
 from weekly_diff.config import Config
 from weekly_diff.http import Http
 from weekly_diff.log import redact
@@ -80,21 +78,23 @@ def _fit(texts: list[str], budget: int) -> list[str]:
     return result
 
 
-def _description(bullets: list[str], suffix: str, notice: str, heading: str) -> str:
+def _description(bullets: list[str], names: list[str], summaries: list[str],
+                 links: list[str], suffix: str, notice: str, heading: str) -> str:
     first = f'{notice}\n\n' if notice else ''
-    return first + f'**{heading}**\n' + '\n'.join(f'{i}. {b}' for i, b in enumerate(bullets, 1)) + suffix
+    highlights = '\n'.join(f'{i}. {bullet}' for i, bullet in enumerate(bullets, 1))
+    stories = '\n\n'.join(f'**{name}** — {summary} {link}'
+                            for name, summary, link in zip(names, summaries, links))
+    return first + f'**{heading}**\n' + highlights + '\n\n' + stories + suffix
 
 
 def _payload(issue: Issue, cfg: Config, preview: bool, run_url: str | None,
              notice: str = '', language: str = 'en') -> dict[str, Any]:
     chinese = language == 'zh'
     page = _link_url(f'{cfg.site.base_url}/zh/issues/{issue.id}/' if chinese else cfg.issue_url(issue.id))
-    heading = '60 秒速览' if chinese else 'This week in 60 seconds'
+    heading = '本周要点' if chinese else 'This week'
     read = '阅读完整一期 →' if chinese else 'Read the full issue →'
     source = '原文' if chinese else 'Source'
-    date = _period(issue, cfg.site.timezone, language)
-    heading = f'{date}\n\n{heading}'
-    footer = '每周一更新 · weekly-diff' if chinese else 'Updated every Monday · weekly-diff'
+    footer = '每周一 08:00 更新' if chinese else 'Updated every Monday at 08:00'
     if preview:
         footer += ' · ' + PREVIEW_FOOTER
     suffix = f'\n\n[{read}]({page})'
@@ -103,42 +103,36 @@ def _payload(issue: Issue, cfg: Config, preview: bool, run_url: str | None,
     bullets = [_escape(issue.sixty_seconds_zh[i] if chinese and i < len(issue.sixty_seconds_zh)
                        and issue.sixty_seconds_zh[i] else bullet)
                for i, bullet in enumerate(issue.sixty_seconds[:3])]
-    fixed_description = _length(_description([''] * len(bullets), suffix, notice, heading))
-    bullets = _fit(bullets, DESCRIPTION_LIMIT - fixed_description)
     items = {item.key: item for item in issue.items()}
-    if any(key not in items for key in issue.top[:min(cfg.issue.top_items, FIELD_LIMIT)]):
+    keys = issue.top[:min(cfg.issue.top_items, FIELD_LIMIT)]
+    if any(key not in items for key in keys):
         raise DiscordError('Issue top references a missing item')
-    top = items[issue.top[0]] if issue.top else None
-    label = f'第 {issue.id[5:]} 期' if chinese else f'Issue {int(issue.id[5:])}'
-    title = _truncate(('[PREVIEW] ' if preview else '') +
-                      _escape(f'📰 {cfg.name} · {label}'), TITLE_LIMIT)
+    label = f'第 {int(issue.id[5:])} 期' if chinese else f'Issue {int(issue.id[5:])}'
+    title = _truncate(('[PREVIEW] ' if preview else '') + _escape(f'{cfg.name} · {label}'), TITLE_LIMIT)
     names, summaries, links = [], [], []
-    for key in issue.top[:min(cfg.issue.top_items, FIELD_LIMIT)]:
+    for key in keys:
         item = items[key]
         text = (item.zh or {}) if chinese else {}
-        labels = tag_labels(cfg.tags_zh if chinese else cfg.tags)
-        link = f'\n{_escape(labels.get(item.tag, item.tag))} · [{source}]({_link_url(item.source_url)})'
+        link = f'[{source}]({_link_url(item.source_url)})'
         if _length(link) >= FIELD_VALUE_LIMIT:
             raise DiscordError('Source link exceeds Discord field limit')
-        names.append(_truncate(_escape(f'{item.emoji or ""} {text.get("headline") or item.headline}'.strip()), TITLE_LIMIT))
-        summaries.append(_truncate(_escape(text.get("summary") or item.summary),
-                                   FIELD_VALUE_LIMIT - _length(link)))
+        names.append(_escape(text.get('headline') or item.headline))
+        summaries.append(_escape(text.get('summary') or item.summary))
         links.append(link)
-    fixed = fixed_description + sum(map(_length, links))
-    fixed += _length(footer)
-    parts = _fit([title, *bullets, *names, *summaries], TOTAL_LIMIT - fixed)
-    title = parts.pop(0)
+    fixed = _length(_description([''] * len(bullets), [''] * len(names),
+                                 [''] * len(summaries), links, suffix, notice, heading))
+    budget = min(DESCRIPTION_LIMIT, TOTAL_LIMIT - _length(title) - _length(footer)) - fixed
+    parts = _fit([*bullets, *names, *summaries], budget)
     bullets, parts = parts[:len(bullets)], parts[len(bullets):]
     names, summaries = parts[:len(names)], parts[len(names):]
     embed: dict[str, Any] = {
         'title': title, 'url': page, 'color': cfg.discord.color,
-        'description': _description(bullets, suffix, notice, heading),
-        'fields': [{'name': name, 'value': summary + link, 'inline': False}
-                   for name, summary, link in zip(names, summaries, links)],
+        'description': _description(bullets, names, summaries, links, suffix, notice, heading),
+        'footer': {'text': footer},
     }
+    top = items[keys[0]] if keys else None
     if top and allowed_image(top.image_url, cfg):
         embed['image'] = {'url': _link_url(top.image_url)}
-    embed['footer'] = {'text': footer}
     return {'username': cfg.name, 'allowed_mentions': {'parse': []}, 'embeds': [embed]}
 
 

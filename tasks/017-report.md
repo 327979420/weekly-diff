@@ -1,0 +1,5 @@
+- Changes: 按 017 重建双语页面、680 px 阅读列、桌面侧栏、时间线、主题切换和锚点；移除卡片、缩略图与展开框；Discord 改为单栏 embed，配置颜色为 #FF5A1F。
+- Testing: `.venv/bin/python -m pytest -q` → 518 passed in 10.46s；`.venv/bin/python run.py render` → exit 0；`git diff --check` → passed。
+- Testing: 首页 HTML（含 JS）+ CSS：EN 22,487 bytes，中文 21,890 bytes；正文/辅助文字两主题对比度 ≥ 4.5:1；Node 验证主题、存储异常及语言锚点 16 种组合通过。
+- Unfinished: 浏览器视觉验收待 Claude；指定橙色 #FF5A1F 在指定浅色背景 #FBFBF9 上仅 3.01:1，未满足全局 4.5:1 要求，保留了规范指定色值。
+- Questions: 请审核指定橙色与全局对比度要求的冲突。publish_enabled 未变；未提交或推送。

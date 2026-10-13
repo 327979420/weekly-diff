@@ -17,3 +17,16 @@ from weekly_diff.shorten import shorten
 ])
 def test_boundaries(text: str, limit: int, words: bool, chinese: bool, expected: str) -> None:
     assert shorten(text, limit, words=words, chinese=chinese) == expected
+
+
+@pytest.mark.parametrize(('text', 'limit', 'words', 'expected'), [
+    ('Useful tools. More details, and more details.', 3, True, 'Useful tools.'),
+    ('工具可以使用。更多说明，如果你要跑很多小任务', 10, False, '工具可以使用。'),
+    ('A complete sentence with more words than fit.', 3, True, 'A complete sentence with more words than fit.'),
+    ('完整句子超过长度限制。后面的句子。', 3, False, '完整句子超过长度限制。'),
+    ('Use v2.1, e.g. locally. Extra details follow.', 3, True, 'Use v2.1, e.g. locally.'),
+    ('First clause, then an unfinished clause', 3, True, ''),
+])
+def test_sentence_only_shortening(text: str, limit: int, words: bool, expected: str) -> None:
+    from weekly_diff.shorten import shorten_sentence
+    assert shorten_sentence(text, limit, words=words) == expected

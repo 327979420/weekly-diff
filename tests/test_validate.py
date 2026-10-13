@@ -126,25 +126,10 @@ def test_valid_emoji(emoji: str) -> None:
     assert not validate_item(replace(BASE, emoji=emoji), '', load_config())
 
 
-@pytest.mark.parametrize(('summary', 'valid'), [
-    ('You can use the tool.', True), ('It helps YOUR work.', True),
-    ('A tool for young builders.', False), ('A tool for yourself.', False),
-    ('The tool has been updated.', False),
-])
-def test_english_summary_addresses_reader(summary: str, valid: bool) -> None:
-    problems = validate_item(replace(BASE, summary=summary), '', load_config())
-    assert (not problems) == valid
-    if not valid:
-        assert problems == ['summary must address the reader using you or your']
-
-
-@pytest.mark.parametrize(('summary', 'valid'), [('你可以使用这个工具。', True), ('工具已更新。', False)])
-def test_chinese_summary_addresses_reader(summary: str, valid: bool) -> None:
-    item = replace(BASE, zh={**BASE.zh, 'summary': summary})
-    problems = validate_item(item, '', load_config())
-    assert (not problems) == valid
-    if not valid:
-        assert problems == ['zh.summary must address the reader using 你']
+@pytest.mark.parametrize('summary', ['You can use the tool.', 'The tool has been updated.'])
+def test_second_person_is_optional(summary: str) -> None:
+    assert not validate_item(replace(BASE, summary=summary), '', load_config())
+    assert not validate_item(replace(BASE, zh={**BASE.zh, 'summary': '工具已更新。'}), '', load_config())
 
 
 @pytest.mark.parametrize('tag', ['try', 'learn', 'watch'])
@@ -155,3 +140,12 @@ def test_new_tags_accepted(tag: str) -> None:
 @pytest.mark.parametrize('tag', ['builders', 'work', 'beginner'])
 def test_legacy_tags_not_generated(tag: str) -> None:
     assert 'invalid tag' in validate_item(replace(BASE, tag=tag), '', load_config())
+
+
+def test_final_product_guard() -> None:
+    issue = Issue.from_dict(DATA['issue'])
+    rows = [replace(BASE, key='first', extra={}), replace(BASE, key='second', extra={})]
+    issue.sections = {'tools': rows}
+    rows[0].extra = {**rows[0].extra, 'candidate_title': 'google/embeddinggemma-2-GGUF'}
+    rows[1].extra = {**rows[1].extra, 'candidate_title': 'Introducing EmbeddingGemma 2 for search'}
+    assert 'duplicate product name' in validate_issue(issue, load_config())

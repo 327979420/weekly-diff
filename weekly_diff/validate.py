@@ -6,6 +6,9 @@ from urllib.parse import urlsplit
 import regex
 
 from weekly_diff.config import Config
+from weekly_diff.dedupe import product_names
+from weekly_diff.editorial import banned_problems
+from weekly_diff.shorten import full_sentence
 from weekly_diff.models import Issue, Item
 from weekly_diff.urls import canonical_url
 
@@ -62,16 +65,12 @@ def _copy_problems(copy: dict, cfg: Config, *, chinese: bool) -> list[str]:
         if length > limit:
             unit = 'characters' if characters else 'words'
             problems.append(f'{prefix}{field} exceeds {limit} {unit}')
+        problems.extend(banned_problems(value))
         if regex.search(r'\p{Extended_Pictographic}|\p{Regional_Indicator}|\u20e3', value):
             problems.append(f'{prefix}{field} must not contain emoji')
     summary = copy.get('summary')
     if isinstance(summary, str) and not single_sentence(summary.translate(str.maketrans('。！？', '.!?'))):
         problems.append(f'{prefix}summary must be a single sentence')
-    if isinstance(summary, str):
-        addresses_reader = '你' in summary if chinese else bool(re.search(r'\b(?:you|your)\b', summary, re.I))
-        if not addresses_reader:
-            required = '你' if chinese else 'you or your'
-            problems.append(f'{prefix}summary must address the reader using {required}')
     return problems
 
 
@@ -107,21 +106,34 @@ def validate_item(item: Item, source_text: str, cfg: Config) -> list[str]:
         if re.search(r'@(?:everyone|here)\b', value, re.I):
             problems.append('broadcast mention is forbidden')
         problems.extend(number_problems(value, evidence))
+    fallbacks = item.extra.get('sentence_fallbacks', {})
+    for field, value in fallbacks.items():
+        actual = (item.zh or {}).get('summary') if field == 'zh.summary' else item.summary
+        if field in {'summary', 'zh.summary'} and actual == value and full_sentence(value):
+            problems = [p for p in problems if not p.startswith(field + ' exceeds ')]
     return problems
 
 
 def validate_issue(issue: Issue, cfg: Config) -> list[str]:
     problems = []
     items = list(issue.items())
-    if len(issue.sixty_seconds) != 3 or any(not _nonempty(bullet) or len(bullet.split()) > cfg.content.max_bullet_words
+    if len(issue.sixty_seconds) != 3 or any(not _nonempty(bullet) or (len(bullet.split()) > cfg.content.max_bullet_words and not full_sentence(bullet))
                                           for bullet in issue.sixty_seconds):
-        problems.append('sixty_seconds must contain exactly 3 non-empty bullets of at most 30 words')
+        problems.append('sixty_seconds must contain exactly 3 non-empty bullets within the length target or full-sentence fallback')
     if (len(issue.sixty_seconds_zh) != 3
-            or any(not _nonempty(bullet) or len(bullet) > cfg.content.max_bullet_chars_zh
+            or any(not _nonempty(bullet) or (len(bullet) > cfg.content.max_bullet_chars_zh and not full_sentence(bullet))
                    for bullet in issue.sixty_seconds_zh)):
         problems.append('sixty_seconds_zh must contain exactly 3 non-empty, bounded bullets')
     if not cfg.issue.hard_min_items <= len(items) <= cfg.issue.max_items:
         problems.append('item count outside configured bounds')
+    products: set[str] = set()
+    for item in items:
+        names = product_names(item.extra.get('candidate_title', '')) | product_names(item.headline)
+        if products & names:
+            problems.append('duplicate product name')
+        products.update(names)
+    for bullet in [*issue.sixty_seconds, *issue.sixty_seconds_zh]:
+        problems.extend(banned_problems(bullet))
     keys = [item.key for item in items]
     if len(set(keys)) != len(keys):
         problems.append('duplicate item key')

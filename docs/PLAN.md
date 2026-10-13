@@ -63,6 +63,8 @@ All scheduled workflows also have `workflow_dispatch` with a `dry_run` option. `
 | 014 | Vibe-coder focus, new sources, try/learn/watch tags | done, 1 fix round (472 tests) |
 | 015 | History browsing, visual polish, Discord layout | done (489 tests) |
 | 016 | Shorten instead of dropping; realistic zh limits; fill to min_items | done (513 tests) |
+| 017 | Full redesign (TLDR list + Linear rail, light/dark, no cards) | done (518 tests) |
+| 018 | Editorial copy, product dedupe, 5 design follow-ups | done (556 tests) |
 
 ## Decisions
 - 2026-10-12: Repo at `~/weekly-diff`, GitHub `327979420/weekly-diff` (public). Pages source: GitHub Actions.

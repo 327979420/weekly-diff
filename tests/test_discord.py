@@ -15,7 +15,6 @@ from weekly_diff import discord, paths, pipeline
 from weekly_diff.config import Config, load_config
 from weekly_diff.http import Http
 from weekly_diff.models import Issue
-from weekly_diff.tags import tag_labels
 
 FIXTURES = Path(__file__).parent / 'fixtures'
 CASES = json.loads((FIXTURES / 'discord/responses.json').read_text())
@@ -39,20 +38,18 @@ def test_payload(cfg: Config, issue: Issue) -> None:
     assert payload['allowed_mentions'] == {'parse': []}
     assert len(payload['embeds']) == 1
     embed = payload['embeds'][0]
-    assert embed['title'] == f'📰 {cfg.name} · Issue 42'
+    assert embed['title'] == f'{cfg.name} · Issue 42'
     assert embed['url'] == cfg.issue_url(issue.id)
     assert embed['color'] == cfg.discord.color
-    assert 'This week in 60 seconds**\n1. ' in embed['description']
+    assert 'This week**\n1. ' in embed['description']
     assert all(f'\n{i}. ' in embed['description'] for i in range(1, 4))
     assert embed['description'].endswith(f'[Read the full issue →]({cfg.issue_url(issue.id)})')
     items = {item.key: item for item in issue.items()}
-    for n, (key, field) in enumerate(zip(issue.top, embed['fields']), 1):
-        headline = items[key].headline.replace('>', '\\>')
-        value = items[key].summary + '\n' + discord._escape(tag_labels(cfg.tags)[items[key].tag])
-        assert field == {'name': headline,
-                         'value': value + f' · [Source]({items[key].source_url})',
-                         'inline': False}
-    assert embed['footer']['text'] == 'Updated every Monday · weekly-diff'
+    assert 'fields' not in embed
+    for key in issue.top:
+        item = items[key]
+        assert f'**{discord._escape(item.headline)}** — {discord._escape(item.summary)} [Source]({item.source_url})' in embed['description']
+    assert embed['footer']['text'] == 'Updated every Monday at 08:00'
     run_url = 'https://github.com/example/roundup/actions/runs/1234'
     preview = discord.build_payload(issue, cfg, True, run_url)['embeds'][0]
     assert preview['title'] == '[PREVIEW] ' + embed['title']
@@ -67,13 +64,13 @@ def test_escaping(cfg: Config, issue: Issue) -> None:
     item.headline = item.summary = CASES['markdown']
     issue.sixty_seconds = [CASES['markdown']] * 3
     embed = discord.build_payload(issue, cfg, True, None)['embeds'][0]
-    for text in [embed['description'], embed['fields'][0]['name'], embed['fields'][0]['value']]:
+    for text in [embed['description']]:
         for character in '*_~`|>':
             assert '\\' + character in text
         assert '@everyone' not in text and '@here' not in text
         assert '@\u200beveryone' in text and '@\u200bhere' in text
         assert '\\[link\\]' in text
-    assert embed['fields'][0]['value'].endswith(f'[Source]({item.source_url})')
+    assert f'[Source]({item.source_url})' in embed['description']
 
 
 @pytest.mark.parametrize('language', ['en', 'zh'])
@@ -94,13 +91,9 @@ def test_limits(cfg: Config, issue: Issue, count: int, language: str) -> None:
         return len(text.encode('utf-16-le')) // 2
     assert size(embed['title']) <= 256
     assert size(embed['description']) <= 4096
-    assert len(embed['fields']) == min(count, cfg.issue.top_items, 25)
+    assert 'fields' not in embed
+    assert embed['description'].count(f'[{source}]({original.source_url})') == min(count, cfg.issue.top_items, 25)
     total = size(embed['title']) + size(embed['description']) + size(embed['footer']['text'])
-    for field in embed['fields']:
-        assert size(field['name']) <= 256
-        assert size(field['value']) <= 1024
-        assert field['value'].endswith(f'[{source}]({original.source_url})')
-        total += size(field['name']) + size(field['value'])
     assert total <= 6000
     assert '…' in str(embed)
     assert embed['description'].endswith(f']({embed["url"]})')
@@ -279,8 +272,8 @@ def test_link_delimiters_and_invalid_links(cfg: Config, issue: Issue) -> None:
     item = next(issue.items())
     issue.top = [item.key]
     item.source_url = 'https://example.com/a_(b)?q=[test]&mention=@everyone'
-    field = discord.build_payload(issue, cfg, False, None)['embeds'][0]['fields'][0]
-    assert field['value'].endswith('[Source](https://example.com/a_%28b%29?q=%5Btest%5D&mention=%40everyone)')
+    description = discord.build_payload(issue, cfg, False, None)['embeds'][0]['description']
+    assert '[Source](https://example.com/a_%28b%29?q=%5Btest%5D&mention=%40everyone)' in description
     item.source_url = 'javascript:alert(1)'
     with pytest.raises(discord.DiscordError, match='Invalid link URL'):
         discord.build_payload(issue, cfg, False, None)
@@ -311,16 +304,16 @@ def test_bilingual_payloads(cfg: Config, offline_http: responses.RequestsMock) -
     discord.publish(replace(cfg, publish_enabled=True), issue, False, False,
                     {'DISCORD_WEBHOOK_URL': CASES['public']})
     english, chinese = [json.loads(call.request.body)['embeds'][0] for call in offline_http.calls]
-    assert english['title'] == f'📰 {cfg.name} · Issue 42'
-    assert chinese['title'] == f'📰 {cfg.name} · 第 42 期'
+    assert english['title'] == f'{cfg.name} · Issue 42'
+    assert chinese['title'] == f'{cfg.name} · 第 42 期'
     assert chinese['url'] == f'{cfg.site.base_url}/zh/issues/{issue.id}/'
-    assert '60 秒速览**\n1. ' in chinese['description']
+    assert '本周要点**\n1. ' in chinese['description']
     assert chinese['description'].endswith(f'[阅读完整一期 →]({chinese["url"]})')
     for embed in (english, chinese):
         assert 'image' not in embed
-        assert embed['fields'][0]['name'].startswith(item.emoji + ' ')
-    assert chinese['fields'][0]['value'].endswith(f'[原文]({item.source_url})')
-    for text in (chinese['description'], chinese['fields'][0]['name'], chinese['fields'][0]['value']):
+        assert 'fields' not in embed
+    assert f'[原文]({item.source_url})' in chinese['description']
+    for text in (chinese['description'],):
         assert '@everyone' not in text and '@here' not in text
         assert '@\u200beveryone' in text
         assert '\\[link\\]' in text
@@ -328,8 +321,8 @@ def test_bilingual_payloads(cfg: Config, offline_http: responses.RequestsMock) -
     item.zh = {'headline': '中文标题'}
     chinese = discord.build_payload(issue, cfg, False, None, 'zh')['embeds'][0]
     assert 'image' not in chinese
-    assert chinese['fields'][0]['name'] == f'{item.emoji} 中文标题'
-    assert chinese['fields'][0]['value'].startswith(item.summary + '\n' + tag_labels(cfg.tags_zh)[item.tag])
+    assert '**中文标题**' in chinese['description']
+    assert '— ' + item.summary + ' [原文]' in chinese['description']
 
 
 @pytest.mark.parametrize('status', [500, 429])
@@ -357,11 +350,11 @@ def test_reader_labels_and_safe_details(cfg: Config, issue: Issue, language: str
     item.why_it_matters = CASES['markdown']
     item.for_builders = CASES['markdown'] if first_step else None
     item.zh = {'why_it_matters': item.why_it_matters, 'for_builders': item.for_builders}
-    value = discord.build_payload(issue, cfg, False, None, language)['embeds'][0]['fields'][0]['value']
+    value = discord.build_payload(issue, cfg, False, None, language)['embeds'][0]['description']
     why, how = ('对你有什么用', '怎么上手') if language == 'zh' else ("Why you'd care", 'How to try it')
     assert f'**{why}:**' not in value
     assert f'**{how}:**' not in value
-    assert value.startswith(item.summary + '\n')
+    assert '— ' + item.summary + ' [' in value
     assert '@everyone' not in value and '@here' not in value
 
 
@@ -374,7 +367,8 @@ def test_tag_labels(cfg: Config, issue: Issue, language: str, tag: str, mapped: 
     issue.top = [item.key]
     labels = cfg.tags_zh if language == 'zh' else cfg.tags
     payload = discord._payload(issue, cfg, False, None, language=language)
-    assert '\n' + labels[mapped] + ' · [' in payload['embeds'][0]['fields'][0]['value']
+    assert 'fields' not in payload['embeds'][0]
+    assert discord._escape(item.headline) in payload['embeds'][0]['description']
 
 
 @pytest.mark.parametrize('language', ['en', 'zh'])
@@ -388,6 +382,20 @@ def test_image_policy_and_footer(cfg: Config, issue: Issue, language: str) -> No
         assert ('image' in embed) is allowed
         if allowed:
             assert embed['image']['url'] == url
-        assert embed['footer']['text'].endswith(' · weekly-diff')
+        assert embed['footer']['text'] == ('每周一 08:00 更新' if language == 'zh' else 'Updated every Monday at 08:00')
         assert embed['color'] == cfg.discord.color
-        assert embed['fields'][0]['value'].count('\n') == 1
+        assert 'fields' not in embed
+
+
+def test_description_budget_preserves_links(cfg: Config, issue: Issue) -> None:
+    """Immutable source links cannot be silently cut to fit the single description."""
+    for item in issue.items():
+        item.source_url = 'https://example.com/' + 'x' * 900
+    with pytest.raises(discord.DiscordError, match='Links exceed Discord payload limits'):
+        discord.build_payload(issue, cfg, False, None)
+
+
+def test_missing_top_reference(cfg: Config, issue: Issue) -> None:
+    issue.top = ['missing']
+    with pytest.raises(discord.DiscordError, match='missing item'):
+        discord.build_payload(issue, cfg, False, None)

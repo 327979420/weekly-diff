@@ -1,6 +1,8 @@
 {% extends 'base.html' %}
 {% block content %}
+<div class="simple-page">
 <h1>{{ strings.not_found }}</h1>
 <p>{{ strings.lost }}</p>
 <p><a href="{{ root }}">{{ strings.latest }}</a> · <a href="{{ root }}archive/">{{ strings.archive }}</a></p>
+</div>
 {% endblock %}

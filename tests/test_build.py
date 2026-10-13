@@ -213,7 +213,8 @@ def test_extra_pass_reaches_minimum(workspace: Config, monkeypatch: pytest.Monke
                 high = not initially_empty and (name == 'Alpha' or (name == 'Bravo' and section != 'quick'))
                 row['score'] = 8 if high else 4
         elif 'SOURCE' in data:
-            calls[data['title']] += 1
+            if not any('vary the opening' in note for note in data['validation_problems']):
+                calls[data['title']] += 1
             if not initially_empty and data['title'] == 'models Alpha':
                 return {**GOOD, 'supported': False}
         return response

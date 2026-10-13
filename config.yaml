@@ -83,7 +83,7 @@ dedupe:
   seen_retention_days: 730
 
 discord:
-  color: 5793266                    # embed colour (decimal)
+  color: 16734751                    # embed colour (decimal)
 
 sources:
   retries: 2

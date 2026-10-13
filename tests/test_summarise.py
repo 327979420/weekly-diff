@@ -117,21 +117,12 @@ def test_bilingual_schema_and_token_budget() -> None:
     assert 'image_url' not in call['schema']['properties']
 
 
-@pytest.mark.parametrize('chinese', [False, True])
-@pytest.mark.parametrize('corrected', [False, True])
-def test_reader_address_retries_once(chinese: bool, corrected: bool) -> None:
-    row = {**GOOD, 'zh': dict(GOOD['zh'])}
-    if chinese:
-        row['zh']['summary'] = '子代理可以比主对话更早自动压缩上下文。'
-    else:
-        row['summary'] = 'Subagents can auto-compact earlier than the main conversation.'
-    fake = FakeLLM([row, GOOD if corrected else row])
-    item = summarise(SCORED, SOURCE, load_config(), fake)
-    assert (item is not None) == corrected
-    assert len(fake.calls) == 2
-    prefix, required = ('zh.', '你') if chinese else ('', 'you or your')
-    assert json.loads(fake.calls[1]['user'])['validation_problems'] == [
-        f'{prefix}summary must address the reader using {required}']
+def test_editorial_summary_does_not_require_second_person() -> None:
+    row = {**GOOD, 'summary': 'Subagents auto-compact earlier than the main conversation.',
+           'zh': {**GOOD['zh'], 'summary': '子代理可以比主对话更早自动压缩上下文。'}}
+    fake = FakeLLM([row])
+    assert summarise(SCORED, SOURCE, load_config(), fake) is not None
+    assert len(fake.calls) == 1
 
 
 @pytest.mark.parametrize('chinese', [False, True])
@@ -142,16 +133,18 @@ def test_all_copy_lengths_repaired_after_retry(field: str, chinese: bool) -> Non
     copy = row['zh'] if chinese else row
     prefix = copy[field].rstrip('。.')
     copy[field] = prefix + ('，' + '更多说明' * 100 if chinese else ', ' + 'more details ' * 100)
+    if field == 'summary':
+        copy[field] = prefix + ('，' + '更多说明' * 100 + '。' if chinese else ', ' + 'more details ' * 100 + '.')
     fake = FakeLLM([row, row])
     cfg = load_config()
     item = summarise(SCORED, SOURCE, cfg, fake)
     assert item is not None
-    assert (item.zh[field] if chinese else getattr(item, field)) == prefix
+    assert (item.zh[field] if chinese else getattr(item, field)) == (copy[field] if field == 'summary' else prefix)
     assert not validate_item(item, SOURCE, cfg)
     assert len(fake.calls) == 2
 
 
-def test_repair_revalidates_reader_address() -> None:
+def test_incomplete_summary_is_not_cut_at_comma() -> None:
     row = {**GOOD, 'summary': 'Useful tools, ' + 'details ' * 30 + 'for you'}
     assert summarise(SCORED, SOURCE, load_config(), FakeLLM([row, row])) is None
 
@@ -162,3 +155,16 @@ def test_prompt_uses_configured_chinese_limits() -> None:
     prompt = fake.calls[0]['system']
     assert 'summary 70, why_it_matters 100, for_builders 90' in prompt
     assert '摘要 70 字符' in prompt and '上手步骤 90 字符' in prompt
+
+
+@pytest.mark.parametrize('chinese', [False, True])
+def test_overlong_multisentence_summary_keeps_complete_first_sentence(chinese: bool) -> None:
+    row = {**GOOD, 'zh': dict(GOOD['zh'])}
+    copy = row['zh'] if chinese else row
+    first = copy['summary']
+    copy['summary'] = first + ('更多说明。' * 30 if chinese else ' More details.' * 30)
+    fake = FakeLLM([row, row])
+    item = summarise(SCORED, SOURCE, load_config(), fake)
+    assert item is not None
+    assert (item.zh['summary'] if chinese else item.summary) == first
+    assert len(fake.calls) == 2

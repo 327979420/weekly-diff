@@ -5,7 +5,6 @@
 </nav>{% endif %}
 {%- endmacro %}
 {% macro row(view, archive=false) -%}
-<li class="history-row"><a href="{{ view.path }}"><span class="week">{{ view.label }}</span><span class="period">{{ view.period }}</span>
-<span>{% for item in view.top[:3 if archive else 1] %}{{ item.emoji or icons.get(item.section, '') }} {% endfor %}{% if archive %}{{ view.description }}{% elif view.top %}{{ view.top[0].headline }}{% endif %}</span></a>
+<li class="history-row"><a href="{{ view.path }}"><span class="period">{{ view.period }}</span><span><span class="week">{{ view.label }}</span><span class="history-highlight">{{ view.description }}</span></span></a>
 {% if archive and view.missing %}<small>{{ strings.missing }}</small>{% endif %}</li>
 {%- endmacro %}

@@ -1,35 +1,36 @@
 {% extends 'base.html' %}
 {% from 'history.html' import navigation with context %}
 {% block content %}
-{{ navigation(previous, next) }}
-<h1>{{ view.label }} <span class="period">· {{ view.period }}</span></h1>
-<p class="reading-time">{{ strings.count.format(n=view.count) }}</p>
-{% if view.missing %}<p class="fallback"><small>{{ strings.missing }}</small></p>{% endif %}
-<section class="digest" aria-labelledby="sixty-seconds">
-  <h2 id="sixty-seconds">{{ strings.sixty }}</h2>
-  <ol>{% for bullet, key in view.digest %}<li><a href="{{ page_path }}#{{ view.anchors[key] }}">{{ bullet }}</a></li>{% endfor %}</ol>
-</section>
-{% for section in cfg.issue.sections %}
-{% if view.issue.sections.get(section.key) %}
-<section id="{{ section.key }}" class="section-{{ section.key }}" aria-labelledby="heading-{{ section.key }}">
-  <h2 id="heading-{{ section.key }}">{{ icons.get(section.key, '') }} {{ section.title_zh if language == 'zh' else section.title }}</h2>
-  <div class="cards">
-  {% for item in view.issue.sections[section.key] %}
-  <article class="card" id="{{ view.anchors[item.key] }}">
-    {% if item.image_url is allowed_image %}<img class="thumbnail" src="{{ item.image_url }}" loading="lazy" referrerpolicy="no-referrer" alt="{{ item.headline }}" width="640" height="360">{% else %}<div class="image-band"><span class="emoji" aria-hidden="true">{{ item.emoji or icons.get(section.key, '') }}</span></div>{% endif %}
-    <h3>{% if item.image_url is allowed_image %}<span aria-hidden="true">{{ item.emoji or icons.get(section.key, '') }}</span> {% endif %}{{ item.headline }}</h3>
-    <p>{{ item.summary }}</p>
-    <p class="item-meta"><span class="tag">{{ tags[item.tag] }}</span>{% if section.key == 'github' and item.extra.get('stars_gained') is not none %}<span>{{ strings.stars.format(n=item.extra.stars_gained) }}</span>{% endif %}</p>
-    <a href="{{ item.source_url }}" rel="noopener">{{ strings.source }}</a>
-    <details><summary>{{ strings.more }}</summary>
-      <p><strong>{{ strings.why }}</strong> {{ item.why_it_matters }}</p>
-      {% if item.for_builders %}<p><strong>{{ strings.builders }}</strong> {{ item.for_builders }}</p>{% endif %}
-    </details>
-  </article>
-  {% endfor %}
+<div class="issue-layout">
+  <aside class="issue-rail"><div class="rail-inner">
+    <p class="issue-label">{{ view.short_label }}</p><p class="period">{{ view.period }}</p>
+    <p class="reading-time">{{ strings.count.format(n=view.count) }}</p>
+    <nav class="section-index" aria-label="{{ strings.navigation }}">{% for section in cfg.issue.sections %}{% if view.issue.sections.get(section.key) %}<a href="{{ page_path }}#{{ section.key }}">{{ section.title_zh if language == 'zh' else section.title }}</a>{% endif %}{% endfor %}</nav>
+  </div></aside>
+  <div class="issue-content">
+    {{ navigation(previous, next) }}
+    <p class="issue-kicker">{{ cfg.name|upper }}</p>
+    <h1>{{ view.short_label }}</h1>
+    {% if view.missing %}<p class="fallback">{{ strings.missing }}</p>{% endif %}
+    <section class="digest" aria-labelledby="sixty-seconds"><h2 id="sixty-seconds">{{ strings.sixty }}</h2>
+      <ol>{% for bullet, key in view.digest %}<li><span>{{ bullet }}</span> <a href="{{ page_path }}#{{ view.anchors[key] }}" aria-label="{{ strings.source }}: {{ view.headlines[key] }}">→</a></li>{% endfor %}</ol>
+    </section>
+    {% for section in cfg.issue.sections %}{% if view.issue.sections.get(section.key) %}
+    <section id="{{ section.key }}" class="news-section" aria-labelledby="heading-{{ section.key }}">
+      <h2 id="heading-{{ section.key }}"><span class="section-marker" aria-hidden="true">◆</span> {{ section.title_zh if language == 'zh' else section.title }}</h2>
+      {% for item in view.issue.sections[section.key] %}
+      <article class="story" id="{{ view.anchors[item.key] }}">
+        <span class="emoji-tile" aria-hidden="true">{{ item.emoji or icons.get(section.key, '') }}</span>
+        <div><h3><a href="{{ item.source_url }}" rel="noopener">{{ item.headline|inline_code }}</a></h3>
+          <p class="item-meta">{{ item.source_url|domain }} · {{ tags[item.tag] }}{% if section.key == 'github' and item.extra.get('stars_gained') is not none %} · {{ strings.stars.format(n=item.extra.stars_gained) }}{% endif %}</p>
+          <p class="takeaway">{{ item.summary|inline_code }}</p>
+          <p class="detail-line"><strong>{{ strings.why }}</strong> {{ item.why_it_matters|inline_code }}</p>
+          {% if item.for_builders %}<p class="detail-line"><strong>{{ strings.builders }}</strong> {{ item.for_builders|inline_code }}</p>{% endif %}
+        </div>
+      </article>{% endfor %}
+    </section>{% endif %}{% endfor %}
+    {{ navigation(previous, next) }}
+    <a class="back-top" href="{{ page_path }}#top">{{ strings.back }}</a>
   </div>
-</section>
-{% endif %}
-{% endfor %}
-{{ navigation(previous, next) }}
+</div>
 {% endblock %}

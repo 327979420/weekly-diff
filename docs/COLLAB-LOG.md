@@ -163,3 +163,15 @@
 `.venv/bin/python -m pytest -q` → 513 passed in 11.19s；`git diff --check` 通过。见 [016-report](../tasks/016-report.md)，待审核；未执行真实 LLM 周刊运行，`publish_enabled` 仍为 false，未提交或推送。
 
 **🧠 Claude → Freddy**：验收 016（session `01a1338f-3801-7a01-9949-b636e8a64bca`）：513 passed；真实运行后本期从 7 条恢复到 11 条（新模型 3、工具 3、GitHub 4、快讯 1），60 秒速览由 AI 正常生成，只丢了 1 条“原文不支持”的内容。接受，已提交推送，预览已发到私密频道。小瑕疵：截短后个别句子停在逗号处，读起来不完整，下次优化时一并处理。
+
+## 2026-10-13（017 交回）
+
+**🤖 Codex → Claude / Freddy**：按 [017](../tasks/017-redesign.md) 重建 templates/ 和 static/style.css，完成双语单列新闻、桌面侧栏、往期时间线、明暗主题和语言锚点；移除缩略图和展开框。Discord 改为每种语言一个单栏 embed，保留转义、路由及长度保护。配置只修改任务指定的 Discord 橙色，`publish_enabled` 未变。会话 ID：`01a13453-9164-7f22-bba8-9d27c620efa9`。
+`.venv/bin/python -m pytest -q` → 518 passed in 10.46s；`.venv/bin/python run.py render` → exit 0；`git diff --check` 通过。首页含 JS 和 CSS：英文 22,487 bytes，中文 21,890 bytes；主题与语言锚点脚本 16 种组合通过。正文与辅助文字两主题对比度通过 4.5:1，但规范指定橙色在浅色背景仅 3.01:1，保留色值并交回确认此冲突。浏览器视觉验收待 Claude，见 [017-report](../tasks/017-report.md)。未改 018、数据或发布开关，未提交或推送。
+
+**🧠 Claude → Freddy / Codex**：验收 017（session `01a13453-9164-7f22-bba8-9d27c620efa9`）：518 passed。Claude 在本机浏览器检查了 375 px 手机、1440 px 宽屏、深色和浅色：TLDR 式列表、Linear 式侧栏、大号橙色要点都到位，接受。橙色对比度问题：橙色只用于大号数字、圆点、对焦框（≥3:1 即可），文字链接悬停改用更深的 #C2410C。发现 5 个小问题（主题按钮第一次点无效、H1 重复品牌名、日期太长、悬停色、截断停在逗号），并入 018 一起修。
+
+## 2026-10-13（018 交回）
+
+**🤖 Codex → Claude / Freddy**：按 [018](../tasks/018-editorial-copy-and-dedupe.md) 完成双语编辑口吻、重复开头重写一次、禁用词重试后清理，以及产品名和版本去重；优先保留主来源，合并 signals 和已见别名，并在最终校验防止重复产品。五项 Design follow-ups 全部完成：主题首次点击、期号 H1 与品牌小标题、双语短日期、浅色文字悬停对比度、完整句子截短。重写后仍超长时保留第一句完整句子，可超过长度目标；重复开头重写失败时保留原条目。会话 ID：`01a1345c-2963-78f1-a373-203d1fb9ee42`。
+`.venv/bin/python -m pytest -q` → 556 passed in 11.26s；`.venv/bin/python run.py render` → exit 0；`git diff --check` 通过；主题脚本 16 种系统主题、显式主题及存储状态组合通过。见 [018-report](../tasks/018-report.md)，交回审核。没有调用真实 LLM，也没有做浏览器目视验收；未重写已有期刊数据，文案和去重规则在下次 build 生效。保留 017 原有改动，`publish_enabled` 未变，未提交或推送。

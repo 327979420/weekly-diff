@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% from 'history.html' import row with context %}
 {% block content %}
+<div class="simple-page">
 <h1>{{ strings.archive }}</h1>
 {% for view in views %}
 {% if loop.first or view.month != views[loop.index0 - 1].month %}
@@ -10,4 +11,5 @@
 {{ row(view, true) }}
 {% if loop.last %}</ul></section>{% endif %}
 {% else %}<p>{{ cfg.name }} — {{ strings.soon }}</p>{% endfor %}
+</div>
 {% endblock %}

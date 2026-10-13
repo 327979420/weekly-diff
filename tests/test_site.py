@@ -39,7 +39,9 @@ def test_complete_site(issue_fixtures: Path, tmp_path: Path) -> None:
     assert {str(path.relative_to(out)) for path in written} == expected
     assert not (out / 'stale.html').exists()
     home = BeautifulSoup((out / 'index.html').read_text(), 'html.parser')
-    assert home.h1.get_text(' ', strip=True) == 'Issue 2026-42 · 12–18 Oct 2026'
+    assert home.h1.get_text(' ', strip=True) == 'Issue 42'
+    assert home.select_one('.issue-kicker').text == cfg.name.upper()
+    assert 'Oct 12 – 18, 2026' in home.select_one('.issue-rail').text
     assert len(home.select('article')) == 15
     assert [section['id'] for section in home.select('section[id]')] == [section.key for section in cfg.issue.sections]
     assert '+0 ★ this week' in home.get_text()
@@ -54,7 +56,8 @@ def test_complete_site(issue_fixtures: Path, tmp_path: Path) -> None:
     for path in out.rglob('*.html'):
         soup = BeautifulSoup(path.read_text(), 'html.parser')
         assert soup.html['lang'] == ('zh-CN' if path.is_relative_to(out / 'zh') else 'en')
-        assert not soup.select('script, img, iframe')
+        assert not soup.select('img, iframe, details')
+        assert len(soup.select('script')) == 2
         assert soup.select_one('link[rel=canonical]')['href'].startswith(cfg.site.base_url)
         assert soup.select_one('meta[property="og:url"]')['content'] == soup.select_one('link[rel=canonical]')['href']
         assert soup.select_one('meta[name=description]')['content']
@@ -72,7 +75,7 @@ def test_feed_and_escaping(issue_fixtures: Path, tmp_path: Path) -> None:
     render_site(cfg, issue_fixtures, tmp_path)
     html = (tmp_path / 'index.html').read_text()
     xml = (tmp_path / 'feed.xml').read_text()
-    assert '<script>' not in html and '&lt;script&gt;alert(1)&lt;/script&gt;' in html
+    assert len(BeautifulSoup(html, 'html.parser').select('script')) == 2 and '&lt;script&gt;alert(1)&lt;/script&gt;' in html
     assert '&amp;lt;script&amp;gt;' in xml
     tree = ElementTree.fromstring(xml)
     entries = tree.findall('channel/item')
@@ -118,9 +121,9 @@ def test_missing_sections_and_optional_fields(tmp_path: Path) -> None:
 
 
 @pytest.mark.parametrize(('start', 'end', 'expected'), [
-    ('2026-10-11T13:00:00+00:00', '2026-10-11T14:00:00+00:00', '12 Oct 2026'),
-    ('2026-09-28T00:00:00+00:00', '2026-10-04T00:00:00+00:00', '28 Sep–4 Oct 2026'),
-    ('2026-12-28T00:00:00+00:00', '2027-01-03T00:00:00+00:00', '28 Dec 2026–3 Jan 2027'),
+    ('2026-10-11T13:00:00+00:00', '2026-10-11T14:00:00+00:00', 'Oct 12, 2026'),
+    ('2026-09-28T00:00:00+00:00', '2026-10-04T00:00:00+00:00', 'Sep 28 – Oct 4, 2026'),
+    ('2026-12-28T00:00:00+00:00', '2027-01-03T00:00:00+00:00', 'Dec 28, 2026 – Jan 3, 2027'),
 ])
 def test_period(start: str, end: str, expected: str) -> None:
     issue = Issue.from_dict(json.loads((FIXTURES / '2026-42.json').read_text()))
@@ -149,7 +152,7 @@ def test_dry_run_combines_archive_and_replaces_same_week(issue_fixtures: Path, t
     assert len(feedparser.parse((paths.SITE / 'feed.xml').read_text()).entries) == 2
     issue.id = '2026-43'
     build._render(load_config(), issue, True)
-    assert 'Issue 2026-43' in (paths.SITE / 'index.html').read_text()
+    assert 'Issue 43' in (paths.SITE / 'index.html').read_text()
     assert (paths.SITE / 'issues/2026-42/index.html').exists()
     assert before == {p.name: p.read_bytes() for p in source.iterdir()}
 
@@ -194,31 +197,25 @@ def test_bilingual_pages_and_counterparts(tmp_path: Path) -> None:
         assert {link['hreflang']: link['href'] for link in soup.select('link[hreflang]')} == expected
         assert {link['hreflang']: link['href'] for link in soup.select('.languages a')} == expected
         assert soup.select_one('link[type="application/rss+xml"]')['href'] == f'{cfg.base_path}/' + ('zh/' if chinese else '') + 'feed.xml'
-        assert not soup.select('script, iframe')
+        assert not soup.select('iframe, details')
+        assert len(soup.select('script')) == 2
     home = BeautifulSoup((tmp_path / 'zh/index.html').read_text(), 'html.parser')
-    assert '60 秒速览' in home.get_text()
+    assert '本周要点' in home.get_text()
     assert cfg.tagline_zh in home.get_text()
     assert cfg.tags_zh['try'] in home.get_text()
     assert all(section.title_zh in home.get_text() for section in cfg.issue.sections)
     assert '根据原文整理的简短摘要。' in home.get_text()
     assert '本期暂无中文版' not in home.get_text()
     assert '本周 +0 ★' in home.get_text()
-    assert len(home.select('details > summary')) == 15
-    assert all(summary.text == '展开' for summary in home.select('details > summary'))
+    assert not home.select('details')
+    assert len(home.select('.story h3 a')) == 15
     for prefix in ('', 'zh/'):
         html = (tmp_path / prefix / 'index.html').read_text()
         soup = BeautifulSoup(html, 'html.parser')
         assert '&lt;script&gt;alert(1)&lt;/script&gt;' in html
         assert len(soup.select('img')) == 0
-        assert len(soup.select('.image-band')) == 15
-        for card in soup.select('.card'):
-            img = card.find('img')
-            if img:
-                assert img['alt'] == card.h3.text
-                assert img['loading'] == 'lazy'
-                assert img['referrerpolicy'] == 'no-referrer'
-                assert (img['width'], img['height']) == ('640', '360')
-        assert len(html.encode()) + (tmp_path / 'assets/style.css').stat().st_size < 60_000
+        assert len(soup.select('.emoji-tile')) == 15
+        assert len(html.encode()) + (tmp_path / 'assets/style.css').stat().st_size < 50_000
     old = BeautifulSoup((tmp_path / 'zh/issues/2026-41/index.html').read_text(), 'html.parser')
     assert '本期暂无中文版' in old.get_text()
     assert 'A concise summary based on the source text.' in old.get_text()
@@ -244,7 +241,7 @@ def test_partial_translation_falls_back_per_field(tmp_path: Path) -> None:
     (source / 'issue.json').write_text(json.dumps(data))
     render_site(load_config(), source, tmp_path / 'site')
     soup = BeautifulSoup((tmp_path / 'site/zh/index.html').read_text(), 'html.parser')
-    card = soup.select_one('.card')
+    card = soup.select_one('.story')
     assert card.h3.text == '部分翻译'
     assert item['summary'] in card.get_text()
     assert item['why_it_matters'] in card.get_text()
@@ -254,12 +251,12 @@ def test_partial_translation_falls_back_per_field(tmp_path: Path) -> None:
 
 
 def test_theme_text_contrast() -> None:
-    """Check every CSS text/background pairing against the task's 4.5:1 floor."""
+    """Body and muted text meet 4.5:1; specified accent has a documented exception."""
     import re
 
     css = (paths.ROOT / 'static/style.css').read_text()
-    palettes = re.findall(r':root\s*\{([^}]+)\}', css)
-    assert len(palettes) == 2
+    palettes = re.findall(r':root[^{}]*\{([^}]+)\}', css)
+    assert len(palettes) == 3
 
     def luminance(color: str) -> float:
         channels = [int(color[i:i + 2], 16) / 255 for i in (1, 3, 5)]
@@ -267,12 +264,9 @@ def test_theme_text_contrast() -> None:
                   for channel in channels]
         return sum(channel * weight for channel, weight in zip(linear, (.2126, .7152, .0722)))
 
-    pairs = [('digest-text', 'digest'), ('link', 'digest')]
-    pairs += [(text, background) for text in ('text', 'muted', 'link')
-              for background in ('background', 'card', 'surface')]
-    pairs += [(section, 'background') for section in ('models', 'tools', 'github', 'quick')]
+    pairs = [('text', 'background'), ('muted', 'background')]
     for palette in palettes:
-        colors = dict(re.findall(r'--([\w-]+):\s*(#[0-9a-f]{6})\s*;', palette))
+        colors = dict(re.findall(r'--([\w-]+):\s*(#[0-9A-Fa-f]{6})\s*;', palette))
         for foreground, background in pairs:
             light, dark = sorted([luminance(colors[foreground]), luminance(colors[background])], reverse=True)
             assert (light + .05) / (dark + .05) >= 4.5, (foreground, background)
@@ -283,7 +277,7 @@ def test_reader_labels_on_current_and_old_issues(tmp_path: Path, issue_fixtures:
     out = tmp_path / 'site'
     render_site(load_config(), BILINGUAL if bilingual else issue_fixtures, out)
     for prefix, why, first_step in [('', "Why you'd care:", 'How to try it:'),
-                                     ('zh/', '对你有什么用：', '怎么上手：')]:
+                                     ('zh/', '值得看：', '上手：')]:
         soup = BeautifulSoup((out / prefix / 'index.html').read_text(), 'html.parser')
         labels = [tag.text for tag in soup.select('article strong')]
         assert why in labels
@@ -310,14 +304,15 @@ def test_history_navigation_and_months(tmp_path: Path, prefix: str) -> None:
     rows = home.select('.past-issues .history-row > a')
     assert len(rows) == 6
     assert [a['href'].split('/')[-2] for a in rows] == [f'2026-{n}' for n in range(41, 35, -1)]
-    assert all('🧠' in a.text for a in rows)
+    assert all(a.select_one('.history-highlight') for a in rows)
     assert home.select_one('.all-issues')['href'] == f'{cfg.base_path}/{prefix}archive/'
     assert len(home.select('.digest ol li a')) == 3
     assert len({card['id'] for card in home.select('article')}) == 15
     for link in home.select('.digest a'):
         target = home.find(id=link['href'].split('#')[1])
-        assert link.text in target.text
-    assert (out / prefix / 'index.html').stat().st_size + (out / 'assets/style.css').stat().st_size < 60_000
+        assert link.text == '→'
+        assert link.parent.span.text in target.text
+    assert (out / prefix / 'index.html').stat().st_size + (out / 'assets/style.css').stat().st_size < 50_000
     for week, previous, following in [(42, 41, None), (38, 37, 39), (34, None, 35)]:
         page = BeautifulSoup((out / prefix / f'issues/2026-{week}/index.html').read_text(), 'html.parser')
         assert len(page.select('.issue-navigation')) == 2
@@ -332,7 +327,7 @@ def test_history_navigation_and_months(tmp_path: Path, prefix: str) -> None:
     assert len(archive.select('.history-row')) == 9
     assert len({group.h2.text for group in groups}) == 3
     assert not archive.select('.card, img')
-    assert all(row.text.count('🧠') == 3 for row in archive.select('.history-row'))
+    assert len(archive.select('.history-highlight')) == 9
 
 
 @pytest.mark.parametrize('prefix', ['', 'zh/'])
@@ -350,11 +345,125 @@ def test_allowed_thumbnails_og_and_saved_bullet_targets(tmp_path: Path, prefix: 
     render_site(cfg, source, tmp_path / 'site')
     page = BeautifulSoup((tmp_path / 'site' / prefix / 'index.html').read_text(), 'html.parser')
     assert not page.select('.issue-navigation')
-    assert len(page.select('img')) == 1
-    assert len(page.select('.image-band')) == 14
+    assert not page.select('img, details')
+    assert len(page.select('.emoji-tile')) == 15
     assert page.select_one('meta[property="og:image"]')['content'] == top.image_url
     assert page.select_one('link[rel=icon]')['href'].startswith('data:image/svg+xml,')
     for link, keys in zip(page.select('.digest a'), issue.sixty_seconds_keys):
         card = page.find(id=link['href'].split('#')[1])
         item = by_key[keys[0]]
         assert ((item.zh or {}).get('headline') if prefix else item.headline) in card.h3.text
+
+
+def test_redesign_structure_and_interaction(tmp_path: Path) -> None:
+    """Both languages retain working anchors, accessible controls and a small page."""
+    render_site(load_config(), BILINGUAL, tmp_path)
+    for prefix in ('', 'zh/'):
+        html = (tmp_path / prefix / 'index.html').read_text()
+        page = BeautifulSoup(html, 'html.parser')
+        assert not page.select('.card, details, img')
+        assert page.select_one('.issue-rail .section-index')
+        assert page.select_one('.theme-toggle[hidden][aria-label]')
+        scripts = page.select('script')
+        assert sum(len(script.text.strip().splitlines()) for script in scripts) <= 20
+        assert page.head.script and 'localStorage.getItem' in page.head.script.text
+        assert 'try {' in scripts[-1].text and 'catch' in scripts[-1].text
+        assert 'link.hash = location.hash' in scripts[-1].text
+        for link in page.select('.section-index a, .back-top, .digest a'):
+            assert page.find(id=link['href'].split('#')[1])
+        for story in page.select('.story'):
+            assert story.h3.a['href'].startswith(('https://', 'http://'))
+            assert story.select_one('.item-meta')
+            assert story.select_one('.detail-line strong')
+        assert len(html.encode()) + (tmp_path / 'assets/style.css').stat().st_size < 50_000
+
+
+def test_inline_code_escapes_source_and_preserves_text() -> None:
+    from weekly_diff.site import _inline_code
+
+    source = 'Try `<script>alert(1)</script>` with gpt-5-mini & tools.'
+    html = str(_inline_code(source))
+    page = BeautifulSoup(html, 'html.parser')
+    assert not page.script
+    assert [code.text for code in page.select('code')] == ['<script>alert(1)</script>', 'gpt-5-mini']
+    assert page.get_text() == source.replace('`', '')
+
+
+def test_exact_theme_and_layout_spec() -> None:
+    css = (paths.ROOT / 'static/style.css').read_text()
+    for color in ('#FBFBF9', '#111111', '#6B6B6B', '#E7E5E0', '#0A0A0A',
+                  '#EDEDED', '#9A9A9A', '#232323', '#FF5A1F'):
+        assert color in css
+    for rule in ('grid-template-columns: 200px 680px', 'min-width: 1100px',
+                 'max-width: 680px', 'font-size: 44px', 'line-height: 48px',
+                 'font-size: 32px', 'font-size: 19px', 'letter-spacing: .08em',
+                 'margin-top: 96px', 'margin-top: 64px', 'prefers-reduced-motion',
+                 'scroll-margin-top:', 'outline: 2px solid var(--accent)'):
+        assert rule in css
+    assert 'box-shadow' not in css and ' transform:' not in css
+
+
+@pytest.mark.parametrize(('start', 'end', 'expected'), [
+    ('2026-10-06', '2026-10-13', '10月6日 – 13日 · 2026'),
+    ('2026-09-28', '2026-10-04', '9月28日 – 10月4日 · 2026'),
+    ('2026-12-28', '2027-01-03', '12月28日 · 2026 – 1月3日 · 2027'),
+    ('2026-10-06', '2026-10-06', '10月6日 · 2026'),
+])
+def test_compact_chinese_period(start: str, end: str, expected: str) -> None:
+    issue = Issue.from_dict(json.loads((FIXTURES / '2026-42.json').read_text()))
+    issue.period_start = datetime.fromisoformat(start + 'T00:00:00+00:00')
+    issue.period_end = datetime.fromisoformat(end + 'T00:00:00+00:00')
+    assert _period(issue, 'Australia/Melbourne', 'zh') == expected
+
+
+def test_issue_heading_and_text_accent(tmp_path: Path) -> None:
+    out = tmp_path / 'site'
+    render_site(load_config(), BILINGUAL, out)
+    for prefix, heading in [('', 'Issue 42'), ('zh/', '第 42 期')]:
+        soup = BeautifulSoup((out / prefix / 'issues/2026-42/index.html').read_text(), 'html.parser')
+        assert soup.h1.text == heading
+        assert soup.select_one('.issue-kicker').text == load_config().name.upper()
+        assert soup.select_one('.brand').text == load_config().name
+    css = (out / 'assets/style.css').read_text()
+    assert '--accent-text: #C2410C' in css
+    assert 'a:hover { color: var(--accent-text);' in css
+    assert '.theme-toggle:hover { color: var(--accent-text);' in css
+    assert '--accent: #FF5A1F' in css
+
+
+def test_theme_first_click_resolves_system(tmp_path: Path) -> None:
+    import shutil
+    import subprocess
+
+    node = shutil.which('node')
+    if node is None:
+        pytest.skip('Node is needed to execute the theme toggle JavaScript')
+    out = tmp_path / 'site'
+    render_site(load_config(), BILINGUAL, out)
+    soup = BeautifulSoup((out / 'index.html').read_text(), 'html.parser')
+    script = soup.select('script')[-1].text
+    harness = '''
+const vm = require('vm');
+for (const systemDark of [false, true]) {
+  for (const theme of [undefined, 'system', 'light', 'dark']) {
+    for (const storageFails of [false, true]) {
+      const root = {dataset: theme ? {theme} : {}};
+      let click;
+      const toggle = {hidden: true, addEventListener: (_, fn) => click = fn};
+      const context = {
+        document: {documentElement: root, querySelector: () => toggle, querySelectorAll: () => []},
+        matchMedia: () => ({matches: systemDark}),
+        localStorage: {setItem: () => {if (storageFails) throw Error('disabled');}}
+      };
+      vm.runInNewContext(SCRIPT, context);
+      const wasDark = theme === 'dark' || (!['light', 'dark'].includes(theme) && systemDark);
+      click();
+      if (root.dataset.theme !== (wasDark ? 'light' : 'dark')) throw Error('first click did not switch');
+      click();
+      if (root.dataset.theme !== (wasDark ? 'dark' : 'light')) throw Error('second click did not switch');
+    }
+  }
+}
+'''.replace('SCRIPT', json.dumps(script))
+    result = subprocess.run([node, '-e', harness], capture_output=True, text=True, timeout=10)
+    assert result.returncode == 0, result.stderr

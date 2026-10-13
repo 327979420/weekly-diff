@@ -46,3 +46,34 @@ def shorten(text: str, limit: int, *, words: bool = False, chinese: bool = False
         if result := _clean(text[:boundary]):
             return result
     return _clean(text[:end])
+
+
+def sentences(text: str) -> list[str]:
+    """Extract complete sentences, preserving decimals, abbreviations and closers."""
+    protected = re.sub(r'(?<=\d)\.(?=\d)', '\u2024', text)
+    protected = re.sub(r'\b(?:e\.g\.|i\.e\.|Mr\.|Mrs\.|Dr\.|vs\.)',
+                       lambda match: match.group().replace('.', '\u2024'), protected)
+    ends = list(re.finditer(r'[。！？]|[.!?](?=[\"”’）)]*(?:\s|$))', protected))
+    result = []
+    start = 0
+    for match in ends:
+        end = match.end()
+        while end < len(text) and text[end] in '\"”’）)':
+            end += 1
+        result.append(text[start:end].strip())
+        start = end
+    return result
+
+
+def shorten_sentence(text: str, limit: int, *, words: bool = False) -> str:
+    """After a rewrite retry, retain a full sentence even if it exceeds the budget."""
+    if (len(text.split()) if words else len(text)) <= limit:
+        return text
+    complete = sentences(text)
+    if not complete:
+        return ''
+    return complete[0]
+
+
+def full_sentence(text: str) -> bool:
+    return sentences(text) == [text.strip()]

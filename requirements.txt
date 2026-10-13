@@ -4,5 +4,6 @@ feedparser
 beautifulsoup4
 regex
 Jinja2
+MarkupSafe
 anthropic
 openai

@@ -6,13 +6,14 @@ from pathlib import Path
 import re
 
 from weekly_diff.config import Config
+from weekly_diff.editorial import banned_problems, strip_banned
 from weekly_diff.llm.base import LLMClient, LLMError, strict_schema
 from weekly_diff.models import Item
-from weekly_diff.shorten import only_length_problems, shorten
+from weekly_diff.shorten import only_length_problems, shorten_sentence, full_sentence
 from weekly_diff.validate import number_problems
 
 
-def _validate(response: dict, items: list[Item], cfg: Config) -> list[str]:
+def _validate(response: dict, items: list[Item], cfg: Config, *, sentence_fallback: bool = False) -> list[str]:
     if not isinstance(response, dict) or set(response) != {'bullets'}:
         return ['invalid overview response']
     bullets = response['bullets']
@@ -30,9 +31,11 @@ def _validate(response: dict, items: list[Item], cfg: Config) -> list[str]:
         for field, limit, words in (('text', cfg.content.max_bullet_words, True),
                                     ('text_zh', cfg.content.max_bullet_chars_zh, False)):
             value = bullet[field]
+            problems.extend(banned_problems(value))
             if not value.strip():
                 problems.append(f'{field} must be non-empty')
-            elif (len(value.split()) if words else len(value)) > limit:
+            elif ((len(value.split()) if words else len(value)) > limit
+                  and not (sentence_fallback and full_sentence(value))):
                 unit = 'words' if words else 'characters'
                 problems.append(f'{field} exceeds {limit} {unit}')
         if re.search(r'@(?:everyone|here)\b', text + ' ' + bullet['text_zh'], re.I):
@@ -61,12 +64,18 @@ def sixty(items: list[Item], llm: LLMClient, cfg: Config,
         try:
             response = llm.complete_json(system, user, schema, max_tokens=len(system) + len(json.dumps(schema)))
             problems = _validate(response, items, cfg)
+            if attempt == 1 and problems and all(p.startswith('banned phrase:') for p in problems):
+                response = deepcopy(response)
+                for bullet in response['bullets']:
+                    for field in ('text', 'text_zh'):
+                        bullet[field] = strip_banned(bullet[field])
+                problems = _validate(response, items, cfg)
             if attempt == 1 and only_length_problems(problems):
                 response = deepcopy(response)
                 for bullet in response['bullets']:
-                    bullet['text'] = shorten(bullet['text'], cfg.content.max_bullet_words, words=True)
-                    bullet['text_zh'] = shorten(bullet['text_zh'], cfg.content.max_bullet_chars_zh, chinese=True)
-                problems = _validate(response, items, cfg)
+                    bullet['text'] = shorten_sentence(bullet['text'], cfg.content.max_bullet_words, words=True)
+                    bullet['text_zh'] = shorten_sentence(bullet['text_zh'], cfg.content.max_bullet_chars_zh)
+                problems = _validate(response, items, cfg, sentence_fallback=True)
             if not problems:
                 if item_keys is not None:
                     item_keys[:] = [bullet['item_keys'] for bullet in response['bullets']]
@@ -77,5 +86,14 @@ def sixty(items: list[Item], llm: LLMClient, cfg: Config,
     logging.getLogger(__name__).warning('Sixty seconds failed validation; using top headlines')
     if item_keys is not None:
         item_keys[:] = [[item.key] for item in items[:3]]
-    return ([' '.join(item.headline.split()[:cfg.content.max_bullet_words]) for item in items[:3]],
-            [(item.zh or {}).get('headline', '')[:cfg.content.max_bullet_chars_zh] for item in items[:3]])
+    return ([_fallback(item.headline, cfg.content.max_bullet_words, words=True) for item in items[:3]],
+            [_fallback((item.zh or {}).get('headline', ''), cfg.content.max_bullet_chars_zh,
+                       words=False) for item in items[:3]])
+
+
+def _fallback(text: str, limit: int, *, words: bool) -> str:
+    if (len(text.split()) if words else len(text)) <= limit:
+        return text
+    # A headline fallback must never be sliced in the middle of a clause either.
+    return shorten_sentence(text if full_sentence(text) else text + ('.' if words else '。'),
+                            limit, words=words)

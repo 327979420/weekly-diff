@@ -60,3 +60,32 @@ def test_hf_variants_and_distinct_authors() -> None:
     seen = {'version': 1, 'items': {}}
     mark_seen(seen, [winner], '2026-41', date(2026, 10, 10))
     assert dedupe([models[0]], load_config(), seen, '2026-42') == []
+
+
+def test_embeddinggemma_cross_source_primary_and_aliases() -> None:
+    cfg = load_config()
+    base = Candidate.from_dict(DATA['candidate'])
+    hf = replace(base, key='hf:google/embeddinggemma-2', title='google/embeddinggemma-2-GGUF',
+                 source_type='huggingface', source_name='Hugging Face',
+                 url='https://huggingface.co/google/embeddinggemma-2', signals={'likes': 100}, extra={})
+    blog = replace(base, key='google:embeddinggemma', title='Introducing EmbeddingGemma 2 for search',
+                   source_name='Google', url='https://blog.google/technology/embeddinggemma-2',
+                   signals={'views': 20}, extra={})
+    for candidates in ([hf, blog], [blog, hf]):
+        result = dedupe(candidates, cfg, {'version': 1, 'items': {}}, '2026-41')
+        assert len(result) == 1
+        assert result[0].key == blog.key
+        assert result[0].signals == {'likes': 100, 'views': 20}
+        assert result[0].extra['dedupe_aliases'][0]['key'] == hf.key
+        seen = {'version': 1, 'items': {}}
+        mark_seen(seen, result, '2026-41', date(2026, 10, 10))
+        assert not dedupe([hf], cfg, seen, '2026-42')
+    other = replace(blog, key='third', title='EmbeddingGemma 3 is available', url=blog.url + '-next')
+    assert len(dedupe([hf, other], cfg, {'version': 1, 'items': {}}, '2026-41')) == 2
+
+
+def test_product_name_normalization() -> None:
+    from weekly_diff.dedupe import product_names
+    assert product_names('google/EmbeddingGemma-2-GGUF') == product_names('EmbeddingGemma 2')
+    assert product_names('lab/example_v2_1-GGUF') == product_names('Example 2.1')
+    assert not product_names('The top 10 tools of 2026')

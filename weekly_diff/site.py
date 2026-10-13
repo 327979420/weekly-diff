@@ -2,11 +2,14 @@
 from dataclasses import replace
 from email.utils import format_datetime
 import json
+import re
 from pathlib import Path
 import shutil
 from typing import Any
 from urllib.parse import urlsplit
 from zoneinfo import ZoneInfo
+
+from markupsafe import Markup, escape
 
 from jinja2 import Environment, FileSystemLoader, StrictUndefined
 
@@ -19,20 +22,22 @@ from weekly_diff.models import Issue
 
 
 STRINGS = {
-    'en': dict(latest='This issue', archive='Past issues', sixty='This week in 60 seconds',
+    'en': dict(latest='This issue', archive='Past issues', sixty='This week',
                more='More', why="Why you'd care:", builders='How to try it:', source='Source ↗',
                stars='+{n} ★ this week', issue='Issue {id}', soon='first issue coming soon.',
                missing='', skip='Skip to content', navigation='Main navigation',
                past='Past issues', previous='← Previous', next='Next →', count='{n} items · 1-minute read',
-               footer='Updated every Monday · Summaries from the original sources',
+               theme='Switch light / dark theme', back='↑ Back to top',
+               footer='Updated every Monday at 08:00',
                browse='All issues →', subscribe='Subscribe via RSS',
                not_found='Page not found', lost='This page could not be found.'),
-    'zh': dict(latest='本期', archive='往期', sixty='60 秒速览',
-               more='展开', why='对你有什么用：', builders='怎么上手：', source='原文 ↗',
+    'zh': dict(latest='本期', archive='往期', sixty='本周要点',
+               more='展开', why='值得看：', builders='上手：', source='原文 ↗',
                stars='本周 +{n} ★', issue='第 {week} 期 · {year}', soon='首期即将发布。',
                missing='本期暂无中文版', skip='跳至正文', navigation='主导航',
                past='往期', previous='← 上一期', next='下一期 →', count='本期 {n} 条 · 约 1 分钟读完',
-               footer='每周一更新 · 内容摘自原文，点击原文核实',
+               theme='切换浅色 / 深色主题', back='↑ 回到顶部',
+               footer='每周一 08:00 更新',
                browse='全部往期 →', subscribe='通过 RSS 订阅',
                not_found='页面未找到', lost='找不到此页面。'),
 }
@@ -62,17 +67,23 @@ def _localized(issue: Issue, language: str) -> tuple[Issue, bool]:
 
 def _period(issue: Issue, timezone: str, language: str = 'en') -> str:
     start, end = (value.astimezone(ZoneInfo(timezone)) for value in (issue.period_start, issue.period_end))
+    same_year = start.year == end.year
+    same_month = same_year and start.month == end.month
     if language == 'zh':
-        first = f'{start.year}年{start.month}月{start.day}日'
-        last = f'{end.year}年{end.month}月{end.day}日'
-        return first if start.date() == end.date() else f'{first}–{last}'
+        first = f'{start.month}月{start.day}日'
+        if start.date() == end.date():
+            return f'{first} · {start.year}'
+        last = f'{end.day}日' if same_month else f'{end.month}月{end.day}日'
+        if same_year:
+            return f'{first} – {last} · {end.year}'
+        return f'{first} · {start.year} – {last} · {end.year}'
+    first = f'{start:%b} {start.day}'
     if start.date() == end.date():
-        return f'{start.day} {start:%b %Y}'
-    if (start.year, start.month) == (end.year, end.month):
-        return f'{start.day}–{end.day} {end:%b %Y}'
-    if start.year == end.year:
-        return f'{start.day} {start:%b}–{end.day} {end:%b %Y}'
-    return f'{start.day} {start:%b %Y}–{end.day} {end:%b %Y}'
+        return f'{first}, {start.year}'
+    last = str(end.day) if same_month else f'{end:%b} {end.day}'
+    if same_year:
+        return f'{first} – {last}, {end.year}'
+    return f'{first}, {start.year} – {last}, {end.year}'
 
 
 def _domain(url: str) -> str:
@@ -107,6 +118,8 @@ def _view(issue: Issue, cfg: Config, env: Environment, language: str) -> dict[st
             digest.append((top[index].summary, top[index].key))
     month = issue.period_end.astimezone(ZoneInfo(cfg.site.timezone))
     view = {
+        'short_label': f'第 {int(issue.id[5:])} 期' if language == 'zh' else f'Issue {int(issue.id[5:])}',
+        'headlines': {item.key: item.headline for item in items},
         'digest': digest, 'top': top, 'count': len(items),
         'anchors': {item.key: f'item-{i}' for i, item in enumerate(items, 1)},
         'month': month.strftime('%Y-%m'),
@@ -128,6 +141,14 @@ def _view(issue: Issue, cfg: Config, env: Environment, language: str) -> dict[st
     return view
 
 
+def _inline_code(text: str) -> Markup:
+    """Style explicit code and versioned identifiers without trusting source HTML."""
+    pattern = r'(`[^`\n]+`|\b[A-Za-z][A-Za-z0-9_-]*-\d[\w./-]*)'
+    parts = re.split(pattern, text)
+    return Markup('').join(Markup('<code>{}</code>').format(part.strip('`'))
+                           if index % 2 else escape(part) for index, part in enumerate(parts))
+
+
 def render_site(cfg: Config, issues_dir: Path, out_dir: Path) -> list[Path]:
     """Rebuild all output from saved issues, without network or LLM calls."""
     issues_dir, out_dir = Path(issues_dir), Path(out_dir)
@@ -137,6 +158,7 @@ def render_site(cfg: Config, issues_dir: Path, out_dir: Path) -> list[Path]:
                       autoescape=True, undefined=StrictUndefined,
                       trim_blocks=True, lstrip_blocks=True)
     env.filters['domain'] = _domain
+    env.filters['inline_code'] = _inline_code
     env.tests['allowed_image'] = lambda url: allowed_image(url, cfg)
     issues = [Issue.from_dict(json.loads(path.read_text(encoding='utf-8')))
               for path in issues_dir.glob('*.json')]

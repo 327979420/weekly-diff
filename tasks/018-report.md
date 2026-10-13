@@ -1,0 +1,7 @@
+- Changes: Added bilingual editorial prompts, optional second person, one opening-variety rewrite, and banned-phrase retry/repair without bypassing evidence checks.
+- Changes: Added normalised product/version dedupe, primary-source preference, merged signals/seen aliases, and a final duplicate-product guard.
+- Changes: Completed all five design follow-ups: system-aware theme toggle, issue H1/kicker, compact bilingual dates, accessible light-mode text accents, and complete-sentence shortening.
+- Testing: `.venv/bin/python -m pytest -q` → 556 passed in 11.26s.
+- Testing: `.venv/bin/python run.py render` → exit 0; `git diff --check` → passed; theme JavaScript checked across 16 system/theme/storage combinations.
+- Unfinished: None within task 018. Live LLM and visual browser review were not run; saved issue data remains unchanged, so editorial/dedupe changes apply on the next build.
+- Questions: None. Sentence fallback may exceed the length target after one rewrite, as requested; existing task 017 edits preserved, publish_enabled unchanged, no commit or push.
