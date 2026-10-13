@@ -126,11 +126,23 @@
       "title": "MiniCPM-V 4.7 is a vision model that can run on an iPhone",
       "url": "https://huggingface.co/openbmb/MiniCPM-V-4.7-35B-A3B"
     },
+    "hfspace:tardellirs/model-pulse": {
+      "first_seen": "2026-10-13",
+      "issue": "2026-42",
+      "title": "Model Pulse shows daily download stats for any Hugging Face model",
+      "url": "https://huggingface.co/spaces/tardellirs/model-pulse"
+    },
     "hfspace:webml-community/embeddinggemma-2-webgpu": {
       "first_seen": "2026-10-13",
       "issue": "2026-42",
       "title": "webml-community/embeddinggemma-2-webgpu",
       "url": "https://huggingface.co/spaces/webml-community/embeddinggemma-2-webgpu"
+    },
+    "https://arstechnica.com/ai/2026/10/ai-coding-agents-generate-more-code-but-not-more-software/": {
+      "first_seen": "2026-10-13",
+      "issue": "2026-42",
+      "title": "AI coding agents write more code, but code review slows everything down",
+      "url": "https://arstechnica.com/ai/2026/10/ai-coding-agents-generate-more-code-but-not-more-software"
     },
     "https://blog.google/innovation-and-ai/technology/developers-tools/embeddinggemma-2/": {
       "first_seen": "2026-10-13",
