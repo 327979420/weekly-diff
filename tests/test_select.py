@@ -106,3 +106,20 @@ def test_empty_quick_section_gets_minimum(tmp_path: Path, monkeypatch: pytest.Mo
         assert len(result.chosen['models']) == len(result.chosen['tools']) == 3
         assert min(item.score for item in result.chosen['models']) == 9
         assert min(item.score for item in result.chosen['tools']) == 9
+
+
+@pytest.mark.parametrize('section', ['models', 'tools', 'github', 'quick'])
+def test_try_now_preferred_with_quotas_and_threshold(section: str, tmp_path: Path,
+                                                    monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(paths, 'BUILD', tmp_path)
+    cfg = small_config()
+    cfg = replace(cfg, issue=replace(cfg.issue, hard_min_items=1, max_items=1, min_items=1,
+                  sections=tuple(replace(s, min=1 if s.key == section else 0, max=1)
+                                 for s in cfg.issue.sections)))
+    pool = items(section, 3)
+    pool[0] = replace(pool[0], score=10, try_now=False)
+    pool[1] = replace(pool[1], score=5, try_now=True)
+    pool[2] = replace(pool[2], score=4, try_now=True)
+    result = select(pool, cfg)
+    assert result.chosen[section] == [pool[1]]
+    assert all(s.candidate.key != pool[2].candidate.key for rows in result.backups.values() for s in rows)

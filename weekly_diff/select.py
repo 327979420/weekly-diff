@@ -24,13 +24,13 @@ class Selection(JSONModel):
                       for kind in ('chosen', 'backups')})
 
 
-def _rank(item: Scored) -> tuple[float, float, str]:
-    return -item.score, -signal_score(item.candidate), item.candidate.key
+def _rank(item: Scored) -> tuple[int, float, float, str]:
+    return -int(item.try_now), -item.score, -signal_score(item.candidate), item.candidate.key
 
 
 def _section_rank(item: Scored) -> tuple:
     if item.section == 'github':
-        return (-item.candidate.signals.get('stars_gained', 0), *_rank(item))
+        return (-int(item.try_now), -item.candidate.signals.get('stars_gained', 0), *_rank(item))
     return _rank(item)
 
 

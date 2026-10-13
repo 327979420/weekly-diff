@@ -39,7 +39,7 @@ def fake_response(system: str, user: str, schema: dict, max_tokens: int) -> dict
     data = json.loads(user)
     if isinstance(data, list):
         return {'items': [{'id': row['id'], 'relevant': True, 'section': row['id'].split(':')[0],
-                           'tag': 'builders', 'score': 8, 'reason': 'Useful update'} for row in data]}
+                           'tag': 'try', 'try_now': True, 'score': 8, 'reason': 'Useful update'} for row in data]}
     if 'SOURCE' in data:
         return GOOD
     return {'bullets': [{'text': item['headline'], 'text_zh': item['zh']['headline'], 'item_keys': [item['key']]} for item in data['items'][:3]]}
@@ -187,3 +187,13 @@ def test_shared_quick_backups_consumed_once(workspace: Config, quick_first: bool
     assert {item.key for rows in result.values() for item in rows} == {item.candidate.key for item in models[2:]}
     assert all(item.section == section for section, rows in result.items() for item in rows)
     assert len(fake.calls) == 4
+
+
+def test_top_prefers_try_now_preserving_diversity() -> None:
+    from weekly_diff.models import Item
+    row = json.loads((Path(__file__).parent / 'fixtures/models.json').read_text())['item']
+    base = Item.from_dict(row)
+    cfg = load_config()
+    items = [replace(base, key='watch', score=10, extra={}),
+             replace(base, key='try', score=5, extra={'try_now': True})]
+    assert build.top_items(items, cfg)[0] == 'try'

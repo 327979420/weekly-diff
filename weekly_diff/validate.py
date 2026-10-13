@@ -88,7 +88,7 @@ def validate_item(item: Item, source_text: str, cfg: Config) -> list[str]:
         problems.append('zh must contain all four content fields')
     else:
         problems.extend(_copy_problems(item.zh, cfg, chinese=True))
-    if not isinstance(item.tag, str) or item.tag not in vars(cfg.tags):
+    if not isinstance(item.tag, str) or item.tag not in cfg.tags:
         problems.append('invalid tag')
     if not isinstance(item.section, str) or item.section not in {section.key for section in cfg.issue.sections}:
         problems.append('invalid section')

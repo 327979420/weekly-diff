@@ -3,7 +3,7 @@
   "summary": "You can make subagents auto-compact earlier than the main conversation.",
   "why_it_matters": "Builders can configure when a subagent compacts its context.",
   "for_builders": "Set autoCompactWindow in subagent frontmatter.",
-  "tag": "builders",
+  "tag": "try",
   "supported": true,
   "emoji": "🛠️",
   "zh": {

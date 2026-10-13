@@ -18,12 +18,21 @@ from weekly_diff.site import _period, render_site
 FIXTURES = Path(__file__).parent / 'fixtures/issues'
 
 
-def test_complete_site(tmp_path: Path) -> None:
+@pytest.fixture
+def issue_fixtures(tmp_path_factory: pytest.TempPathFactory) -> Path:
+    """Keep the separate legacy sample out of the two-issue archive."""
+    directory = tmp_path_factory.mktemp('archive-fixtures')
+    for name in ('2026-41.json', '2026-42.json'):
+        shutil.copyfile(FIXTURES / name, directory / name)
+    return directory
+
+
+def test_complete_site(issue_fixtures: Path, tmp_path: Path) -> None:
     cfg = load_config()
     out = tmp_path / 'site'
     out.mkdir()
     (out / 'stale.html').touch()
-    written = render_site(cfg, FIXTURES, out)
+    written = render_site(cfg, issue_fixtures, out)
     expected = {'index.html', 'issues/2026-41/index.html', 'issues/2026-42/index.html',
                 'archive/index.html', 'feed.xml', '404.html', '.nojekyll', 'assets/style.css'}
     expected |= {'zh/' + path for path in expected if path.endswith(('.html', '.xml'))}
@@ -35,12 +44,12 @@ def test_complete_site(tmp_path: Path) -> None:
     assert [section['id'] for section in home.select('section[id]')] == [section.key for section in cfg.issue.sections]
     assert '+0 ★ this week' in home.get_text()
     assert len(home.select('article strong')) == 19
-    assert cfg.tags.builders in home.get_text()
+    assert cfg.tags['try'] in home.get_text()
     assert 'Archived name' not in home.get_text()
     assert len(home.select('h1')) == 1
     assert home.select_one('main#main')
     archive = BeautifulSoup((out / 'archive/index.html').read_text(), 'html.parser')
-    assert [a['href'] for a in archive.select('article h2 a')] == [f'{cfg.base_path}/issues/{week}/' for week in ('2026-42', '2026-41')]
+    assert [a['href'] for a in archive.select('.history-row > a')] == [f'{cfg.base_path}/issues/{week}/' for week in ('2026-42', '2026-41')]
     assert 'Week 42: tools for builders.' in archive.get_text()
     for path in out.rglob('*.html'):
         soup = BeautifulSoup(path.read_text(), 'html.parser')
@@ -52,15 +61,15 @@ def test_complete_site(tmp_path: Path) -> None:
         for link in soup.select('[href]'):
             url = link['href']
             if not url.startswith(('https://', 'http://')):
-                assert url.startswith(cfg.base_path + '/')
+                assert url.startswith((cfg.base_path + '/', 'data:image/svg+xml,'))
         for link in soup.select('article a[rel]'):
             assert 'noopener' in link['rel']
     assert (out / 'index.html').stat().st_size + (out / 'assets/style.css').stat().st_size < 50_000
 
 
-def test_feed_and_escaping(tmp_path: Path) -> None:
+def test_feed_and_escaping(issue_fixtures: Path, tmp_path: Path) -> None:
     cfg = load_config()
-    render_site(cfg, FIXTURES, tmp_path)
+    render_site(cfg, issue_fixtures, tmp_path)
     html = (tmp_path / 'index.html').read_text()
     xml = (tmp_path / 'feed.xml').read_text()
     assert '<script>' not in html and '&lt;script&gt;alert(1)&lt;/script&gt;' in html
@@ -78,7 +87,7 @@ def test_feed_and_escaping(tmp_path: Path) -> None:
     assert not feed.bozo
     assert [entry.link for entry in feed.entries] == [cfg.issue_url(week) for week in ('2026-42', '2026-41')]
     assert [entry.published_parsed[:6] for entry in feed.entries] == [(2026, 10, 18, 21, 0, 0), (2026, 10, 11, 21, 0, 0)]
-    render_site(replace(cfg, site=replace(cfg.site, feed_items=1)), FIXTURES, tmp_path)
+    render_site(replace(cfg, site=replace(cfg.site, feed_items=1)), issue_fixtures, tmp_path)
     assert len(feedparser.parse((tmp_path / 'feed.xml').read_text()).entries) == 1
 
 
@@ -119,16 +128,16 @@ def test_period(start: str, end: str, expected: str) -> None:
     assert _period(issue, 'Australia/Melbourne') == expected
 
 
-def test_pipeline_render(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr(paths, 'ISSUES', FIXTURES)
+def test_pipeline_render(issue_fixtures: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(paths, 'ISSUES', issue_fixtures)
     monkeypatch.setattr(paths, 'SITE', tmp_path / 'site')
     pipeline.render(load_config(), Namespace(dry_run=True))
     assert (paths.SITE / 'issues/2026-42/index.html').exists()
 
 
-def test_dry_run_combines_archive_and_replaces_same_week(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_dry_run_combines_archive_and_replaces_same_week(issue_fixtures: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     source = tmp_path / 'data/issues'
-    shutil.copytree(FIXTURES, source)
+    shutil.copytree(issue_fixtures, source)
     monkeypatch.setattr(paths, 'ISSUES', source)
     monkeypatch.setattr(paths, 'SITE', tmp_path / 'site')
     before = {p.name: p.read_bytes() for p in source.iterdir()}
@@ -189,9 +198,9 @@ def test_bilingual_pages_and_counterparts(tmp_path: Path) -> None:
     home = BeautifulSoup((tmp_path / 'zh/index.html').read_text(), 'html.parser')
     assert '60 秒速览' in home.get_text()
     assert cfg.tagline_zh in home.get_text()
-    assert cfg.tags_zh.builders in home.get_text()
+    assert cfg.tags_zh['try'] in home.get_text()
     assert all(section.title_zh in home.get_text() for section in cfg.issue.sections)
-    assert '第 42 周：开发者工具。' in home.get_text()
+    assert '根据原文整理的简短摘要。' in home.get_text()
     assert '本期暂无中文版' not in home.get_text()
     assert '本周 +0 ★' in home.get_text()
     assert len(home.select('details > summary')) == 15
@@ -200,7 +209,8 @@ def test_bilingual_pages_and_counterparts(tmp_path: Path) -> None:
         html = (tmp_path / prefix / 'index.html').read_text()
         soup = BeautifulSoup(html, 'html.parser')
         assert '&lt;script&gt;alert(1)&lt;/script&gt;' in html
-        assert len(soup.select('img')) == 4
+        assert len(soup.select('img')) == 0
+        assert len(soup.select('.image-band')) == 15
         for card in soup.select('.card'):
             img = card.find('img')
             if img:
@@ -211,7 +221,7 @@ def test_bilingual_pages_and_counterparts(tmp_path: Path) -> None:
         assert len(html.encode()) + (tmp_path / 'assets/style.css').stat().st_size < 60_000
     old = BeautifulSoup((tmp_path / 'zh/issues/2026-41/index.html').read_text(), 'html.parser')
     assert '本期暂无中文版' in old.get_text()
-    assert 'Week 41' in old.get_text()
+    assert 'A concise summary based on the source text.' in old.get_text()
     archive = BeautifulSoup((tmp_path / 'zh/archive/index.html').read_text(), 'html.parser')
     assert '第 42 周：开发者工具。' in archive.get_text()
     assert '本期暂无中文版' in archive.get_text()
@@ -239,8 +249,7 @@ def test_partial_translation_falls_back_per_field(tmp_path: Path) -> None:
     assert item['summary'] in card.get_text()
     assert item['why_it_matters'] in card.get_text()
     assert item['for_builders'] in card.get_text()
-    assert data['sixty_seconds'][1] in soup.get_text()
-    assert data['sixty_seconds'][2] in soup.get_text()
+    assert len(soup.select('.digest ol a')) == 3
     assert '本期暂无中文版' in soup.get_text()
 
 
@@ -258,7 +267,7 @@ def test_theme_text_contrast() -> None:
                   for channel in channels]
         return sum(channel * weight for channel, weight in zip(linear, (.2126, .7152, .0722)))
 
-    pairs = [('digest-text', 'digest')]
+    pairs = [('digest-text', 'digest'), ('link', 'digest')]
     pairs += [(text, background) for text in ('text', 'muted', 'link')
               for background in ('background', 'card', 'surface')]
     pairs += [(section, 'background') for section in ('models', 'tools', 'github', 'quick')]
@@ -269,14 +278,83 @@ def test_theme_text_contrast() -> None:
             assert (light + .05) / (dark + .05) >= 4.5, (foreground, background)
 
 
-@pytest.mark.parametrize('fixtures', [FIXTURES, BILINGUAL])
-def test_reader_labels_on_current_and_old_issues(tmp_path: Path, fixtures: Path) -> None:
-    render_site(load_config(), fixtures, tmp_path)
+@pytest.mark.parametrize('bilingual', [False, True])
+def test_reader_labels_on_current_and_old_issues(tmp_path: Path, issue_fixtures: Path, bilingual: bool) -> None:
+    out = tmp_path / 'site'
+    render_site(load_config(), BILINGUAL if bilingual else issue_fixtures, out)
     for prefix, why, first_step in [('', "Why you'd care:", 'How to try it:'),
                                      ('zh/', '对你有什么用：', '怎么上手：')]:
-        soup = BeautifulSoup((tmp_path / prefix / 'index.html').read_text(), 'html.parser')
+        soup = BeautifulSoup((out / prefix / 'index.html').read_text(), 'html.parser')
         labels = [tag.text for tag in soup.select('article strong')]
         assert why in labels
         assert first_step in labels
         assert 'Why it matters:' not in labels
         assert 'For builders:' not in labels
+
+
+@pytest.mark.parametrize('prefix', ['', 'zh/'])
+def test_history_navigation_and_months(tmp_path: Path, prefix: str) -> None:
+    from datetime import timedelta
+
+    cfg = load_config(FIXTURES.parent / 'config.yaml')
+    source, out = tmp_path / 'issues', tmp_path / 'site'
+    source.mkdir()
+    base = Issue.from_dict(json.loads((BILINGUAL / '2026-42.json').read_text()))
+    for offset in range(9):
+        delta = timedelta(weeks=offset)
+        issue = replace(base, id=f'2026-{42 - offset}', period_start=base.period_start - delta,
+                        period_end=base.period_end - delta, published_at=base.published_at - delta)
+        (source / f'{issue.id}.json').write_text(json.dumps(issue.to_dict()))
+    render_site(cfg, source, out)
+    home = BeautifulSoup((out / prefix / 'index.html').read_text(), 'html.parser')
+    rows = home.select('.past-issues .history-row > a')
+    assert len(rows) == 6
+    assert [a['href'].split('/')[-2] for a in rows] == [f'2026-{n}' for n in range(41, 35, -1)]
+    assert all('🧠' in a.text for a in rows)
+    assert home.select_one('.all-issues')['href'] == f'{cfg.base_path}/{prefix}archive/'
+    assert len(home.select('.digest ol li a')) == 3
+    assert len({card['id'] for card in home.select('article')}) == 15
+    for link in home.select('.digest a'):
+        target = home.find(id=link['href'].split('#')[1])
+        assert link.text in target.text
+    assert (out / prefix / 'index.html').stat().st_size + (out / 'assets/style.css').stat().st_size < 60_000
+    for week, previous, following in [(42, 41, None), (38, 37, 39), (34, None, 35)]:
+        page = BeautifulSoup((out / prefix / f'issues/2026-{week}/index.html').read_text(), 'html.parser')
+        assert len(page.select('.issue-navigation')) == 2
+        for rel, expected in [('prev', previous), ('next', following)]:
+            links = page.select(f'.issue-navigation a[rel={rel}]')
+            assert len(links) == (2 if expected else 0)
+            assert all(a['href'] == f'{cfg.base_path}/{prefix}issues/2026-{expected}/' for a in links)
+        assert '15' in page.select_one('.reading-time').text
+    archive = BeautifulSoup((out / prefix / 'archive/index.html').read_text(), 'html.parser')
+    groups = archive.select('.archive-month')
+    assert len(groups) == 3
+    assert len(archive.select('.history-row')) == 9
+    assert len({group.h2.text for group in groups}) == 3
+    assert not archive.select('.card, img')
+    assert all(row.text.count('🧠') == 3 for row in archive.select('.history-row'))
+
+
+@pytest.mark.parametrize('prefix', ['', 'zh/'])
+def test_allowed_thumbnails_og_and_saved_bullet_targets(tmp_path: Path, prefix: str) -> None:
+    cfg = load_config(FIXTURES.parent / 'config.yaml')
+    issue = Issue.from_dict(json.loads((BILINGUAL / '2026-42.json').read_text()))
+    by_key = {item.key: item for item in issue.items()}
+    top = by_key[issue.top[0]]
+    top.image_url = cfg.sources.github_image_url + '/org/repo'
+    issue.top = list(by_key)[:3]
+    issue.sixty_seconds_keys = [[key] for key in reversed(issue.top)]
+    source = tmp_path / 'issues'
+    source.mkdir()
+    (source / 'issue.json').write_text(json.dumps(issue.to_dict()))
+    render_site(cfg, source, tmp_path / 'site')
+    page = BeautifulSoup((tmp_path / 'site' / prefix / 'index.html').read_text(), 'html.parser')
+    assert not page.select('.issue-navigation')
+    assert len(page.select('img')) == 1
+    assert len(page.select('.image-band')) == 14
+    assert page.select_one('meta[property="og:image"]')['content'] == top.image_url
+    assert page.select_one('link[rel=icon]')['href'].startswith('data:image/svg+xml,')
+    for link, keys in zip(page.select('.digest a'), issue.sixty_seconds_keys):
+        card = page.find(id=link['href'].split('#')[1])
+        item = by_key[keys[0]]
+        assert ((item.zh or {}).get('headline') if prefix else item.headline) in card.h3.text

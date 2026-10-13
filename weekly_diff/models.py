@@ -5,7 +5,7 @@ from typing import Any, Iterator, Literal, Self
 
 from weekly_diff.dates import as_utc
 
-SourceType = Literal["rss", "html_index", "github_release", "github_trending", "hackernews", "huggingface"]
+SourceType = Literal["rss", "html_index", "github_release", "github_trending", "hackernews", "huggingface", "reddit"]
 
 
 def _encode(value: Any) -> Any:
@@ -78,6 +78,7 @@ class Issue(JSONModel):
     sections: dict[str, list[Item]]
     top: list[str]
     sixty_seconds_zh: list[str] = field(default_factory=list)
+    sixty_seconds_keys: list[list[str]] = field(default_factory=list)
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> Self:

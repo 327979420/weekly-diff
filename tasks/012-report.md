@@ -1,0 +1,7 @@
+- Changes: 新建 docs/COLLAB-LOG.md，按日期整理 tasks 001–012、002 修复、003 两轮修复及主人反馈，补上历史链接、当前状态和后续排程。
+- Changes: 追加本次 Codex 交接；仅新增日志和本报告，未改代码、配置或期刊数据，未提交或推送。
+- Testing: `.venv/bin/python -m pytest -q` → 438 passed, 1 failed。
+- Testing: 在 `git archive HEAD` 导出的临时副本中，用仓库 `.venv/bin/python -m pytest -q tests/test_models.py::test_committed_legacy_issue_loads_and_renders` → 1 failed，同样的原有失败。
+- Testing: `git diff --check` → passed；本地 Markdown 链接和 tasks 001–012 覆盖检查通过。
+- Unfinished: 全测通过条件未满足；旧版数据测试要求 sixty_seconds_zh 为空，但已提交的 2026-42.json 包含中文，本次文档范围未修复。
+- Questions: 无；交 Claude 审核，并另行安排原有测试问题。

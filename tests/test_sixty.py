@@ -48,3 +48,11 @@ def test_chinese_bullet_retry_and_matching_fallback(text: str) -> None:
     assert english == [item.headline for item in ITEMS]
     assert chinese == [item.zh['headline'] for item in ITEMS]
     assert json.loads(fake.calls[1]['user'])['validation_problems']
+
+
+def test_bullet_provenance_success_and_fallback() -> None:
+    keys: list[list[str]] = []
+    sixty(ITEMS, FakeLLM([{'bullets': list(reversed(GOOD['bullets']))}]), load_config(), keys)
+    assert keys == [[item.key] for item in reversed(ITEMS)]
+    sixty(ITEMS, FakeLLM([{'bullets': []}] * 2), load_config(), keys)
+    assert keys == [[item.key] for item in ITEMS]

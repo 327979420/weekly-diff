@@ -1,0 +1,6 @@
+- Changes: 从 `7d21d18` 原样冻结 legacy fixture；旧格式测试改用 fixture，保留断言并验证中文页面的英文回退；隔离网站归档测试样本，未发现其他测试读取线上 data/。
+- Changes: docs/COLLAB-LOG.md 新增会话表、15 条历史会话 ID 和 013 结果；未修改应用代码、data/ 或 config.yaml，未提交或推送。
+- Testing: `.venv/bin/python -m pytest -q` → 439 passed in 9.51s；`git diff --check` → 通过；fixture 与 git 历史逐字节一致。
+- Unfinished: 无。
+- Questions: 无。
+- Codex session/thread ID: `01a1336c-ba84-7032-83c5-94ff5d9fa012`。

@@ -2,6 +2,7 @@ from datetime import datetime, timedelta, timezone
 import json
 from pathlib import Path
 import pytest
+from bs4 import BeautifulSoup
 
 from weekly_diff.models import Candidate, Issue, Item
 
@@ -36,7 +37,7 @@ def test_committed_legacy_issue_loads_and_renders(tmp_path: Path) -> None:
     from weekly_diff.config import load_config
     from weekly_diff.site import render_site
 
-    source = Path(__file__).parents[1] / 'data/issues/2026-42.json'
+    source = Path(__file__).parent / 'fixtures/issues/legacy-2026-42.json'
     raw = source.read_text()
     issue = Issue.from_dict(json.loads(raw))
     assert issue.sixty_seconds_zh == []
@@ -47,3 +48,9 @@ def test_committed_legacy_issue_loads_and_renders(tmp_path: Path) -> None:
     render_site(load_config(), issues, tmp_path / 'site')
     page = (tmp_path / 'site/issues/2026-42/index.html').read_text()
     assert '2026-42' in page and next(issue.items()).source_url in page
+    chinese_page = (tmp_path / 'site/zh/issues/2026-42/index.html').read_text()
+    assert '本期暂无中文版' in chinese_page
+    assert next(issue.items()).source_url in chinese_page
+    chinese_text = BeautifulSoup(chinese_page, 'html.parser').get_text()
+    assert next(issue.items()).headline in chinese_text
+    assert next(issue.items()).summary in chinese_text

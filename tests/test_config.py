@@ -58,7 +58,7 @@ def test_llm_defaults(tmp_path: Path) -> None:
     assert cfg.llm.max_retries == 2
 
 
-@pytest.mark.parametrize('path', [('tagline_zh',), ('tags_zh', 'builders'),
+@pytest.mark.parametrize('path', [('tagline_zh',), ('tags_zh', 'try'),
                                   ('issue', 'sections', 0, 'title_zh')])
 @pytest.mark.parametrize('value', ['', '  ', None, 42])
 def test_chinese_labels_validated(path: tuple, value: object, tmp_path: Path) -> None:

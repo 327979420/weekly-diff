@@ -1,7 +1,7 @@
 name: Test Roundup
 tagline: Weekly test news
 tagline_zh: "每周 AI 与开发者工具速览，一分钟看完。"
-tags_zh: {builders: "🛠️ 开发者", work: "💼 工作效率", beginner: "🌱 新手友好"}
+tags_zh: {try: "🚀 马上能试", learn: "📚 学一招", watch: "👀 值得关注"}
 
 content:
   max_headline_chars_zh: 40
@@ -32,7 +32,7 @@ issue:
     - {key: tools, title_zh: "Agent 与开发工具", title: Tools, min: 2, max: 4}
     - {key: github, title_zh: "GitHub 热门", title: GitHub, min: 3, max: 4}
     - {key: quick, title_zh: "快讯", title: Quick, min: 2, max: 4}
-tags: {builders: Builders, work: Work, beginner: Beginner}
+tags: {try: "🚀 Try it now", learn: "📚 Learn", watch: "👀 Worth watching"}
 llm: {timeout_seconds: 180, max_retries: 2, provider: auto, anthropic_model: test-anthropic, openai_model: test-openai, effort: low, max_candidates_to_score: 80, score_batch_size: 40, max_source_chars: 12000, min_score: 5}
 dedupe: {title_similarity: 0.6, seen_retention_days: 730}
 discord: {color: 5793266}
@@ -52,4 +52,5 @@ sources:
   github_releases: {per_page: 20, max_text_chars: 8000, include_prereleases: false, repos: [{name: Test, repo: example/test}]}
   github_trending: {name: "GitHub", search_per_page: 50, snapshot_min_days: 5, snapshot_max_days: 9, snapshot_history_limit: 6, snapshot_retention_days: 30, created_within_days: 30, candidates: 40, exclude_repos: [], queries: ['stars:>100']}
   hackernews: {name: "Hacker News", api_url: "https://hn.algolia.com/api/v1/search", item_url: "https://news.ycombinator.com/item", hits_per_page: 500, min_points: 150, keywords: [AI]}
-  huggingface: {name: "Hugging Face", api_url: "https://huggingface.co/api/models", base_url: "https://huggingface.co", org_limit: 20, trending_limit: 30, created_within_days: 30, orgs: [example], repack_authors: [unsloth, bartowski, lmstudio-community, mlx-community, TheBloke, QuantFactory, MaziyarPanahi]}
+  huggingface: {name: "Hugging Face", api_url: "https://huggingface.co/api/models", base_url: "https://huggingface.co", org_limit: 20, trending_limit: 30, created_within_days: 30, orgs: [example], repack_authors: [unsloth, bartowski, lmstudio-community, mlx-community, TheBloke, QuantFactory, MaziyarPanahi], spaces: {enabled: false, api_url: "https://huggingface.co/api/spaces", limit: 20, created_within_days: 30}}
+  reddit: {enabled: false, name: "Reddit", api_url: "https://www.reddit.com/r/{sub}/top.json", base_url: "https://www.reddit.com", subreddits: [vibecoding], limit: 25, min_score: 300}

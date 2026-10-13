@@ -5,7 +5,7 @@ name: "The Weekly Diff"
 tagline: "The week in AI and developer tools, in plain English."
 
 tagline_zh: "每周 AI 与开发者工具速览，一分钟看完。"
-tags_zh: {builders: "🛠️ 开发者", work: "💼 工作效率", beginner: "🌱 新手友好"}
+tags_zh: {try: "🚀 马上能试", learn: "📚 学一招", watch: "👀 值得关注"}
 
 content:
   max_headline_chars_zh: 40
@@ -31,6 +31,7 @@ site:
   base_url: "https://327979420.github.io/weekly-diff"   # no trailing slash
   language: "en"
   timezone: "Australia/Melbourne"   # dates shown to readers
+  image_domains_allowlist: [opengraph.githubassets.com]
   feed_items: 20
 
 issue:
@@ -63,10 +64,7 @@ issue:
       min: 2
       max: 4
 
-tags:
-  builders: "🛠️ Builders"
-  work: "💼 Work & productivity"
-  beginner: "🌱 Beginner-friendly"
+tags: {try: "🚀 Try it now", learn: "📚 Learn", watch: "👀 Worth watching"}
 
 llm:
   timeout_seconds: 180
@@ -131,6 +129,13 @@ sources:
     - { name: "Hugging Face blog", url: "https://huggingface.co/blog/feed.xml", section: quick }
     - { name: "GitHub Changelog", url: "https://github.blog/changelog/feed/", section: tools }
     - { name: "Cursor", url: "https://cursor.com/changelog/rss.xml", section: tools }
+    - { name: "Simon Willison", url: "https://simonwillison.net/atom/everything/", section: quick }
+    - { name: "GitHub Copilot", url: "https://github.blog/changelog/label/copilot/feed/", section: tools }
+    - { name: "Google Developers", url: "https://developers.googleblog.com/rss/", section: tools }
+    - { name: "Vercel", url: "https://vercel.com/changelog/rss.xml", section: tools }
+    - { name: "Supabase", url: "https://supabase.com/rss.xml", section: tools }
+    - { name: "Replit", url: "https://blog.replit.com/feed.xml", section: tools }
+    - { name: "Zed", url: "https://zed.dev/blog.rss", section: tools }
 
   # News pages without RSS: links matching link_pattern are opened and kept if their publish date is in the window.
   html_index:
@@ -139,6 +144,7 @@ sources:
       - { name: "Anthropic", url: "https://www.anthropic.com/news", link_pattern: '^https://www\.anthropic\.com/news/[a-z0-9-]+/?$', section: models }
       - { name: "Claude blog", url: "https://claude.com/blog", link_pattern: '^https://claude\.(com|dev)/blog/[a-z0-9-]+/?$', section: tools }
       - { name: "Meta AI", url: "https://ai.meta.com/blog/", link_pattern: '^https://ai\.meta\.com/blog/[a-z0-9-]+/?$', section: models }
+      - { name: "Lovable", url: "https://lovable.dev/changelog", link_pattern: '^https://lovable\.dev/blog/[a-z0-9-]+/?$', section: tools }
       - { name: "DeepSeek", url: "https://api-docs.deepseek.com/", link_pattern: '^https://api-docs\.deepseek\.com/news/news\d+/?$', section: models }
 
   github_releases:
@@ -155,6 +161,12 @@ sources:
       - { name: "OpenCode", repo: "anomalyco/opencode" }
       - { name: "Goose", repo: "aaif-goose/goose" }
       - { name: "OpenHands", repo: "OpenHands/OpenHands" }
+      - { name: "Ollama", repo: "ollama/ollama" }
+      - { name: "Zed", repo: "zed-industries/zed" }
+      - { name: "Kilo Code", repo: "Kilo-Org/kilocode" }
+      - { name: "Crush", repo: "charmbracelet/crush" }
+      - { name: "Vercel AI SDK", repo: "vercel/ai" }
+      - { name: "MCP servers", repo: "modelcontextprotocol/servers" }
 
   # Ranked by stars gained in the lookback window, never by total stars.
   github_trending:
@@ -168,6 +180,11 @@ sources:
     candidates: 40                 # top repos retained after ranking by weekly star gain
     exclude_repos: []
     queries:                       # {since} = window start, {created_since} = now - created_within_days (YYYY-MM-DD)
+      - "created:>{since} stars:>50 topic:mcp-server"
+      - "created:>{since} stars:>50 topic:claude-code"
+      - "created:>{since} stars:>50 topic:vibe-coding"
+      - "created:>{since} stars:>50 topic:cursor"
+      - "created:>{since} stars:>50 topic:ai-coding"
       - "created:>{created_since} stars:>100 topic:llm"
       - "created:>{created_since} stars:>100 topic:ai-agents"
       - "created:>{created_since} stars:>100 topic:mcp"
@@ -192,3 +209,19 @@ sources:
     created_within_days: 30
     orgs: [openai, google, meta-llama, mistralai, xai-org, deepseek-ai, Qwen, moonshotai, zai-org]
     repack_authors: [unsloth, bartowski, lmstudio-community, mlx-community, TheBloke, QuantFactory, MaziyarPanahi]
+
+    # Verified live by Claude on 2026-10-13.
+    spaces:
+      enabled: true
+      api_url: "https://huggingface.co/api/spaces"
+      limit: 20
+      created_within_days: 30
+
+  reddit:
+    enabled: false  # 2026-10-13: Reddit returns 403 to non-browser clients; keep off.
+    name: "Reddit"
+    api_url: "https://www.reddit.com/r/{sub}/top.json"
+    base_url: "https://www.reddit.com"
+    subreddits: [vibecoding, ClaudeAI, cursor, ChatGPTCoding, LocalLLaMA]
+    limit: 25
+    min_score: 300

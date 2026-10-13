@@ -58,6 +58,10 @@ All scheduled workflows also have `workflow_dispatch` with a `dry_run` option. `
 | 009 | Bilingual (EN/中文) snack-sized content, emoji, source images | done (413 tests) |
 | 010 | Colourful bilingual site (/zh/) and two Discord messages | done (422 tests) |
 | 011 | Reader-first, simpler copy (what it does + how you can use it) | done (439 tests) |
+| 012 | Shared collaboration log (docs/COLLAB-LOG.md) | done |
+| 013 | Frozen legacy-issue fixture; Codex session IDs | done (439 tests) |
+| 014 | Vibe-coder focus, new sources, try/learn/watch tags | done, 1 fix round (472 tests) |
+| 015 | History browsing, visual polish, Discord layout | done (489 tests) |
 
 ## Decisions
 - 2026-10-12: Repo at `~/weekly-diff`, GitHub `327979420/weekly-diff` (public). Pages source: GitHub Actions.

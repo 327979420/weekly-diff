@@ -1,12 +1,13 @@
 {% extends 'base.html' %}
+{% from 'history.html' import row with context %}
 {% block content %}
 <h1>{{ strings.archive }}</h1>
 {% for view in views %}
-<article class="card archive-card">
-  <h2><a href="{{ view.path }}">{{ view.title }}</a></h2>
-  {% if view.missing %}<small>{{ strings.missing }}</small>{% endif %}
-  <p class="period">{{ view.period }}</p>
-  {% if view.issue.sixty_seconds %}<p>{{ view.issue.sixty_seconds[0] }}</p>{% endif %}
-</article>
+{% if loop.first or view.month != views[loop.index0 - 1].month %}
+{% if not loop.first %}</ul></section>{% endif %}
+<section class="archive-month"><h2>{{ view.month_label }}</h2><ul class="history-list">
+{% endif %}
+{{ row(view, true) }}
+{% if loop.last %}</ul></section>{% endif %}
 {% else %}<p>{{ cfg.name }} — {{ strings.soon }}</p>{% endfor %}
 {% endblock %}

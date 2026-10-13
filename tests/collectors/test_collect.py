@@ -43,7 +43,9 @@ def test_all_sources_fail_gracefully(cfg: Config, window: tuple[datetime, dateti
     # Unregistered requests are blocked by responses, including retries.
     assert collect.run_collect(cfg, window[1], True) == []
     report = json.loads((paths.BUILD / 'collect-report.json').read_text())
-    assert len(report) == 6 and all(entry['error'] for entry in report.values())
+    assert len(report) == 7
+    assert report['reddit']['count'] == 0 and report['reddit']['error'] is None
+    assert all(entry['error'] for name, entry in report.items() if name != 'reddit')
 
 
 def test_cli_summary_and_dry_run(cfg: Config, monkeypatch: pytest.MonkeyPatch,

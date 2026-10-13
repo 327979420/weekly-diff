@@ -1,0 +1,11 @@
+{% macro navigation(previous, next) -%}
+{% if previous or next %}<nav class="issue-navigation" aria-label="{{ strings.past }}">
+{% if previous %}<a rel="prev" href="{{ previous.path }}">{{ strings.previous }} · {{ previous.label }}</a>{% endif %}
+{% if next %}<a rel="next" href="{{ next.path }}">{{ next.label }} · {{ strings.next }}</a>{% endif %}
+</nav>{% endif %}
+{%- endmacro %}
+{% macro row(view, archive=false) -%}
+<li class="history-row"><a href="{{ view.path }}"><span class="week">{{ view.label }}</span><span class="period">{{ view.period }}</span>
+<span>{% for item in view.top[:3 if archive else 1] %}{{ item.emoji or icons.get(item.section, '') }} {% endfor %}{% if archive %}{{ view.description }}{% elif view.top %}{{ view.top[0].headline }}{% endif %}</span></a>
+{% if archive and view.missing %}<small>{{ strings.missing }}</small>{% endif %}</li>
+{%- endmacro %}

@@ -52,4 +52,37 @@ def collect(cfg: Config, window: tuple[datetime, datetime], http: Http) -> list[
                     result[name] = candidate
         except Exception as error:
             http.failure(f"{settings.name} {params.get('author', params['sort'])}", error)
-    return list(result.values())
+    return list(result.values()) + collect_spaces(cfg, window, http)
+
+
+def collect_spaces(cfg: Config, window: tuple[datetime, datetime], http: Http) -> list[Candidate]:
+    settings = cfg.sources.huggingface
+    spaces = settings.spaces
+    if not spaces.enabled:
+        return []
+    period = (window[1] - timedelta(days=spaces.created_within_days), window[1])
+    try:
+        rows = http.get_json(spaces.api_url, params={
+            'sort': 'trendingScore', 'direction': -1, 'limit': spaces.limit})
+        if not isinstance(rows, list):
+            raise ValueError('Expected a list of Spaces')
+    except Exception as error:
+        http.failure(f'{settings.name} Spaces', error)
+        return []
+    result = []
+    for row in rows:
+        try:
+            date = parse_date(row.get('createdAt'))
+            if not in_window(date, period):
+                continue
+            name = row['id']
+            url = f'{settings.base_url}/spaces/{name}'
+            if not valid_url(url):
+                continue
+            signals = {key: row[key] for key in ('likes',) if row.get(key) is not None}
+            result.append(Candidate(f'hfspace:{name}', name, url, settings.name,
+                                    'huggingface', date, name, True, 'quick', signals,
+                                    {'sdk': row.get('sdk')}))
+        except Exception as error:
+            http.failure(f'{settings.name} Space', error)
+    return result

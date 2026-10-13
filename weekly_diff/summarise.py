@@ -18,7 +18,7 @@ def _schema(cfg: Config) -> dict:
     chinese = {**properties, 'for_builders': {'type': ['string', 'null']}}
     properties.update(emoji={'type': 'string'}, zh={'type': 'object', 'properties': chinese},
                       for_builders={'type': ['string', 'null']},
-                      tag={'type': 'string', 'enum': list(vars(cfg.tags))}, supported={'type': 'boolean'})
+                      tag={'type': 'string', 'enum': list(cfg.tags)}, supported={'type': 'boolean'})
     return strict_schema({'type': 'object', 'properties': properties})
 
 
@@ -58,6 +58,7 @@ def summarise(scored: Scored, source_text: str, cfg: Config, llm: LLMClient) -> 
                 logger.warning('Dropped item: unsupported by source')
                 return None
             extra = {**deepcopy(candidate.extra), **candidate.signals,
+                     "try_now": scored.try_now,
                      'candidate_title': candidate.title, 'source_text': source_text}
             item = Item(candidate.key, scored.section, row['headline'], row['summary'], row['why_it_matters'],
                         row['for_builders'], row['tag'], candidate.url, candidate.source_name,

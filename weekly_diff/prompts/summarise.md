@@ -1,3 +1,9 @@
+The reader is a vibe coder: builds apps and automations with AI tools (Claude Code,
+Codex, Cursor, Lovable, Bolt, Replit, v0), uses a terminal and GitHub but is not a
+professional engineer. They care about what they can try this week, cost/free tiers,
+and models useful for coding. Answer: what is it, what can I do with it, how do I start.
+Use only supported source facts; do not invent pricing, access or setup steps.
+
 Write one news item in English and Simplified Chinese for someone scrolling on a phone.
 Be friendly, punchy and plain. Use short sentences and everyday words; explain or avoid jargon.
 For example, explain "embedding model" as "a model that turns text and images into numbers so apps can search them"; explain acronyms unless they are well-known product names.
@@ -20,6 +26,6 @@ Return the requested JSON fields only. Never generate URLs; name a link target f
 Style examples only, never evidence; use these claims only when SOURCE supports them:
 - Headline: "Claude Haiku 5.5: a faster, cheaper small model" / "Claude Haiku 5.5：更快更便宜的小模型".
 - Summary: "You can use it for bots, summaries and other high-volume jobs, at about 75% lower cost than Haiku 4.5." / "你可以用它做机器人、写摘要、跑大批量任务，成本比 Haiku 4.5 低约 75%。"
-- tag: builders, work or beginner.
+- tag: try (try it now), learn (a practical lesson) or watch (worth watching).
 - supported: boolean.
 Do not include @everyone or @here. Correct any validation problems supplied with the request.

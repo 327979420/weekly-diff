@@ -39,7 +39,8 @@ def _validate(response: dict, items: list[Item], cfg: Config) -> list[str]:
     return problems
 
 
-def sixty(items: list[Item], llm: LLMClient, cfg: Config) -> tuple[list[str], list[str]]:
+def sixty(items: list[Item], llm: LLMClient, cfg: Config,
+          item_keys: list[list[str]] | None = None) -> tuple[list[str], list[str]]:
     if len(items) < 3:
         raise ValueError('At least three items needed for sixty seconds')
     schema = strict_schema({'type': 'object', 'properties': {'bullets': {
@@ -55,10 +56,14 @@ def sixty(items: list[Item], llm: LLMClient, cfg: Config) -> tuple[list[str], li
             response = llm.complete_json(system, user, schema, max_tokens=len(system) + len(json.dumps(schema)))
             problems = _validate(response, items, cfg)
             if not problems:
+                if item_keys is not None:
+                    item_keys[:] = [bullet['item_keys'] for bullet in response['bullets']]
                 return ([bullet['text'] for bullet in response['bullets']],
                         [bullet['text_zh'] for bullet in response['bullets']])
         except (LLMError, json.JSONDecodeError):
             problems = ['overview completion failed']
     logging.getLogger(__name__).warning('Sixty seconds failed validation; using top headlines')
+    if item_keys is not None:
+        item_keys[:] = [[item.key] for item in items[:3]]
     return ([' '.join(item.headline.split()[:cfg.content.max_bullet_words]) for item in items[:3]],
             [(item.zh or {}).get('headline', '')[:cfg.content.max_bullet_chars_zh] for item in items[:3]])

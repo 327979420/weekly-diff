@@ -1,0 +1,7 @@
+{"data":{"children":[
+{"data":{"id":"external","title":"Coding tool guide","created_utc":1791331200,"score":400,"is_self":false,"url":"https://github.com/example/tool","permalink":"/r/vibecoding/comments/external/guide/","selftext":"Unverified community claim"}},
+{"data":{"id":"self","title":"How I built an app","created_utc":1791331200,"score":300,"is_self":true,"url":"https://www.reddit.com/r/vibecoding/comments/self/app/","permalink":"/r/vibecoding/comments/self/app/","selftext":"I used a starter template."}},
+{"data":{"id":"low","title":"Low score","created_utc":1791331200,"score":299}},
+{"data":{"id":"old","title":"Old post","created_utc":1700000000,"score":500}},
+{"data":{"id":"unsafe","title":"Unsafe URL","created_utc":1791331200,"score":500,"is_self":false,"url":"javascript:alert(1)","permalink":"/r/vibecoding/comments/unsafe/"}}
+]}}

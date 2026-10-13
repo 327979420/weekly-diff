@@ -16,8 +16,9 @@ FIXTURES = Path(__file__).resolve().parents[1] / 'fixtures' / 'collectors'
 
 @pytest.fixture
 def cfg(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Config:
-    cfg = load_config()
+    cfg = load_config(FIXTURES.parent / 'config.yaml')
     sources = replace(cfg.sources, backoff_seconds=0, rss=cfg.sources.rss[:1],
+                      primary_domains=(*cfg.sources.primary_domains, 'openai.com', 'github.com'),
                       html_index=replace(cfg.sources.html_index, pages=cfg.sources.html_index.pages[:1]),
                       github_releases=replace(cfg.sources.github_releases, repos=cfg.sources.github_releases.repos[:1]),
                       github_trending=replace(cfg.sources.github_trending, queries=cfg.sources.github_trending.queries[:1]),

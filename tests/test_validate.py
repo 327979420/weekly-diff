@@ -9,7 +9,7 @@ from weekly_diff.models import Item, Issue
 from weekly_diff.validate import number_problems, single_sentence, validate_item, validate_issue
 
 DATA = json.loads((Path(__file__).parent / 'fixtures/models.json').read_text())
-BASE = Item.from_dict(DATA['item'])
+BASE = replace(Item.from_dict(DATA['item']), tag='try')
 
 
 @pytest.mark.parametrize(('change', 'problem'), [
@@ -145,3 +145,13 @@ def test_chinese_summary_addresses_reader(summary: str, valid: bool) -> None:
     assert (not problems) == valid
     if not valid:
         assert problems == ['zh.summary must address the reader using 你']
+
+
+@pytest.mark.parametrize('tag', ['try', 'learn', 'watch'])
+def test_new_tags_accepted(tag: str) -> None:
+    assert not validate_item(replace(BASE, tag=tag), '', load_config())
+
+
+@pytest.mark.parametrize('tag', ['builders', 'work', 'beginner'])
+def test_legacy_tags_not_generated(tag: str) -> None:
+    assert 'invalid tag' in validate_item(replace(BASE, tag=tag), '', load_config())

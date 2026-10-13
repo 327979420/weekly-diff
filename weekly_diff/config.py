@@ -18,6 +18,7 @@ class SiteConfig:
     language: str
     timezone: str
     feed_items: int
+    image_domains_allowlist: tuple[str, ...] = ("opengraph.githubassets.com",)
 
 
 @dataclass(frozen=True)
@@ -39,13 +40,6 @@ class IssueConfig:
     max_top_per_section: int
     max_headline_chars: int
     sections: tuple[SectionConfig, ...]
-
-
-@dataclass(frozen=True)
-class TagsConfig:
-    builders: str
-    work: str
-    beginner: str
 
 
 @dataclass(frozen=True)
@@ -148,6 +142,25 @@ class HackerNewsConfig:
 
 
 @dataclass(frozen=True)
+class RedditConfig:
+    enabled: bool
+    name: str
+    api_url: str
+    base_url: str
+    subreddits: tuple[str, ...]
+    limit: int
+    min_score: int
+
+
+@dataclass(frozen=True)
+class SpacesConfig:
+    enabled: bool
+    api_url: str
+    limit: int
+    created_within_days: int
+
+
+@dataclass(frozen=True)
 class HuggingFaceConfig:
     name: str
     api_url: str
@@ -157,6 +170,7 @@ class HuggingFaceConfig:
     created_within_days: int
     orgs: tuple[str, ...]
     repack_authors: tuple[str, ...]
+    spaces: SpacesConfig
 
 
 @dataclass(frozen=True)
@@ -175,6 +189,7 @@ class SourcesConfig:
     github_trending: GitHubTrendingConfig
     hackernews: HackerNewsConfig
     huggingface: HuggingFaceConfig
+    reddit: RedditConfig
 
 
 @dataclass(frozen=True)
@@ -182,13 +197,13 @@ class Config:
     name: str
     tagline: str
     tagline_zh: str
-    tags_zh: TagsConfig
+    tags_zh: dict[str, str]
     content: ContentConfig
     publish_enabled: bool
     paused: bool
     site: SiteConfig
     issue: IssueConfig
-    tags: TagsConfig
+    tags: dict[str, str]
     llm: LLMConfig
     dedupe: DedupeConfig
     discord: DiscordConfig
@@ -223,6 +238,12 @@ def _convert(value: Any, kind: type[T], path: str) -> T:
                 raise ConfigError(f"{child}: required key missing")
             result[field.name] = _convert(value[field.name], hints[field.name], child)
         return kind(**result)
+    if get_origin(kind) is dict:
+        if not isinstance(value, dict):
+            raise ConfigError(f"{path}: expected mapping")
+        key_type, value_type = get_args(kind)
+        return {_convert(k, key_type, path): _convert(v, value_type, f"{path}.{k}")
+                for k, v in value.items()}
     if get_origin(kind) is tuple:
         if not isinstance(value, list):
             raise ConfigError(f"{path}: expected list")
@@ -236,8 +257,12 @@ def _convert(value: Any, kind: type[T], path: str) -> T:
 
 
 def _validate(cfg: Config) -> None:
+    for name in ('tags', 'tags_zh'):
+        labels = getattr(cfg, name)
+        if set(labels) != {'try', 'learn', 'watch'} or any(not v.strip() for v in labels.values()):
+            raise ConfigError(f'{name}: expected non-empty try, learn and watch labels')
     labels = {'tagline_zh': cfg.tagline_zh, **{
-        f'tags_zh.{key}': value for key, value in vars(cfg.tags_zh).items()}, **{
+        f'tags_zh.{key}': value for key, value in cfg.tags_zh.items()}, **{
         f'issue.sections[{i}].title_zh': section.title_zh
         for i, section in enumerate(cfg.issue.sections)}}
     for path, value in labels.items():

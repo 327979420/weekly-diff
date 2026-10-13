@@ -11,23 +11,29 @@ from zoneinfo import ZoneInfo
 from jinja2 import Environment, FileSystemLoader, StrictUndefined
 
 from weekly_diff import paths
+from weekly_diff.images import allowed_image
+from weekly_diff.tags import tag_labels
 from weekly_diff.config import Config
 from weekly_diff.dates import parse_issue_id
 from weekly_diff.models import Issue
 
 
 STRINGS = {
-    'en': dict(latest='Latest', archive='Archive', sixty='This week in 60 seconds',
+    'en': dict(latest='This issue', archive='Past issues', sixty='This week in 60 seconds',
                more='More', why="Why you'd care:", builders='How to try it:', source='Source ↗',
                stars='+{n} ★ this week', issue='Issue {id}', soon='first issue coming soon.',
                missing='', skip='Skip to content', navigation='Main navigation',
-               browse='Browse all issues', subscribe='Subscribe via RSS',
+               past='Past issues', previous='← Previous', next='Next →', count='{n} items · 1-minute read',
+               footer='Updated every Monday · Summaries from the original sources',
+               browse='All issues →', subscribe='Subscribe via RSS',
                not_found='Page not found', lost='This page could not be found.'),
-    'zh': dict(latest='最新一期', archive='往期归档', sixty='60 秒速览',
+    'zh': dict(latest='本期', archive='往期', sixty='60 秒速览',
                more='展开', why='对你有什么用：', builders='怎么上手：', source='原文 ↗',
                stars='本周 +{n} ★', issue='第 {week} 期 · {year}', soon='首期即将发布。',
                missing='本期暂无中文版', skip='跳至正文', navigation='主导航',
-               browse='浏览全部期刊', subscribe='通过 RSS 订阅',
+               past='往期', previous='← 上一期', next='下一期 →', count='本期 {n} 条 · 约 1 分钟读完',
+               footer='每周一更新 · 内容摘自原文，点击原文核实',
+               browse='全部往期 →', subscribe='通过 RSS 订阅',
                not_found='页面未找到', lost='找不到此页面。'),
 }
 SECTION_ICONS = {'models': '🧠', 'tools': '🛠️', 'github': '⭐', 'quick': '⚡'}
@@ -54,8 +60,12 @@ def _localized(issue: Issue, language: str) -> tuple[Issue, bool]:
     return replace(issue, sections=sections, sixty_seconds=bullets), bool(missing)
 
 
-def _period(issue: Issue, timezone: str) -> str:
+def _period(issue: Issue, timezone: str, language: str = 'en') -> str:
     start, end = (value.astimezone(ZoneInfo(timezone)) for value in (issue.period_start, issue.period_end))
+    if language == 'zh':
+        first = f'{start.year}年{start.month}月{start.day}日'
+        last = f'{end.year}年{end.month}月{end.day}日'
+        return first if start.date() == end.date() else f'{first}–{last}'
     if start.date() == end.date():
         return f'{start.day} {start:%b %Y}'
     if (start.year, start.month) == (end.year, end.month):
@@ -82,11 +92,32 @@ def _view(issue: Issue, cfg: Config, env: Environment, language: str) -> dict[st
     strings = STRINGS[language]
     prefix = '/zh' if language == 'zh' else ''
     label = strings['issue'].format(id=issue.id, year=issue.id[:4], week=issue.id[5:])
+    items = list(issue.items())
+    by_key = {item.key: item for item in items}
+    top = [by_key[key] for key in issue.top if key in by_key]
+    top.extend(item for item in items if item.key not in issue.top)
+    digest = []
+    for index, bullet in enumerate(issue.sixty_seconds[:3]):
+        keys = issue.sixty_seconds_keys[index] if index < len(issue.sixty_seconds_keys) else []
+        matches = [by_key[key] for key in keys if key in by_key]
+        if matches:
+            digest.append((bullet, matches[0].key))
+        elif index < len(top):
+            # Legacy issues discarded bullet provenance. Use verified item copy.
+            digest.append((top[index].summary, top[index].key))
+    month = issue.period_end.astimezone(ZoneInfo(cfg.site.timezone))
     view = {
+        'digest': digest, 'top': top, 'count': len(items),
+        'anchors': {item.key: f'item-{i}' for i, item in enumerate(items, 1)},
+        'month': month.strftime('%Y-%m'),
+        'month_label': f'{month.year} 年 {month.month} 月' if language == 'zh' else month.strftime('%B %Y'),
+        'og_image': next((item.image_url for item in top[:1]
+                          if allowed_image(item.image_url, cfg)
+                          and urlsplit(item.image_url).hostname == urlsplit(cfg.sources.github_image_url).hostname), None),
         'missing': missing, 'label': label,
         'issue': issue,
         'title': f'{cfg.name} — {label}',
-        'period': _period(issue, cfg.site.timezone),
+        'period': _period(issue, cfg.site.timezone, language),
         'url': f'{cfg.site.base_url}{prefix}/issues/{issue.id}/',
         'path': f'{cfg.base_path}{prefix}/issues/{issue.id}/',
         'description': issue.sixty_seconds[0] if issue.sixty_seconds else (cfg.tagline_zh if language == 'zh' else cfg.tagline),
@@ -106,6 +137,7 @@ def render_site(cfg: Config, issues_dir: Path, out_dir: Path) -> list[Path]:
                       autoescape=True, undefined=StrictUndefined,
                       trim_blocks=True, lstrip_blocks=True)
     env.filters['domain'] = _domain
+    env.tests['allowed_image'] = lambda url: allowed_image(url, cfg)
     issues = [Issue.from_dict(json.loads(path.read_text(encoding='utf-8')))
               for path in issues_dir.glob('*.json')]
     issues.sort(key=lambda issue: issue.id, reverse=True)
@@ -132,7 +164,7 @@ def render_site(cfg: Config, issues_dir: Path, out_dir: Path) -> list[Path]:
         tagline = cfg.tagline_zh if language == 'zh' else cfg.tagline
         common = dict(language=language, html_lang='zh-CN' if language == 'zh' else 'en',
                       strings=strings, root=root, base_url=base_url, tagline=tagline,
-                      tags=cfg.tags_zh if language == 'zh' else cfg.tags,
+                      tags=tag_labels(cfg.tags_zh if language == 'zh' else cfg.tags),
                       icons=SECTION_ICONS)
 
         def page(relative: str, template: str, **context: Any) -> None:
@@ -143,11 +175,13 @@ def render_site(cfg: Config, issues_dir: Path, out_dir: Path) -> list[Path]:
                   zh_url=f'{cfg.site.base_url}/zh/{route}')
 
         latest = views[0] if views else None
-        page('index.html', 'home.html', view=latest, title=cfg.name,
+        page('index.html', 'home.html', view=latest, past=views[1:7], previous=None, next=None, title=cfg.name,
              description=latest['description'] if latest else tagline)
-        for view in views:
+        for index, view in enumerate(views):
             page(f"issues/{view['issue'].id}/index.html", 'issue.html', view=view,
-                 title=view['title'], description=view['description'])
+                 title=view['title'], description=view['description'],
+                 previous=views[index + 1] if index + 1 < len(views) else None,
+                 next=views[index - 1] if index else None)
         page('archive/index.html', 'archive.html', views=views,
              title=f"{strings['archive']} · {cfg.name}", description=tagline)
         page('404.html', '404.html', title=f"{strings['not_found']} · {cfg.name}", description=tagline)

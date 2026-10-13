@@ -4,14 +4,14 @@ import json
 import time
 
 from weekly_diff import paths
-from weekly_diff.collectors import github_releases, github_trending, hackernews, html_index, huggingface, rss
+from weekly_diff.collectors import github_releases, github_trending, hackernews, html_index, huggingface, reddit, rss
 from weekly_diff.config import Config
 from weekly_diff.dates import window
 from weekly_diff.http import Http
 from weekly_diff.log import redact
 from weekly_diff.models import Candidate
 
-COLLECTORS = (rss, html_index, github_releases, github_trending, hackernews, huggingface)
+COLLECTORS = (rss, html_index, github_releases, github_trending, hackernews, huggingface, reddit)
 
 
 def run_collect(cfg: Config, now: datetime, dry_run: bool) -> list[Candidate]:

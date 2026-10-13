@@ -53,3 +53,21 @@ def test_orphan_repack_does_not_create_original(cfg: Config, window: tuple[datet
     offline_http.get(cfg.sources.huggingface.api_url, json=[data('hf-repack-cases.json')[-1]['model']])
     assert huggingface.collect(cfg, window, http) == []
     assert not http.errors
+
+
+def test_spaces_window_and_failure(cfg: Config, window: tuple[datetime, datetime], http: Http,
+                                   offline_http: responses.RequestsMock) -> None:
+    hf = cfg.sources.huggingface
+    cfg = replace(cfg, sources=replace(cfg.sources, huggingface=replace(
+        hf, spaces=replace(hf.spaces, enabled=True))))
+    offline_http.get(hf.api_url, json=data('hf.json'))
+    offline_http.get(hf.spaces.api_url, json=data('hf-spaces.json'), match=[query_param_matcher({
+        'sort': 'trendingScore', 'direction': '-1', 'limit': '20'})])
+    result = huggingface.collect(cfg, window, http)
+    spaces = [item for item in result if item.key.startswith('hfspace:')]
+    assert [item.key for item in spaces] == ['hfspace:demo/coding', 'hfspace:demo/month']
+    assert all(item.section_hint == 'quick' and item.url.startswith(hf.base_url + '/spaces/') for item in spaces)
+    assert spaces[0].signals == {'likes': 100}
+    offline_http.replace(responses.GET, hf.spaces.api_url, status=503)
+    assert len(huggingface.collect(cfg, window, http)) == 2
+    assert http.errors

@@ -84,3 +84,21 @@ def test_fake_queue_copies_and_records() -> None:
     assert fake.calls == [{'system': 'system', 'user': 'user', 'schema': {}, 'max_tokens': 10}]
     with pytest.raises(LLMError, match='exhausted'):
         fake.complete_json('', '', {}, 10)
+
+
+@pytest.mark.parametrize('value', ['yes', 1, None])
+def test_try_now_requires_boolean(value: object) -> None:
+    candidate = Candidate.from_dict(DATA['candidate'])
+    bad = {'items': [{**DATA['row'], 'try_now': value}]}
+    with pytest.raises(LLMError):
+        score([candidate], load_config(), FakeLLM([bad, bad]))
+
+
+def test_spaces_stay_in_quick_and_legacy_selection_loads() -> None:
+    candidate = replace(Candidate.from_dict(DATA['candidate']), key='hfspace:demo/app',
+                        source_type='huggingface', section_hint='quick')
+    result = score([candidate], load_config(), FakeLLM(generated))[0]
+    assert result.section == 'quick' and result.try_now
+    old = result.to_dict()
+    del old['try_now']
+    assert Scored.from_dict(old).try_now is False

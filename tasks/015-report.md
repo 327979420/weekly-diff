@@ -1,0 +1,8 @@
+- Changes: Added bilingual six-issue history strips, previous/next navigation, monthly archive rows, reading counts, numbered item anchors, favicon and GitHub OG metadata.
+- Changes: Refined light/dark CSS, mobile tap targets and card alignment; shared configurable image allowlist; simplified Discord using task 014 tags while retaining preview routing and payload limits.
+- Changes: New issues retain sixty_seconds_keys; legacy web digests use top-item summaries for accurate anchors without changing saved issues. Existing work preserved; publish_enabled remains false; no commit or push.
+- Testing: `.venv/bin/python -m pytest -q` → 489 passed in 11.04s.
+- Testing: `.venv/bin/python run.py render` → exit 0; committed 2026-42 rendered in both languages. Home HTML+CSS: EN 22,641 bytes; ZH 22,150 bytes (<60 KB).
+- Testing: `git diff --check` → passed; automated light/dark text contrast checks meet 4.5:1.
+- Unfinished: Browser visual verification at 390 px and desktop in both themes; browser policy blocked local file URLs. No live Discord delivery tested.
+- Questions: None.

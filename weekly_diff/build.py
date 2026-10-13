@@ -28,7 +28,7 @@ from weekly_diff.validate import validate_issue
 def top_items(items: list[Item], cfg: Config) -> list[str]:
     counts: Counter[str] = Counter()
     result = []
-    for item in sorted(items, key=lambda item: (-item.score, item.key)):
+    for item in sorted(items, key=lambda item: (-int(item.extra.get('try_now') is True), -item.score, item.key)):
         if len(result) >= cfg.issue.top_items:
             break
         if counts[item.section] < cfg.issue.max_top_per_section:
@@ -106,10 +106,11 @@ def run_build(cfg: Config, issue_id: str, now: datetime, dry_run: bool) -> Issue
     top = top_items(items, cfg)
     by_key = {item.key: item for item in items}
     ordered = [by_key[key] for key in top]
-    ordered.extend(sorted((item for item in items if item.key not in top), key=lambda item: (-item.score, item.key)))
-    bullets, bullets_zh = sixty(ordered, llm, cfg)
+    ordered.extend(sorted((item for item in items if item.key not in top), key=lambda item: (-int(item.extra.get('try_now') is True), -item.score, item.key)))
+    bullet_keys: list[list[str]] = []
+    bullets, bullets_zh = sixty(ordered, llm, cfg, bullet_keys)
     start, end = window(now, cfg.issue.lookback_days)
-    issue = Issue(issue_id, cfg.name, now, start, end, bullets, sections, top, sixty_seconds_zh=bullets_zh)
+    issue = Issue(issue_id, cfg.name, now, start, end, bullets, sections, top, sixty_seconds_zh=bullets_zh, sixty_seconds_keys=bullet_keys)
     if problems := validate_issue(issue, cfg):
         raise ValueError('Invalid issue: ' + '; '.join(problems))
     destination = paths.BUILD / 'dry-run' if dry_run else paths.ISSUES
