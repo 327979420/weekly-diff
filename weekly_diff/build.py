@@ -12,6 +12,7 @@ from weekly_diff.config import Config
 from weekly_diff.dates import as_utc, parse_issue_id, window
 from weekly_diff.dedupe import dedupe
 from weekly_diff.http import Http
+from weekly_diff.images import cache_images
 from weekly_diff.llm import get_client
 from weekly_diff.llm.base import LLMClient
 from weekly_diff.models import Candidate, Issue, Item
@@ -97,7 +98,11 @@ def _render(cfg: Config, issue: Issue, dry_run: bool) -> None:
         for source in paths.ISSUES.glob('*.json'):
             shutil.copyfile(source, combined / source.name)
         (combined / f'{issue.id}.json').write_text(json.dumps(issue.to_dict()), encoding='utf-8')
-        render_site(cfg, combined, paths.SITE)
+        cache = combined / 'images'
+        for source in (paths.ISSUES.parent / 'images', paths.BUILD / 'images'):
+            if source.exists():
+                shutil.copytree(source, cache, dirs_exist_ok=True)
+        render_site(cfg, combined, paths.SITE, cache_dir=cache)
 
 
 def run_build(cfg: Config, issue_id: str, now: datetime, dry_run: bool) -> Issue:
@@ -130,6 +135,7 @@ def run_build(cfg: Config, issue_id: str, now: datetime, dry_run: bool) -> Issue
     issue = Issue(issue_id, cfg.name, now, start, end, bullets, sections, top, sixty_seconds_zh=bullets_zh, sixty_seconds_keys=bullet_keys)
     if problems := validate_issue(issue, cfg):
         raise ValueError('Invalid issue: ' + '; '.join(problems))
+    cache_images(issue, cfg, (paths.BUILD if dry_run else paths.ISSUES.parent) / "images")
     destination = paths.BUILD / 'dry-run' if dry_run else paths.ISSUES
     paths.ensure_directory(destination)
     (destination / f'{issue_id}.json').write_text(json.dumps(issue.to_dict(), indent=2) + '\n', encoding='utf-8')

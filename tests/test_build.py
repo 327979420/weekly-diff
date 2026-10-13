@@ -230,3 +230,20 @@ def test_extra_pass_reaches_minimum(workspace: Config, monkeypatch: pytest.Monke
     assert not validate_issue(issue, workspace)
     assert max(calls.values()) == 1
     assert f'Extra selection pass added {10 if initially_empty else 4} validated items' in caplog.text
+
+
+@pytest.mark.parametrize('dry_run', [False, True])
+def test_build_persists_local_images(workspace: Config, monkeypatch: pytest.MonkeyPatch,
+                                    offline_http: responses.RequestsMock, dry_run: bool) -> None:
+    monkeypatch.setattr(build, 'get_client', lambda cfg: FakeLLM(fake_response))
+    offline_http.get('https://example.com/image.png',
+                     body=(FIX.parent / 'images/source.png').read_bytes(), content_type='image/png')
+    issue = build.run_build(workspace, '2026-41', NOW, dry_run)
+    destination = paths.BUILD / 'dry-run' if dry_run else paths.ISSUES
+    saved = Issue.from_dict(json.loads((destination / f'{issue.id}.json').read_text()))
+    assert all(item.extra.get('image_local') for item in saved.items())
+    cache = (paths.BUILD if dry_run else paths.DATA) / 'images' / issue.id
+    assert len(list(cache.glob('*.webp'))) == len(list(saved.items()))
+    assert all((paths.SITE / item.extra['image_local']).is_file() for item in saved.items())
+    if dry_run:
+        assert not paths.DATA.exists()

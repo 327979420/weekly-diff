@@ -31,7 +31,6 @@ site:
   base_url: "https://327979420.github.io/weekly-diff"   # no trailing slash
   language: "en"
   timezone: "Australia/Melbourne"   # dates shown to readers
-  image_domains_allowlist: [opengraph.githubassets.com]
   feed_items: 20
 
 issue:
@@ -83,6 +82,7 @@ dedupe:
   seen_retention_days: 730
 
 discord:
+  languages: [zh]
   color: 16734751                    # embed colour (decimal)
 
 sources:
@@ -225,3 +225,10 @@ sources:
     subreddits: [vibecoding, ClaudeAI, cursor, ChatGPTCoding, LocalLLaMA]
     limit: 25
     min_score: 300
+
+images:
+  timeout_seconds: 10
+  max_download_bytes: 5242880
+  max_width: 640
+  quality: 80
+  target_bytes: 40960

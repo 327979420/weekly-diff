@@ -104,3 +104,10 @@ code { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: .9em; 
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 
 .issue-kicker { color: var(--muted); font-size: 12px; font-weight: 600; letter-spacing: .1em; margin-bottom: 4px; }
+
+.story-image, .issue-hero { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; border: 1px solid var(--border); border-radius: 8px; margin: 12px 0; }
+@media (min-width: 900px) {
+  .story-body:has(.story-image) { display: grid; grid-template-columns: minmax(0, 1fr) 160px; column-gap: 20px; }
+  .story-body:has(.story-image) > :not(.story-image) { grid-column: 1; }
+  .story-image { grid-column: 2; grid-row: 1 / span 5; width: 160px; height: 90px; margin: 0; }
+}

@@ -54,3 +54,10 @@ sources:
   hackernews: {name: "Hacker News", api_url: "https://hn.algolia.com/api/v1/search", item_url: "https://news.ycombinator.com/item", hits_per_page: 500, min_points: 150, keywords: [AI]}
   huggingface: {name: "Hugging Face", api_url: "https://huggingface.co/api/models", base_url: "https://huggingface.co", org_limit: 20, trending_limit: 30, created_within_days: 30, orgs: [example], repack_authors: [unsloth, bartowski, lmstudio-community, mlx-community, TheBloke, QuantFactory, MaziyarPanahi], spaces: {enabled: false, api_url: "https://huggingface.co/api/spaces", limit: 20, created_within_days: 30}}
   reddit: {enabled: false, name: "Reddit", api_url: "https://www.reddit.com/r/{sub}/top.json", base_url: "https://www.reddit.com", subreddits: [vibecoding], limit: 25, min_score: 300}
+
+images:
+  timeout_seconds: 10
+  max_download_bytes: 5242880
+  max_width: 640
+  quality: 80
+  target_bytes: 40960

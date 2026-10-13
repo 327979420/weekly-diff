@@ -11,6 +11,7 @@
     {{ navigation(previous, next) }}
     <p class="issue-kicker">{{ cfg.name|upper }}</p>
     <h1>{{ view.short_label }}</h1>
+    {% if view.og_image %}<img class="issue-hero" src="{{ cfg.base_path }}/{{ view.hero.extra.image_local }}" alt="{{ view.hero.headline }}" width="640" height="360" loading="lazy" decoding="async">{% endif %}
     {% if view.missing %}<p class="fallback">{{ strings.missing }}</p>{% endif %}
     <section class="digest" aria-labelledby="sixty-seconds"><h2 id="sixty-seconds">{{ strings.sixty }}</h2>
       <ol>{% for bullet, key in view.digest %}<li><span>{{ bullet }}</span> <a href="{{ page_path }}#{{ view.anchors[key] }}" aria-label="{{ strings.source }}: {{ view.headlines[key] }}">→</a></li>{% endfor %}</ol>
@@ -21,8 +22,9 @@
       {% for item in view.issue.sections[section.key] %}
       <article class="story" id="{{ view.anchors[item.key] }}">
         <span class="emoji-tile" aria-hidden="true">{{ item.emoji or icons.get(section.key, '') }}</span>
-        <div><h3><a href="{{ item.source_url }}" rel="noopener">{{ item.headline|inline_code }}</a></h3>
+        <div class="story-body"><h3><a href="{{ item.source_url }}" rel="noopener">{{ item.headline|inline_code }}</a></h3>
           <p class="item-meta">{{ item.source_url|domain }} · {{ tags[item.tag] }}{% if section.key == 'github' and item.extra.get('stars_gained') is not none %} · {{ strings.stars.format(n=item.extra.stars_gained) }}{% endif %}</p>
+          {% if item.extra.get('image_local') %}<img class="story-image" src="{{ cfg.base_path }}/{{ item.extra.image_local }}" alt="{{ item.headline }}" width="160" height="90" loading="lazy" decoding="async">{% endif %}
           <p class="takeaway">{{ item.summary|inline_code }}</p>
           <p class="detail-line"><strong>{{ strings.why }}</strong> {{ item.why_it_matters|inline_code }}</p>
           {% if item.for_builders %}<p class="detail-line"><strong>{{ strings.builders }}</strong> {{ item.for_builders|inline_code }}</p>{% endif %}

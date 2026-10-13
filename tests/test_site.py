@@ -347,7 +347,7 @@ def test_allowed_thumbnails_og_and_saved_bullet_targets(tmp_path: Path, prefix: 
     assert not page.select('.issue-navigation')
     assert not page.select('img, details')
     assert len(page.select('.emoji-tile')) == 15
-    assert page.select_one('meta[property="og:image"]')['content'] == top.image_url
+    assert page.select_one('meta[property="og:image"]') is None
     assert page.select_one('link[rel=icon]')['href'].startswith('data:image/svg+xml,')
     for link, keys in zip(page.select('.digest a'), issue.sixty_seconds_keys):
         card = page.find(id=link['href'].split('#')[1])

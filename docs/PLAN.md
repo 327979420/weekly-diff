@@ -66,6 +66,7 @@ All scheduled workflows also have `workflow_dispatch` with a `dry_run` option. `
 | 017 | Full redesign (TLDR list + Linear rail, light/dark, no cards) | done (518 tests) |
 | 018 | Editorial copy, product dedupe, 5 design follow-ups | done (556 tests) |
 | 019 | Tests independent of live config.yaml | done (564 tests) |
+| 020 | Self-hosted images; Chinese-first card-style Discord | done (574 tests) |
 
 ## Decisions
 - 2026-10-12: Repo at `~/weekly-diff`, GitHub `327979420/weekly-diff` (public). Pages source: GitHub Actions.

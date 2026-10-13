@@ -10,7 +10,9 @@ from urllib.parse import quote, urlsplit
 
 import requests
 
-from weekly_diff.images import allowed_image
+from weekly_diff.images import hero_item, local_image
+from weekly_diff.site import _period
+from weekly_diff.tags import tag_labels
 from weekly_diff.config import Config
 from weekly_diff.http import Http
 from weekly_diff.log import redact
@@ -64,80 +66,80 @@ def _link_url(url: str) -> str:
     return quote(url, safe=":/?#!$&'*+,;=%-._~")
 
 
-def _fit(texts: list[str], budget: int) -> list[str]:
-    """Shorten the longest text first, retaining at least an ellipsis per part."""
-    result = list(texts)
-    if budget < len(result):
-        raise DiscordError('Links exceed Discord payload limits')
-    excess = sum(map(_length, result)) - budget
-    while excess > 0:
-        index = max(range(len(result)), key=lambda i: _length(result[i]))
-        before = _length(result[index])
-        result[index] = _truncate(result[index], max(1, before - excess))
-        excess -= before - _length(result[index])
-    return result
-
-
-def _description(bullets: list[str], names: list[str], summaries: list[str],
-                 links: list[str], suffix: str, notice: str, heading: str) -> str:
-    first = f'{notice}\n\n' if notice else ''
-    highlights = '\n'.join(f'{i}. {bullet}' for i, bullet in enumerate(bullets, 1))
-    stories = '\n\n'.join(f'**{name}** — {summary} {link}'
-                            for name, summary, link in zip(names, summaries, links))
-    return first + f'**{heading}**\n' + highlights + '\n\n' + stories + suffix
+def _embed_length(embed: dict[str, Any]) -> int:
+    return sum(_length(embed.get(key, '')) for key in ('title', 'description')) + _length(
+        embed.get('footer', {}).get('text', ''))
 
 
 def _payload(issue: Issue, cfg: Config, preview: bool, run_url: str | None,
-             notice: str = '', language: str = 'en') -> dict[str, Any]:
+             notice: str = '', language: str = 'zh') -> dict[str, Any]:
     chinese = language == 'zh'
-    page = _link_url(f'{cfg.site.base_url}/zh/issues/{issue.id}/' if chinese else cfg.issue_url(issue.id))
-    heading = '本周要点' if chinese else 'This week'
-    read = '阅读完整一期 →' if chinese else 'Read the full issue →'
-    source = '原文' if chinese else 'Source'
-    footer = '每周一 08:00 更新' if chinese else 'Updated every Monday at 08:00'
-    if preview:
-        footer += ' · ' + PREVIEW_FOOTER
-    suffix = f'\n\n[{read}]({page})'
-    if preview and run_url:
-        suffix = f'\n\n[View workflow run]({_link_url(run_url)})' + suffix
+    root = f'{cfg.site.base_url}/' + ('zh/' if chinese else '')
+    page = _link_url(f'{root}issues/{issue.id}/')
+    label = f'第 {int(issue.id[5:])} 期' if chinese else f'Issue {int(issue.id[5:])}'
+    period = _period(issue, cfg.site.timezone, language)
+    period = period.removesuffix(f' · {issue.period_end.year}') if chinese else period
+    prefix = ('【预览】' if chinese else '[PREVIEW] ') if preview else ''
+    content = _truncate(prefix + f'📰 **{_escape(cfg.name)} · {label}** '
+                        + ('已更新' if chinese else 'is out') + f' · {period}', 2000)
     bullets = [_escape(issue.sixty_seconds_zh[i] if chinese and i < len(issue.sixty_seconds_zh)
                        and issue.sixty_seconds_zh[i] else bullet)
                for i, bullet in enumerate(issue.sixty_seconds[:3])]
+    description = '\n'.join(f'**{i}.** {_truncate(bullet, 1000)}' for i, bullet in enumerate(bullets, 1))
+    header: dict[str, Any] = {
+        'title': '本周要点' if chinese else 'This week', 'url': page,
+        'description': _truncate(description, DESCRIPTION_LIMIT), 'color': cfg.discord.color,
+    }
+    hero = hero_item(issue)
+    if hero and (relative := local_image(hero, issue.id)):
+        header['image'] = {'url': _link_url(f'{cfg.site.base_url}/{relative}')}
     items = {item.key: item for item in issue.items()}
-    keys = issue.top[:min(cfg.issue.top_items, FIELD_LIMIT)]
+    keys = issue.top[:min(cfg.issue.top_items, 8)]
     if any(key not in items for key in keys):
         raise DiscordError('Issue top references a missing item')
-    label = f'第 {int(issue.id[5:])} 期' if chinese else f'Issue {int(issue.id[5:])}'
-    title = _truncate(('[PREVIEW] ' if preview else '') + _escape(f'{cfg.name} · {label}'), TITLE_LIMIT)
-    names, summaries, links = [], [], []
+    cards = []
+    labels = tag_labels(cfg.tags_zh if chinese else cfg.tags)
     for key in keys:
         item = items[key]
         text = (item.zh or {}) if chinese else {}
-        link = f'[{source}]({_link_url(item.source_url)})'
-        if _length(link) >= FIELD_VALUE_LIMIT:
-            raise DiscordError('Source link exceeds Discord field limit')
-        names.append(_escape(text.get('headline') or item.headline))
-        summaries.append(_escape(text.get('summary') or item.summary))
-        links.append(link)
-    fixed = _length(_description([''] * len(bullets), [''] * len(names),
-                                 [''] * len(summaries), links, suffix, notice, heading))
-    budget = min(DESCRIPTION_LIMIT, TOTAL_LIMIT - _length(title) - _length(footer)) - fixed
-    parts = _fit([*bullets, *names, *summaries], budget)
-    bullets, parts = parts[:len(bullets)], parts[len(bullets):]
-    names, summaries = parts[:len(names)], parts[len(names):]
-    embed: dict[str, Any] = {
-        'title': title, 'url': page, 'color': cfg.discord.color,
-        'description': _description(bullets, names, summaries, links, suffix, notice, heading),
-        'footer': {'text': footer},
-    }
-    top = items[keys[0]] if keys else None
-    if top and allowed_image(top.image_url, cfg):
-        embed['image'] = {'url': _link_url(top.image_url)}
-    return {'username': cfg.name, 'allowed_mentions': {'parse': []}, 'embeds': [embed]}
+        url = _link_url(item.source_url)
+        if _length(url) > 2048:
+            raise DiscordError('Source link exceeds Discord URL limit')
+        summary = _escape(text.get('summary') or item.summary)
+        builders = text.get('for_builders') or item.for_builders
+        if builders:
+            summary += '\n' + ('**上手：** ' if chinese else '**Try it:** ') + _escape(builders)
+        card: dict[str, Any] = {
+            'title': _truncate(_escape(f"{item.emoji or ''} {text.get('headline') or item.headline}".strip()), TITLE_LIMIT),
+            'url': url, 'description': _truncate(summary, DESCRIPTION_LIMIT),
+            'footer': {'text': _truncate(_escape(f'{urlsplit(item.source_url).hostname} · {labels[item.tag]}'), 2048)},
+            'color': cfg.discord.color,
+        }
+        if relative := local_image(item, issue.id):
+            card['thumbnail'] = {'url': _link_url(f'{cfg.site.base_url}/{relative}')}
+        cards.append(card)
+    read, archive = ('阅读完整一期 →', '往期') if chinese else ('Read the full issue →', 'Past issues')
+    links = f'[{read}]({page}) · [{archive}]({_link_url(root + "archive/")}) · [RSS]({_link_url(root + "feed.xml")})'
+    if preview and run_url:
+        links += f'\n[View workflow run]({_link_url(run_url)})'
+    if notice:
+        links += '\n' + notice
+    footer = '每周一 08:00（墨尔本）更新' if chinese else 'Updated every Monday at 08:00 (Melbourne)'
+    if preview:
+        footer += ' · ' + PREVIEW_FOOTER
+    if _length(links) > DESCRIPTION_LIMIT:
+        raise DiscordError('Links exceed Discord payload limits')
+    last = {'description': links, 'footer': {'text': footer}, 'color': cfg.discord.color}
+    while cards and sum(_embed_length(embed) for embed in [header, *cards, last]) > TOTAL_LIMIT:
+        cards.pop()
+    if _embed_length(header) + _embed_length(last) > TOTAL_LIMIT:
+        header['description'] = _truncate(header['description'], max(1, TOTAL_LIMIT - _embed_length(last) - _length(header['title'])))
+    return {'username': cfg.name, 'content': content, 'allowed_mentions': {'parse': []},
+            'embeds': [header, *cards, last]}
 
 
 def build_payload(issue: Issue, cfg: Config, preview: bool,
-                  run_url: str | None, language: str = 'en') -> dict[str, Any]:
+                  run_url: str | None, language: str = 'zh') -> dict[str, Any]:
     return _payload(issue, cfg, preview, run_url, language=language)
 
 
@@ -201,7 +203,7 @@ def publish(cfg: Config, issue: Issue, preview_flag: bool, dry_run: bool,
     target = 'preview' if preview else 'public'
     notice = DISABLED_NOTICE if not preview_flag and not cfg.publish_enabled else ''
     payloads = [_payload(issue, cfg, preview, _run_url(env), notice, language)
-                for language in ('en', 'zh')]
+                for language in cfg.discord.languages]
     if dry_run:
         output = json.dumps({'target': target, 'payloads': payloads}, ensure_ascii=False, indent=2)
         print(redact(output))
@@ -215,11 +217,13 @@ def publish(cfg: Config, issue: Issue, preview_flag: bool, dry_run: bool,
         return 'skipped: DISCORD_PREVIEW_WEBHOOK_URL not set'
     http = Http(cfg)
     try:
-        send(payloads[0], webhook, http)
-        try:
-            send(payloads[1], webhook, http)
-        except DiscordError as error:
-            raise DiscordError(f'Chinese message failed after English was sent: {error}') from None
+        for index, payload in enumerate(payloads):
+            try:
+                send(payload, webhook, http)
+            except DiscordError as error:
+                if index:
+                    raise DiscordError(f'{cfg.discord.languages[index]} message failed after earlier messages were sent: {error}') from None
+                raise
     finally:
         http.close()
     return target

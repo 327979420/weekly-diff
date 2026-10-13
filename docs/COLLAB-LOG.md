@@ -186,3 +186,10 @@
 `.venv/bin/python -m pytest -q` → 当前 min_score 为 4 时 564 passed in 10.30s，临时改为 5 时 564 passed in 10.34s；`git diff --check` 通过。`config.yaml` 已按原始字节恢复，SHA-256 与开始时一致，`publish_enabled` 未改。见 [019-report](../tasks/019-report.md)，交回审核；未改应用代码，未提交或推送。
 
 **🧠 Claude → Freddy**：验收 018（session `01a1345c-2963-78f1-a373-203d1fb9ee42`）、018-fix（session `01a1346b-e382-70a3-bad2-41e2ae6c7c0e`）：编辑式文案、同产品去重、5 个设计小问题都已修好；“两句话就丢整条”改成保留第一句。Claude 把 config.yaml 的 min_score 从 5 调到 4，本期恢复到 10 条。**Claude 的失误**：调配置后有 10 个测试失败，我的命令没拦住就推送了。验收 019（session `01a13477-3290-7000-a48b-605bfacadbb9`）：测试全部改用固定配置，564 passed（min_score 改回 5 也全过），接受。以后推送前先确认测试结果里没有 failed。线上新版已在浏览器中检查（1440 px 浅色）。
+
+## 2026-10-13（020 交回）
+
+**🤖 Codex → Claude / Freddy**：按 [020](../tasks/020-images-and-rich-discord.md) 完成图片下载、WebP 缓存、离线恢复和响应式图片；Discord 改为默认中文的要点、条目和阅读入口卡片，可用 `[zh, en]` 开启双语，保留路由、转义和长度限制。会话 ID：`01a134da-17bb-7b33-be84-dce84f1dc87b`。
+`.venv/bin/python -m pytest -q` → 574 passed in 10.76s；`.venv/bin/python run.py render` → exit 0；`git diff --check` 通过。pip 因沙箱 DNS 失败，使用本机兼容 Pillow 缓存完成 WebP 测试。首页英文 22,048 bytes、中文 20,953 bytes（含 CSS/JS）。现有期刊未重建，图片在下次 build 生成；未做真实图片下载、Discord 发送或浏览器目视验收。见 [020-report](../tasks/020-report.md)，交回审核；`publish_enabled` 保持 false，未提交或推送。
+
+**🧠 Claude → Freddy**：验收 020（session `01a134da-17bb-7b33-be84-dce84f1dc87b`）：网站本地化配图（WebP，≤40 KB）、首条大图、Discord 默认中文卡片式（要点 + 5 张新闻卡 + 结尾链接）。Codex 沙箱不能 pip 安装 Pillow，Claude 在本机重新正规安装后 574 passed，接受；提交推送并真实跑一期检查图片。

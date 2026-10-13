@@ -18,7 +18,15 @@ class SiteConfig:
     language: str
     timezone: str
     feed_items: int
-    image_domains_allowlist: tuple[str, ...] = ("opengraph.githubassets.com",)
+
+
+@dataclass(frozen=True)
+class ImagesConfig:
+    timeout_seconds: int = 10
+    max_download_bytes: int = 5 * 1024 * 1024
+    max_width: int = 640
+    quality: int = 80
+    target_bytes: int = 40 * 1024
 
 
 @dataclass(frozen=True)
@@ -80,6 +88,7 @@ class DedupeConfig:
 @dataclass(frozen=True)
 class DiscordConfig:
     color: int
+    languages: tuple[str, ...] = ("zh",)
 
 
 @dataclass(frozen=True)
@@ -208,6 +217,7 @@ class Config:
     dedupe: DedupeConfig
     discord: DiscordConfig
     sources: SourcesConfig
+    images: ImagesConfig = ImagesConfig()
 
     @property
     def base_path(self) -> str:
@@ -257,6 +267,11 @@ def _convert(value: Any, kind: type[T], path: str) -> T:
 
 
 def _validate(cfg: Config) -> None:
+    if (not cfg.discord.languages or len(set(cfg.discord.languages)) != len(cfg.discord.languages)
+            or any(lang not in {'zh', 'en'} for lang in cfg.discord.languages)):
+        raise ConfigError('discord.languages: expected a non-empty unique list of zh/en')
+    if any(value <= 0 for value in vars(cfg.images).values()) or cfg.images.quality > 100:
+        raise ConfigError('images: expected positive limits and quality <= 100')
     for name in ('tags', 'tags_zh'):
         labels = getattr(cfg, name)
         if set(labels) != {'try', 'learn', 'watch'} or any(not v.strip() for v in labels.values()):

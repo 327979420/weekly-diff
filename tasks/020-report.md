@@ -1,0 +1,5 @@
+- Changes: build 下载并压缩 WebP（10 秒、≤5 MB、宽≤640 px、每张≤40 KB），保存 data/images/ 与 image_local；render 离线恢复，双语首页/期刊加入响应式缩略图及首要点 hero；Discord 默认中文卡片，支持 [zh, en]、本地图片 URL、转义和长度保护。
+- Testing: `.venv/bin/python -m pytest -q` → 574 passed in 10.76s；`.venv/bin/python run.py render` → exit 0；`git diff --check` → 通过；首页 HTML+CSS+JS：英文 22,048 bytes、中文 20,953 bytes。
+- Environment: pip 安装 Pillow 因沙箱 DNS/网络不可用失败；已从本机兼容 Python 3.12 的运行时缓存复制 PIL 到 .venv，WebP 编码及图片测试通过；requirements.txt 已加入 Pillow。
+- Unfinished: 未做真实图片网络下载、Discord 发送或浏览器目视验收；现有期刊未重建，图片在下次 build 后生成。publish_enabled 保持 false，未提交或推送。
+- Questions: 无。

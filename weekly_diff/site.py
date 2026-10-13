@@ -14,7 +14,7 @@ from markupsafe import Markup, escape
 from jinja2 import Environment, FileSystemLoader, StrictUndefined
 
 from weekly_diff import paths
-from weekly_diff.images import allowed_image
+from weekly_diff.images import hero_item, local_image, restore_images
 from weekly_diff.tags import tag_labels
 from weekly_diff.config import Config
 from weekly_diff.dates import parse_issue_id
@@ -124,9 +124,9 @@ def _view(issue: Issue, cfg: Config, env: Environment, language: str) -> dict[st
         'anchors': {item.key: f'item-{i}' for i, item in enumerate(items, 1)},
         'month': month.strftime('%Y-%m'),
         'month_label': f'{month.year} 年 {month.month} 月' if language == 'zh' else month.strftime('%B %Y'),
-        'og_image': next((item.image_url for item in top[:1]
-                          if allowed_image(item.image_url, cfg)
-                          and urlsplit(item.image_url).hostname == urlsplit(cfg.sources.github_image_url).hostname), None),
+        'hero': hero_item(issue),
+        'og_image': (f'{cfg.site.base_url}/{local_image(hero_item(issue), issue.id)}'
+                     if hero_item(issue) and local_image(hero_item(issue), issue.id) else None),
         'missing': missing, 'label': label,
         'issue': issue,
         'title': f'{cfg.name} — {label}',
@@ -149,7 +149,8 @@ def _inline_code(text: str) -> Markup:
                            if index % 2 else escape(part) for index, part in enumerate(parts))
 
 
-def render_site(cfg: Config, issues_dir: Path, out_dir: Path) -> list[Path]:
+def render_site(cfg: Config, issues_dir: Path, out_dir: Path, *,
+                cache_dir: Path | None = None) -> list[Path]:
     """Rebuild all output from saved issues, without network or LLM calls."""
     issues_dir, out_dir = Path(issues_dir), Path(out_dir)
     if issues_dir.resolve().is_relative_to(out_dir.resolve()):
@@ -159,18 +160,26 @@ def render_site(cfg: Config, issues_dir: Path, out_dir: Path) -> list[Path]:
                       trim_blocks=True, lstrip_blocks=True)
     env.filters['domain'] = _domain
     env.filters['inline_code'] = _inline_code
-    env.tests['allowed_image'] = lambda url: allowed_image(url, cfg)
     issues = [Issue.from_dict(json.loads(path.read_text(encoding='utf-8')))
               for path in issues_dir.glob('*.json')]
     issues.sort(key=lambda issue: issue.id, reverse=True)
-    views_by_language = {language: [_view(issue, cfg, env, language) for issue in issues]
-                         for language in STRINGS}
+    for issue in issues:
+        parse_issue_id(issue.id)
+        for item in issue.items():
+            _domain(item.source_url)
+            if item.image_url:
+                _domain(item.image_url)
     if len({issue.id for issue in issues}) != len(issues):
         raise ValueError('Duplicate issue IDs')
+    cache_dir = cache_dir if cache_dir is not None else issues_dir.parent / 'images'
+    if cache_dir.resolve().is_relative_to(out_dir.resolve()):
+        raise ValueError('Site output must not contain the image cache')
     if out_dir.exists():
         shutil.rmtree(out_dir)
     out_dir.mkdir(parents=True)
-    written: list[Path] = []
+    written = [path for issue in issues for path in restore_images(issue, cache_dir, out_dir)]
+    views_by_language = {language: [_view(issue, cfg, env, language) for issue in issues]
+                         for language in STRINGS}
 
     def write(relative: str, template: str, **context: Any) -> None:
         target = out_dir / relative
@@ -209,7 +218,7 @@ def render_site(cfg: Config, issues_dir: Path, out_dir: Path) -> list[Path]:
         page('404.html', '404.html', title=f"{strings['not_found']} · {cfg.name}", description=tagline)
         write(prefix + 'feed.xml', 'feed.xml', **common, views=views[:max(0, cfg.site.feed_items)])
     (out_dir / '.nojekyll').touch()
-    (out_dir / 'assets').mkdir()
+    (out_dir / 'assets').mkdir(exist_ok=True)
     shutil.copyfile(paths.ROOT / 'static/style.css', out_dir / 'assets/style.css')
     written.extend([out_dir / '.nojekyll', out_dir / 'assets/style.css'])
     return written
