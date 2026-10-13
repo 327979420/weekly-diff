@@ -4,7 +4,7 @@ The weekly AI digest for vibe coders, in English and Chinese: what happened, why
 
 Read it at **https://vibe.freddyliang.com/**.
 
-The repository name `weekly-diff` and the site URL above are unchanged.
+The repository is still named `weekly-diff`; the old address `327979420.github.io/weekly-diff` redirects here.
 
 ## What arrives when
 
