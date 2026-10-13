@@ -76,7 +76,7 @@ llm:
   max_candidates_to_score: 80
   score_batch_size: 40
   max_source_chars: 12000           # source text sent to the summariser per item
-  min_score: 5                      # 0–10; items below this are never selected
+  min_score: 4                      # 0–10; items below this are never selected
 
 dedupe:
   title_similarity: 0.6             # Jaccard on title words; merges the same story from different sources
