@@ -29,7 +29,7 @@ publish_enabled: true
 paused: false
 
 site:
-  base_url: "https://327979420.github.io/weekly-diff"   # no trailing slash
+  base_url: "https://vibe.freddyliang.com"   # no trailing slash
   language: "en"
   timezone: "Australia/Melbourne"   # dates shown to readers
   feed_items: 20

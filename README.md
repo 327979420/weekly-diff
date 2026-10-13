@@ -2,7 +2,7 @@
 
 The weekly AI digest for vibe coders, in English and Chinese: what happened, why it matters, and links to the sources.
 
-Read it at **https://327979420.github.io/weekly-diff/**.
+Read it at **https://vibe.freddyliang.com/**.
 
 The repository name `weekly-diff` and the site URL above are unchanged.
 

@@ -4,7 +4,7 @@ A fully automatic weekly roundup of AI and developer news for an English-speakin
 
 ## Outputs (from the same weekly data)
 1. **Discord post** every Monday about 08:00 Melbourne: 60-second summary, top 5 items, link to the full issue.
-2. **Website** on GitHub Pages (https://327979420.github.io/weekly-diff/): home = latest issue, `/issues/YYYY-WW/`, `/archive/`, `/feed.xml`. Minimal, fast, mobile-friendly, light/dark, no JavaScript.
+2. **Website** on GitHub Pages (https://vibe.freddyliang.com/): home = latest issue, `/issues/YYYY-WW/`, `/archive/`, `/feed.xml`. Minimal, fast, mobile-friendly, light/dark, no JavaScript.
 
 ## Issue format
 10–15 items across: This week in 60 seconds (3 bullets, drawn from the items) · New models & labs · Agent & dev tool updates · Trending on GitHub (by stars gained this week) · Quick hits.

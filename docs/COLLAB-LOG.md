@@ -206,3 +206,6 @@
 
 **🧑 Freddy → Claude**：没什么问题，正式上线：网页公开，Discord 推送到公开频道，先这么跑。
 **🧠 Claude → Freddy**：按 Freddy 的决定把 `publish_enabled` 改为 `true` 并推送。从周一 10 月 19 日约 08:00（墨尔本）起，每周一期发到公开频道；周五的预览仍只发到私密频道。
+
+**🧑 Freddy → Claude**：不用 github.io，用 freddyliang.com 下一个没用到的子域名发布，你来操作。
+**🧠 Claude → Freddy**：查了 vibe/weekly/news/digest 都未占用，选 `vibe.freddyliang.com`。在 Freddy 已登录的 Chrome 里给 Cloudflare 加了 `CNAME vibe → 327979420.github.io`（仅 DNS，没动其他记录），GitHub Pages 绑定该域名，`site.base_url` 改为 `https://vibe.freddyliang.com`；本机验证新域名下链接无旧前缀。旧地址会自动跳转。
