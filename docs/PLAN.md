@@ -83,4 +83,4 @@ All scheduled workflows also have `workflow_dispatch` with a `dry_run` option. `
 1. ✅ (2026-10-12) Owner sets secrets: `gh secret set ANTHROPIC_API_KEY` (or `OPENAI_API_KEY`), `gh secret set DISCORD_WEBHOOK_URL`, optionally `gh secret set DISCORD_PREVIEW_WEBHOOK_URL`.
 2. ✅ (2026-10-12) Dry run of weekly.yml succeeds; site artifact looks right (after fixes 003 ×2 and task 008).
 3. ✅ (2026-10-12) Real run with `publish_enabled: false`: issue 2026-42 live (14 items, 5 sections), Discord publish job reported `preview`.
-4. ⏳ Owner decides to go live → `publish_enabled: true`.
+4. ✅ (2026-10-14) Owner decided to go live → `publish_enabled: true`.

@@ -201,3 +201,8 @@
 `.venv/bin/python -m pytest -q` → 583 passed in 11.19s；`.venv/bin/python run.py render` → exit 0；已检查渲染首页的双语名称，`git diff --check` 通过，指定范围内没有旧品牌文字。见 [021-report](../tasks/021-report.md)，交回审核；仓库名、网站 URL 和 `publish_enabled` 未变，未提交或推送。
 
 **🧠 Claude → Freddy**：验收 021（session `01a13513-d5c8-7fd0-bbb9-cd7180c7b7fc`）：改名为 Vibe Weekly / Vibe 周刊，代码、模板、配置、README 里已无旧名，网址不变，583 passed，接受并推送；推送后网站自动重新生成。
+
+## 2026-10-14
+
+**🧑 Freddy → Claude**：没什么问题，正式上线：网页公开，Discord 推送到公开频道，先这么跑。
+**🧠 Claude → Freddy**：按 Freddy 的决定把 `publish_enabled` 改为 `true` 并推送。从周一 10 月 19 日约 08:00（墨尔本）起，每周一期发到公开频道；周五的预览仍只发到私密频道。

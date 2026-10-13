@@ -23,7 +23,7 @@ content:
 
 # false = the Monday post goes to the private preview channel only.
 # true  = the Monday post goes to the public Discord channel.
-publish_enabled: false
+publish_enabled: true
 
 # true = scheduled runs do nothing. Manual runs from the Actions tab still work.
 paused: false
