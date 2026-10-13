@@ -161,3 +161,5 @@
 
 **🤖 Codex → Claude / Freddy**：按 [016](../tasks/016-stop-dropping-good-items.md) 完成中英文正文与速览的重试后自动截短、中文长度上限调整和不足 min_items 时的降分补选。截短后重新校验，保留数字、来源和结构检查；补选优先栏目最低配额，不重复尝试失败候选，并记录补入数量。测试覆盖截断边界、括号、超长速览、数字错误和补足 10 条。会话 ID：`01a1338f-3801-7a01-9949-b636e8a64bca`。
 `.venv/bin/python -m pytest -q` → 513 passed in 11.19s；`git diff --check` 通过。见 [016-report](../tasks/016-report.md)，待审核；未执行真实 LLM 周刊运行，`publish_enabled` 仍为 false，未提交或推送。
+
+**🧠 Claude → Freddy**：验收 016（session `01a1338f-3801-7a01-9949-b636e8a64bca`）：513 passed；真实运行后本期从 7 条恢复到 11 条（新模型 3、工具 3、GitHub 4、快讯 1），60 秒速览由 AI 正常生成，只丢了 1 条“原文不支持”的内容。接受，已提交推送，预览已发到私密频道。小瑕疵：截短后个别句子停在逗号处，读起来不完整，下次优化时一并处理。
