@@ -29,3 +29,5 @@ Style examples only, never evidence; use these claims only when SOURCE supports 
 - tag: try (try it now), learn (a practical lesson) or watch (worth watching).
 - supported: boolean.
 Do not include @everyone or @here. Correct any validation problems supplied with the request.
+
+长度上限：英文标题 {max_headline_chars} 字符，摘要 {max_summary_words} 词，用处 {max_why_words} 词，上手步骤 {max_builders_words} 词；中文标题 {max_headline_chars_zh} 字符，摘要 {max_summary_chars_zh} 字符，用处 {max_why_chars_zh} 字符，上手步骤 {max_builders_chars_zh} 字符。

@@ -62,6 +62,7 @@ All scheduled workflows also have `workflow_dispatch` with a `dry_run` option. `
 | 013 | Frozen legacy-issue fixture; Codex session IDs | done (439 tests) |
 | 014 | Vibe-coder focus, new sources, try/learn/watch tags | done, 1 fix round (472 tests) |
 | 015 | History browsing, visual polish, Discord layout | done (489 tests) |
+| 016 | Shorten instead of dropping; realistic zh limits; fill to min_items | done (513 tests) |
 
 ## Decisions
 - 2026-10-12: Repo at `~/weekly-diff`, GitHub `327979420/weekly-diff` (public). Pages source: GitHub Actions.

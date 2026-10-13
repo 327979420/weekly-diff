@@ -197,3 +197,35 @@ def test_top_prefers_try_now_preserving_diversity() -> None:
     items = [replace(base, key='watch', score=10, extra={}),
              replace(base, key='try', score=5, extra={'try_now': True})]
     assert build.top_items(items, cfg)[0] == 'try'
+
+
+@pytest.mark.parametrize('initially_empty', [False, True])
+def test_extra_pass_reaches_minimum(workspace: Config, monkeypatch: pytest.MonkeyPatch,
+                                   caplog: pytest.LogCaptureFixture, initially_empty: bool) -> None:
+    calls: Counter[str] = Counter()
+
+    def handler(system: str, user: str, schema: dict, max_tokens: int) -> dict:
+        data = json.loads(user)
+        response = fake_response(system, user, schema, max_tokens)
+        if isinstance(data, list):
+            for row in response['items']:
+                section, name = row['id'].split(':')
+                high = not initially_empty and (name == 'Alpha' or (name == 'Bravo' and section != 'quick'))
+                row['score'] = 8 if high else 4
+        elif 'SOURCE' in data:
+            calls[data['title']] += 1
+            if not initially_empty and data['title'] == 'models Alpha':
+                return {**GOOD, 'supported': False}
+        return response
+
+    caplog.set_level('INFO')
+    monkeypatch.setattr(build, 'get_client', lambda cfg: FakeLLM(handler))
+    issue = build.run_build(workspace, '2026-41', NOW, True)
+    items = list(issue.items())
+    assert len(items) == workspace.issue.min_items == 10
+    assert len({item.key for item in items}) == 10
+    assert all(section.min <= len(issue.sections[section.key]) <= section.max
+               for section in workspace.issue.sections)
+    assert not validate_issue(issue, workspace)
+    assert max(calls.values()) == 1
+    assert f'Extra selection pass added {10 if initially_empty else 4} validated items' in caplog.text

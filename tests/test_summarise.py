@@ -132,3 +132,33 @@ def test_reader_address_retries_once(chinese: bool, corrected: bool) -> None:
     prefix, required = ('zh.', '你') if chinese else ('', 'you or your')
     assert json.loads(fake.calls[1]['user'])['validation_problems'] == [
         f'{prefix}summary must address the reader using {required}']
+
+
+@pytest.mark.parametrize('chinese', [False, True])
+@pytest.mark.parametrize('field', ['headline', 'summary', 'why_it_matters', 'for_builders'])
+def test_all_copy_lengths_repaired_after_retry(field: str, chinese: bool) -> None:
+    from weekly_diff.validate import validate_item
+    row = {**GOOD, 'zh': dict(GOOD['zh'])}
+    copy = row['zh'] if chinese else row
+    prefix = copy[field].rstrip('。.')
+    copy[field] = prefix + ('，' + '更多说明' * 100 if chinese else ', ' + 'more details ' * 100)
+    fake = FakeLLM([row, row])
+    cfg = load_config()
+    item = summarise(SCORED, SOURCE, cfg, fake)
+    assert item is not None
+    assert (item.zh[field] if chinese else getattr(item, field)) == prefix
+    assert not validate_item(item, SOURCE, cfg)
+    assert len(fake.calls) == 2
+
+
+def test_repair_revalidates_reader_address() -> None:
+    row = {**GOOD, 'summary': 'Useful tools, ' + 'details ' * 30 + 'for you'}
+    assert summarise(SCORED, SOURCE, load_config(), FakeLLM([row, row])) is None
+
+
+def test_prompt_uses_configured_chinese_limits() -> None:
+    fake = FakeLLM([GOOD])
+    summarise(SCORED, SOURCE, load_config(), fake)
+    prompt = fake.calls[0]['system']
+    assert 'summary 70, why_it_matters 100, for_builders 90' in prompt
+    assert '摘要 70 字符' in prompt and '上手步骤 90 字符' in prompt

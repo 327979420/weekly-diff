@@ -96,9 +96,9 @@ def test_configured_headline_limit(limit: int) -> None:
 @pytest.mark.parametrize(('field', 'value', 'problem'), [
     ('headline', '新' * 41, '40 characters'),
     ('summary', '', 'non-empty'),
-    ('summary', '新' * 51, '50 characters'),
-    ('why_it_matters', '新' * 81, '80 characters'),
-    ('for_builders', '新' * 61, '60 characters'),
+    ('summary', '新' * 71, '70 characters'),
+    ('why_it_matters', '新' * 101, '100 characters'),
+    ('for_builders', '新' * 91, '90 characters'),
     ('for_builders', '', 'non-empty'),
     ('summary', '先更新。再运行。', 'single sentence'),
     ('summary', '使用工具🛠️', 'emoji'),

@@ -123,3 +123,19 @@ def test_try_now_preferred_with_quotas_and_threshold(section: str, tmp_path: Pat
     result = select(pool, cfg)
     assert result.chosen[section] == [pool[1]]
     assert all(s.candidate.key != pool[2].candidate.key for rows in result.backups.values() for s in rows)
+
+
+def test_extra_pass_priority_floor_and_quick_overflow() -> None:
+    from weekly_diff.select import select_extra
+    cfg = load_config()
+    counts = {'models': 2, 'tools': 1, 'github': 3, 'quick': 2}
+    model = replace(items('models', 1)[0], score=9)
+    tool = replace(items('tools', 1)[0], score=4)
+    assert select_extra([model, tool], cfg, counts, set()) == tool
+    assert select_extra([tool], cfg, counts, {tool.candidate.key}) is None
+    assert select_extra([replace(tool, relevant=False)], cfg, counts, set()) is None
+    low_cfg = replace(cfg, llm=replace(cfg.llm, min_score=3))
+    assert select_extra([replace(tool, score=2)], low_cfg, counts, set()) is None
+    counts = {'models': 4, 'tools': 4, 'github': 4, 'quick': 0}
+    assert select_extra([model], cfg, counts, set()) == replace(model, section='quick')
+    assert select_extra(items('github', 1), cfg, counts, set()) is None

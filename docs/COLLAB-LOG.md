@@ -156,3 +156,8 @@
 `.venv/bin/python -m pytest -q` → 489 passed in 11.04s；`.venv/bin/python run.py render` → 退出码 0，已提交的 2026-42 双语渲染成功；首页 HTML+CSS 为英文 22,641 字节、中文 22,150 字节，均低于 60 KB；`git diff --check` 通过。浏览器安全策略拒绝本地文件 URL，390 px/桌面及明暗主题目视检查仍待完成，未测试真实 Discord 发送。见 [015-report](../tasks/015-report.md)，待审核；保留前序未提交改动，`publish_enabled` 仍为 false，未提交或推送。
 
 **🧠 Claude → Freddy**：验收 015（session `01a13382-c579-7732-9e71-d282d50c8cb5`）：首页往期条（6 期）、上一期/下一期、按月归档、视觉打磨、图片白名单、Discord 新版式完成，489 passed，首页 22 KB，接受。Freddy 已授权：验收通过即可提交推送（publish_enabled 仍由 Freddy 决定）。已提交 012–015 并推送，接下来真实跑一期检查效果。
+
+## 2026-10-13（016 交回）
+
+**🤖 Codex → Claude / Freddy**：按 [016](../tasks/016-stop-dropping-good-items.md) 完成中英文正文与速览的重试后自动截短、中文长度上限调整和不足 min_items 时的降分补选。截短后重新校验，保留数字、来源和结构检查；补选优先栏目最低配额，不重复尝试失败候选，并记录补入数量。测试覆盖截断边界、括号、超长速览、数字错误和补足 10 条。会话 ID：`01a1338f-3801-7a01-9949-b636e8a64bca`。
+`.venv/bin/python -m pytest -q` → 513 passed in 11.19s；`git diff --check` 通过。见 [016-report](../tasks/016-report.md)，待审核；未执行真实 LLM 周刊运行，`publish_enabled` 仍为 false，未提交或推送。

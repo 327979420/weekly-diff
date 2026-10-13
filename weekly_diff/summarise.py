@@ -3,13 +3,12 @@ from copy import deepcopy
 import json
 import logging
 from pathlib import Path
-import re
-import unicodedata
 
 from weekly_diff.config import Config
 from weekly_diff.llm.base import LLMClient, LLMError, strict_schema
 from weekly_diff.models import Item
 from weekly_diff.score import Scored
+from weekly_diff.shorten import only_length_problems, shorten
 from weekly_diff.validate import validate_item
 
 
@@ -22,14 +21,19 @@ def _schema(cfg: Config) -> dict:
     return strict_schema({'type': 'object', 'properties': properties})
 
 
-def _shorten_headline(headline: str, limit: int, *, chinese: bool = False) -> str:
-    ends = [match.end() for match in re.finditer(r'\S+', headline) if match.end() <= limit]
-    shortened = headline[:ends[-1]].rstrip() if ends else ''
-    if chinese:
-        shortened = headline[:limit].rstrip()
-    while shortened and unicodedata.category(shortened[-1]).startswith('P'):
-        shortened = shortened[:-1].rstrip()
-    return shortened
+def _shorten_item(item: Item, cfg: Config) -> None:
+    limits = (
+        ('headline', cfg.issue.max_headline_chars, cfg.content.max_headline_chars_zh),
+        ('summary', cfg.content.max_summary_words, cfg.content.max_summary_chars_zh),
+        ('why_it_matters', cfg.content.max_why_words, cfg.content.max_why_chars_zh),
+        ('for_builders', cfg.content.max_builders_words, cfg.content.max_builders_chars_zh),
+    )
+    for field, english, chinese in limits:
+        value = getattr(item, field)
+        if value is not None:
+            setattr(item, field, shorten(value, english, words=field != 'headline'))
+        if item.zh[field] is not None:
+            item.zh[field] = shorten(item.zh[field], chinese, chinese=True)
 
 
 def summarise(scored: Scored, source_text: str, cfg: Config, llm: LLMClient) -> Item | None:
@@ -65,14 +69,8 @@ def summarise(scored: Scored, source_text: str, cfg: Config, llm: LLMClient) -> 
                         candidate.published_at, scored.score, extra, emoji=row['emoji'],
                         zh=deepcopy(row['zh']), image_url=candidate.extra.get('image_url'))
             problems = validate_item(item, source_text, cfg)
-            headline_errors = {f'headline exceeds {cfg.issue.max_headline_chars} characters',
-                               f'zh.headline exceeds {cfg.content.max_headline_chars_zh} characters'}
-            if attempt == 1 and problems and set(problems) <= headline_errors:
-                if len(item.headline) > cfg.issue.max_headline_chars:
-                    item.headline = _shorten_headline(item.headline, cfg.issue.max_headline_chars)
-                if len(item.zh['headline']) > cfg.content.max_headline_chars_zh:
-                    item.zh['headline'] = _shorten_headline(
-                        item.zh['headline'], cfg.content.max_headline_chars_zh, chinese=True)
+            if attempt == 1 and only_length_problems(problems):
+                _shorten_item(item, cfg)
                 problems = validate_item(item, source_text, cfg)
             if not problems:
                 return item

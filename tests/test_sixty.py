@@ -19,7 +19,6 @@ GOOD = {'bullets': [{'text': item.headline, 'text_zh': item.zh['headline'], 'ite
     {'bullets': [{'text': 'Headline 2', 'item_keys': ['0']}]*3},
     {'bullets': [{'text': 'News', 'item_keys': ['missing']}]*3},
     {'bullets': [{'text': 'News', 'item_keys': []}]*3},
-    {'bullets': [{'text': 'word ' * 31, 'item_keys': ['0']}]*3},
     {'bullets': [{'text': '@everyone', 'item_keys': ['0']}]*3},
     {'bullets': []}, {'bullets': [None]*3}])
 def test_retry_then_fallback(bad: dict) -> None:
@@ -40,7 +39,7 @@ def test_success_once() -> None:
     assert len(fake.calls) == 1
 
 
-@pytest.mark.parametrize('text', ['', '新' * 61, '支持 999 个工具', '标题 2', '@everyone'])
+@pytest.mark.parametrize('text', ['', '支持 999 个工具', '标题 2', '@everyone'])
 def test_chinese_bullet_retry_and_matching_fallback(text: str) -> None:
     bad = {'bullets': [{**bullet, 'text_zh': text} for bullet in GOOD['bullets']]}
     fake = FakeLLM([bad, bad])
@@ -56,3 +55,27 @@ def test_bullet_provenance_success_and_fallback() -> None:
     assert keys == [[item.key] for item in reversed(ITEMS)]
     sixty(ITEMS, FakeLLM([{'bullets': []}] * 2), load_config(), keys)
     assert keys == [[item.key] for item in ITEMS]
+
+
+@pytest.mark.parametrize('chinese', [False, True])
+def test_overlong_bullets_shortened_after_retry(chinese: bool, caplog: pytest.LogCaptureFixture) -> None:
+    cfg = load_config()
+    field = 'text_zh' if chinese else 'text'
+    prefix = '你可以使用工具，' if chinese else 'You can use the tool; '
+    text = prefix + ('更多工具' * cfg.content.max_bullet_chars_zh if chinese
+                     else 'more tools ' * cfg.content.max_bullet_words)
+    row = {'bullets': [{**bullet, field: text} for bullet in GOOD['bullets']]}
+    fake = FakeLLM([row, row])
+    keys: list[list[str]] = []
+    english, zh = sixty(ITEMS, fake, cfg, keys)
+    assert (zh if chinese else english) == [prefix.rstrip('，; ')] * 3
+    assert keys == [[item.key] for item in ITEMS]
+    assert len(fake.calls) == 2
+    assert 'using top headlines' not in caplog.text
+    assert row['bullets'][0][field] == text
+
+
+def test_length_repair_never_hides_unsupported_bullet_number() -> None:
+    row = {'bullets': [{**bullet, 'text': 'You can use tools; ' + 'tools ' * 31 + '999'}
+                       for bullet in GOOD['bullets']]}
+    assert sixty(ITEMS, FakeLLM([row, row]), load_config())[0] == [item.headline for item in ITEMS]

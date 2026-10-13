@@ -1,4 +1,5 @@
 """Write and verify a short issue overview, with deterministic fallback."""
+from copy import deepcopy
 import json
 import logging
 from pathlib import Path
@@ -7,6 +8,7 @@ import re
 from weekly_diff.config import Config
 from weekly_diff.llm.base import LLMClient, LLMError, strict_schema
 from weekly_diff.models import Item
+from weekly_diff.shorten import only_length_problems, shorten
 from weekly_diff.validate import number_problems
 
 
@@ -25,10 +27,14 @@ def _validate(response: dict, items: list[Item], cfg: Config) -> list[str]:
             problems.append('invalid bullet fields')
             continue
         text, keys = bullet['text'], bullet['item_keys']
-        if not text.strip() or len(text.split()) > cfg.content.max_bullet_words:
-            problems.append('bullet must contain 1 to 30 words')
-        if not bullet['text_zh'].strip() or len(bullet['text_zh']) > cfg.content.max_bullet_chars_zh:
-            problems.append('Chinese bullet must be non-empty and within the character limit')
+        for field, limit, words in (('text', cfg.content.max_bullet_words, True),
+                                    ('text_zh', cfg.content.max_bullet_chars_zh, False)):
+            value = bullet[field]
+            if not value.strip():
+                problems.append(f'{field} must be non-empty')
+            elif (len(value.split()) if words else len(value)) > limit:
+                unit = 'words' if words else 'characters'
+                problems.append(f'{field} exceeds {limit} {unit}')
         if re.search(r'@(?:everyone|here)\b', text + ' ' + bullet['text_zh'], re.I):
             problems.append('broadcast mention is forbidden')
         if not keys or any(not isinstance(key, str) or key not in evidence for key in keys):
@@ -55,6 +61,12 @@ def sixty(items: list[Item], llm: LLMClient, cfg: Config,
         try:
             response = llm.complete_json(system, user, schema, max_tokens=len(system) + len(json.dumps(schema)))
             problems = _validate(response, items, cfg)
+            if attempt == 1 and only_length_problems(problems):
+                response = deepcopy(response)
+                for bullet in response['bullets']:
+                    bullet['text'] = shorten(bullet['text'], cfg.content.max_bullet_words, words=True)
+                    bullet['text_zh'] = shorten(bullet['text_zh'], cfg.content.max_bullet_chars_zh, chinese=True)
+                problems = _validate(response, items, cfg)
             if not problems:
                 if item_keys is not None:
                     item_keys[:] = [bullet['item_keys'] for bullet in response['bullets']]

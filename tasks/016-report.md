@@ -1,0 +1,4 @@
+- Changes: 重试后仅超长的中英文正文与速览按句子/分句、词或字符边界截短，清理悬空标点和未闭合括号后重新校验；中文上限改为 70/100/90/80，双语提示词同步。常规补位后不足 min_items 时，以 max(3, min_score - 1) 补选，优先栏目最低配额，排除已尝试候选并记录新增数量。publish_enabled 未改，未提交或推送。
+- Testing: `.venv/bin/python -m pytest -q` → 513 passed in 11.19s；`git diff --check` → 通过。
+- Unfinished: 无；真实 LLM 周刊运行未执行，验证使用离线 fixtures 和 FakeLLM。
+- Questions: 无。

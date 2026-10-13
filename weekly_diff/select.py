@@ -34,7 +34,7 @@ def _section_rank(item: Scored) -> tuple:
     return _rank(item)
 
 
-def select(scored: list[Scored], cfg: Config) -> Selection:
+def select(scored: list[Scored], cfg: Config, *, enforce_minimum: bool = True) -> Selection:
     settings = {s.key: s for s in cfg.issue.sections}
     pools: dict[str, list[Scored]] = {key: [] for key in settings}
     used: set[str] = set()
@@ -92,7 +92,7 @@ def select(scored: list[Scored], cfg: Config) -> Selection:
         pools[item.section].remove(item)
         chosen['quick'].append(replace(item, section='quick'))
         total += 1
-    if total < cfg.issue.hard_min_items:
+    if enforce_minimum and total < cfg.issue.hard_min_items:
         raise InsufficientItems(f'Only {total} qualifying items; need {cfg.issue.hard_min_items}')
     for items in chosen.values():
         items.sort(key=_section_rank)
@@ -106,3 +106,23 @@ def select(scored: list[Scored], cfg: Config) -> Selection:
     (paths.BUILD / 'selection.json').write_text(json.dumps(selection.to_dict(), indent=2, sort_keys=True)
                                                + '\n', encoding='utf-8')
     return selection
+
+
+def select_extra(scored: list[Scored], cfg: Config, counts: dict[str, int],
+                 attempted: set[str]) -> Scored | None:
+    """Pick remaining relevant news, serving section minimums before extra slots."""
+    settings = {section.key: section for section in cfg.issue.sections}
+    eligible = [item for item in scored if item.relevant
+                and item.score >= max(3, cfg.llm.min_score - 1)
+                and item.section in settings and item.candidate.key not in attempted]
+    for minimums in (True, False):
+        for section in cfg.issue.sections:
+            limit = section.min if minimums else section.max
+            if counts[section.key] >= min(limit, section.max):
+                continue
+            pool = [item for item in eligible if item.section == section.key
+                    or (section.key == 'quick' and item.section != 'github')]
+            if pool:
+                best = min(pool, key=_section_rank if section.key != 'quick' else _rank)
+                return replace(best, section=section.key)
+    return None

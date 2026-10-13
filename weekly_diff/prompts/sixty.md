@@ -15,3 +15,5 @@ Return a bullets array; each entry has text, text_zh and item_keys.
 The two texts in each entry cover the same facts and share the same item_keys. Write natural Simplified Chinese; keep product names, model names and versions unchanged. Never generate URLs.
 Every bullet pair must reference at least one supplied item key. Every number must appear in the referenced items' headline or summary.
 Correct any supplied validation problems. Do not invent claims, numbers, names, dates or benefits.
+
+长度上限：每条英文最多 {max_bullet_words} 词，每条中文最多 {max_bullet_chars_zh} 字符，均不能为空。

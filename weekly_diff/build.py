@@ -15,9 +15,9 @@ from weekly_diff.http import Http
 from weekly_diff.llm import get_client
 from weekly_diff.llm.base import LLMClient
 from weekly_diff.models import Candidate, Issue, Item
-from weekly_diff.score import score
+from weekly_diff.score import Scored, score
 from weekly_diff.seen import load_seen, mark_seen, prune, save_seen
-from weekly_diff.select import Selection, select
+from weekly_diff.select import Selection, select, select_extra
 from weekly_diff.site import render_site
 from weekly_diff.sixty import sixty
 from weekly_diff.source_text import fetch_source_text
@@ -37,7 +37,8 @@ def top_items(items: list[Item], cfg: Config) -> list[str]:
     return result
 
 
-def _write_items(selection: Selection, cfg: Config, http: Http, llm: LLMClient) -> dict[str, list[Item]]:
+def _write_items(selection: Selection, cfg: Config, http: Http, llm: LLMClient,
+                 remaining: list[Scored] | None = None) -> dict[str, list[Item]]:
     sections: dict[str, list[Item]] = {section.key: [] for section in cfg.issue.sections}
     missing = []
     for section, chosen in selection.chosen.items():
@@ -70,6 +71,20 @@ def _write_items(selection: Selection, cfg: Config, http: Http, llm: LLMClient) 
                 logging.getLogger(__name__).warning('Dropped backup %s; seeking next backup', scored.candidate.key)
             if filled:
                 break
+    if remaining is not None and sum(map(len, sections.values())) < cfg.issue.min_items:
+        added = 0
+        while sum(map(len, sections.values())) < min(cfg.issue.min_items, cfg.issue.max_items):
+            counts = {section: len(items) for section, items in sections.items()}
+            scored = select_extra(remaining, cfg, counts, attempted)
+            if scored is None:
+                break
+            attempted.add(scored.candidate.key)
+            source = fetch_source_text(scored.candidate, http, cfg.llm.max_source_chars)
+            item = summarise(scored, source, cfg, llm)
+            if item is not None:
+                sections[item.section].append(item)
+                added += 1
+        logging.getLogger(__name__).info('Extra selection pass added %d validated items', added)
     return sections
 
 
@@ -94,10 +109,11 @@ def run_build(cfg: Config, issue_id: str, now: datetime, dry_run: bool) -> Issue
     candidates = [Candidate.from_dict(row) for row in json.loads(candidate_path.read_text(encoding='utf-8'))]
     seen = load_seen()
     llm = get_client(cfg)
-    selection = select(score(dedupe(candidates, cfg, seen, issue_id), cfg, llm), cfg)
+    scored = score(dedupe(candidates, cfg, seen, issue_id), cfg, llm)
+    selection = select(scored, cfg, enforce_minimum=False)
     http = Http(cfg, dry_run=dry_run)
     try:
-        sections = _write_items(selection, cfg, http, llm)
+        sections = _write_items(selection, cfg, http, llm, scored)
     finally:
         http.close()
     items = [item for rows in sections.values() for item in rows]
