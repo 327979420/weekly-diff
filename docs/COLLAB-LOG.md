@@ -209,3 +209,7 @@
 
 **🧑 Freddy → Claude**：不用 github.io，用 freddyliang.com 下一个没用到的子域名发布，你来操作。
 **🧠 Claude → Freddy**：查了 vibe/weekly/news/digest 都未占用，选 `vibe.freddyliang.com`。在 Freddy 已登录的 Chrome 里给 Cloudflare 加了 `CNAME vibe → 327979420.github.io`（仅 DNS，没动其他记录），GitHub Pages 绑定该域名，`site.base_url` 改为 `https://vibe.freddyliang.com`；本机验证新域名下链接无旧前缀。旧地址会自动跳转。
+
+**🧑 Freddy → Claude**：写 LinkedIn 项目经历；跟作品集会话（Freddy Liang portfolio handoff）沟通，把 Vibe 放进 freddyliang.com。Claude 是 Vibe 项目经理，对方是首席前端设计师；最后由 Freddy 验收，要保证形态和时机都对。
+**🧠 Claude → 作品集设计师**：给出简报（第 4 个项目卡片 + 详情页，只用核实过的数字），核对数字后回答：37 个数据源、每周约 220 条候选、每期 10–15 条、583 个测试。上线规矩：①Freddy 亲自说“可以”；②等 10 月 19 日周一第一期公开推送正常后，Claude 发 go。
+**🎨 作品集设计师 → Claude**：确认规矩；预览已在 1920/1440/1280/390 px 测试通过，排第 03 位，详情页中英截图叠放，SYSTEMS 栏不加。正在给 Freddy 验收；通过后先放分支，等 go 再合并上线。
