@@ -18,6 +18,12 @@
       "title": "SolidCraft: open-source 3D CAD app that AI agents can drive through MCP",
       "url": "https://github.com/bherbruck/solidcraft"
     },
+    "github:ebony-vinyl/dsh-our-free-model": {
+      "first_seen": "2026-10-18",
+      "issue": "2026-42",
+      "title": "dsh-our-free-model\uff1a\u88c5\u8fdb dsh \u63d2\u4ef6\uff0c\u514d\u767b\u5f55\u5c31\u80fd\u7528\u514d\u8d39\u6a21\u578b",
+      "url": "https://github.com/Ebony-Vinyl/dsh-our-free-model"
+    },
     "github:fayazara/robot-heads": {
       "first_seen": "2026-10-13",
       "issue": "2026-42",
@@ -48,11 +54,23 @@
       "title": "WinShun\uff1a\u6309\u4e24\u4e0b Ctrl \u5c31\u80fd\u641c\u6574\u53f0 Windows \u7535\u8111\u7684\u514d\u8d39\u5de5\u5177",
       "url": "https://github.com/LingCore/WinShun"
     },
+    "github:madslorentzen/ai-job-search": {
+      "first_seen": "2026-10-18",
+      "issue": "2026-42",
+      "title": "AI Job Search: a free-to-fork framework that runs job applications through Claude Code",
+      "url": "https://github.com/MadsLorentzen/ai-job-search"
+    },
     "github:morluto/awesome-reverse-engineering": {
       "first_seen": "2026-10-12",
       "issue": "2026-42",
       "title": "A curated reverse-engineering guide, sorted by the task you need to do",
       "url": "https://github.com/morluto/awesome-reverse-engineering"
+    },
+    "github:morluto/rea": {
+      "first_seen": "2026-10-18",
+      "issue": "2026-42",
+      "title": "REA: an open tool that lets AI agents reverse engineer apps and native binaries",
+      "url": "https://github.com/morluto/rea"
     },
     "github:onehumanbeing/esp32-iphone-agent": {
       "first_seen": "2026-10-13",
@@ -114,6 +132,12 @@
       "title": "Cloudflare Clef-Flash: a 9B model that picks answers from your options, not free text",
       "url": "https://huggingface.co/Cloudflare/clef-flash"
     },
+    "hf:LiquidAI/LFM2.5-24B-A2B": {
+      "first_seen": "2026-10-18",
+      "issue": "2026-42",
+      "title": "LiquidAI/LFM2.5-24B-A2B",
+      "url": "https://huggingface.co/LiquidAI/LFM2.5-24B-A2B"
+    },
     "hf:LiquidAI/d1-3B": {
       "first_seen": "2026-10-13",
       "issue": "2026-42",
@@ -162,11 +186,23 @@
       "title": "webml-community/embeddinggemma-2-webgpu",
       "url": "https://huggingface.co/spaces/webml-community/embeddinggemma-2-webgpu"
     },
+    "https://api-docs.deepseek.com/guides/search/": {
+      "first_seen": "2026-10-18",
+      "issue": "2026-42",
+      "title": "DeepSeek Search and Fetch: pay per request to let AI tools read live web pages",
+      "url": "https://api-docs.deepseek.com/guides/search"
+    },
     "https://arstechnica.com/ai/2026/10/ai-coding-agents-generate-more-code-but-not-more-software/": {
       "first_seen": "2026-10-13",
       "issue": "2026-42",
       "title": "AI coding agents write more code, but code review slows everything down",
       "url": "https://arstechnica.com/ai/2026/10/ai-coding-agents-generate-more-code-but-not-more-software"
+    },
+    "https://blog.google/innovation-and-ai/models-and-research/gemini-models/introducing-gemini-4-argon/": {
+      "first_seen": "2026-10-18",
+      "issue": "2026-42",
+      "title": "Gemini 4 Argon: Built to solve your hardest problems",
+      "url": "https://blog.google/innovation-and-ai/models-and-research/gemini-models/introducing-gemini-4-argon"
     },
     "https://blog.google/innovation-and-ai/technology/developers-tools/embeddinggemma-2/": {
       "first_seen": "2026-10-13",
@@ -174,11 +210,47 @@
       "title": "EmbeddingGemma 2: a small open model that turns text, images",
       "url": "https://blog.google/innovation-and-ai/technology/developers-tools/embeddinggemma-2"
     },
+    "https://claude.dev/blog/solving-code-review-at-anthropic/": {
+      "first_seen": "2026-10-18",
+      "issue": "2026-42",
+      "title": "Claude Code team's code review: machines read most code, humans focus on risk",
+      "url": "https://claude.dev/blog/solving-code-review-at-anthropic"
+    },
+    "https://deepmind.google/blog/developing-gemini-4-argon-responsibly-and-safely/": {
+      "first_seen": "2026-10-18",
+      "issue": "2026-42",
+      "title": "Developing Gemini 4 Argon responsibly and safely",
+      "url": "https://deepmind.google/blog/developing-gemini-4-argon-responsibly-and-safely"
+    },
     "https://deepmind.google/blog/embeddinggemma-2-an-open-lightweight-multimodal-embedding-model/": {
       "first_seen": "2026-10-13",
       "issue": "2026-42",
       "title": "EmbeddingGemma 2: an open, lightweight multimodal embedding model",
       "url": "https://deepmind.google/blog/embeddinggemma-2-an-open-lightweight-multimodal-embedding-model"
+    },
+    "https://deepmind.google/blog/gemini-4-argon-for-robotics/": {
+      "first_seen": "2026-10-18",
+      "issue": "2026-42",
+      "title": "Gemini 4 Argon for Robotics",
+      "url": "https://deepmind.google/blog/gemini-4-argon-for-robotics"
+    },
+    "https://deepmind.google/blog/introducing-gemini-4-argon/": {
+      "first_seen": "2026-10-18",
+      "issue": "2026-42",
+      "title": "Gemini 4 Argon: Built to solve your hardest problems",
+      "url": "https://deepmind.google/blog/introducing-gemini-4-argon"
+    },
+    "https://deepmind.google/models/gemini/": {
+      "first_seen": "2026-10-18",
+      "issue": "2026-42",
+      "title": "Gemini 4 Argon",
+      "url": "https://deepmind.google/models/gemini"
+    },
+    "https://developers.googleblog.com/gemini-4-argon-for-robotics/": {
+      "first_seen": "2026-10-18",
+      "issue": "2026-42",
+      "title": "Gemini 4 Argon for Robotics",
+      "url": "https://developers.googleblog.com/gemini-4-argon-for-robotics"
     },
     "https://github.blog/changelog/2026-10-07-claude-haiku-5-5-in-github-copilot": {
       "first_seen": "2026-10-12",
@@ -197,6 +269,12 @@
       "issue": "2026-42",
       "title": "Copilot for JetBrains adds model defaults, faster diagnostic fixes and MCP startup control",
       "url": "https://github.blog/changelog/2026-10-10-new-controls-and-chat-improvements-in-copilot-for-jetbrains"
+    },
+    "https://github.blog/changelog/2026-10-13-gemini-4-argon-in-github-copilot": {
+      "first_seen": "2026-10-18",
+      "issue": "2026-42",
+      "title": "Gemini 4 Argon now in GitHub Copilot: Google's newest model for coding",
+      "url": "https://github.blog/changelog/2026-10-13-gemini-4-argon-in-github-copilot"
     },
     "https://github.com/docker/docker-agent": {
       "first_seen": "2026-10-12",
@@ -227,6 +305,12 @@
       "issue": "2026-42",
       "title": "Talorys: a free personal AI assistant that runs in your own Cloudflare account",
       "url": "https://github.com/rociiu/talorys"
+    },
+    "https://huggingface.co/blog/LiquidAI/lfm25-24b-a2b": {
+      "first_seen": "2026-10-18",
+      "issue": "2026-42",
+      "title": "LFM2.5-24B-A2B: a small agent model that runs on your own computer",
+      "url": "https://huggingface.co/blog/LiquidAI/lfm25-24b-a2b"
     },
     "https://huggingface.co/blog/LiquidAI/open-d1": {
       "first_seen": "2026-10-13",
@@ -276,6 +360,12 @@
       "title": "Reflection introduces Beam, a 501B open-weight model for coding and agentic work",
       "url": "https://reflection.ai/blog/introducing-beam"
     },
+    "https://simonwillison.net/2026/Oct/13/redesigning-source-control-at-anthropic/": {
+      "first_seen": "2026-10-18",
+      "issue": "2026-42",
+      "title": "Redesigning source control at Anthropic",
+      "url": "https://simonwillison.net/2026/Oct/13/redesigning-source-control-at-anthropic"
+    },
     "https://simonwillison.net/2026/Oct/6/hn-49982139/": {
       "first_seen": "2026-10-13",
       "issue": "2026-42",
@@ -300,11 +390,23 @@
       "title": "Claude Haiku 5.5",
       "url": "https://simonwillison.net/2026/Oct/7/claude-haiku-5-5"
     },
+    "https://starskirmish.com/bench/v0-2/": {
+      "first_seen": "2026-10-18",
+      "issue": "2026-42",
+      "title": "Show HN: Gemini 4 Argon plays StarCraft",
+      "url": "https://starskirmish.com/bench/v0-2"
+    },
     "https://vercel.com/changelog/claude-haiku-5-5-now-available-on-ai-gateway": {
       "first_seen": "2026-10-13",
       "issue": "2026-42",
       "title": "Claude Haiku 5.5 now available on AI Gateway",
       "url": "https://vercel.com/changelog/claude-haiku-5-5-now-available-on-ai-gateway"
+    },
+    "https://vercel.com/changelog/gemini-4-argon-now-available-on-ai-gateway": {
+      "first_seen": "2026-10-18",
+      "issue": "2026-42",
+      "title": "Gemini 4 Argon now available on AI Gateway",
+      "url": "https://vercel.com/changelog/gemini-4-argon-now-available-on-ai-gateway"
     },
     "https://vercel.com/changelog/liquid-ai-d1-is-available-on-ai-gateway": {
       "first_seen": "2026-10-13",
@@ -317,6 +419,18 @@
       "issue": "2026-42",
       "title": "Anthropic releases Claude Haiku 5.5, a cheaper, faster small model for high-volume tasks",
       "url": "https://anthropic.com/claude-haiku-5-5"
+    },
+    "https://www.anthropic.com/engineering/redesigning-source-control": {
+      "first_seen": "2026-10-18",
+      "issue": "2026-42",
+      "title": "Anthropic built its own source control system, Scion, to handle AI-written code",
+      "url": "https://anthropic.com/engineering/redesigning-source-control"
+    },
+    "https://www.liquid.ai/blog/lfm2-5-24b-a2b": {
+      "first_seen": "2026-10-18",
+      "issue": "2026-42",
+      "title": "LFM2.5-24B-A2B: Built for fast on-device agents",
+      "url": "https://liquid.ai/blog/lfm2-5-24b-a2b"
     },
     "release:OpenHands/OpenHands:v1.26.0": {
       "first_seen": "2026-10-12",
