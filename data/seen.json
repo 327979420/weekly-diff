@@ -1,5 +1,11 @@
 {
   "items": {
+    "github:affaan-m/ecc": {
+      "first_seen": "2026-10-25",
+      "issue": "2026-43",
+      "title": "ECC: a free toolbox of 71 agents and 311 skills for Claude Code",
+      "url": "https://github.com/affaan-m/ECC"
+    },
     "github:aindeev/agent-chrome-relay": {
       "first_seen": "2026-10-12",
       "issue": "2026-42",
@@ -36,6 +42,12 @@
       "title": "big-arrow-on-the-screen: an MIT-licensed macOS CLI that lets AI agents draw arrows over",
       "url": "https://github.com/franzenzenhofer/big-arrow-on-the-screen"
     },
+    "github:graphify-labs/graphify": {
+      "first_seen": "2026-10-25",
+      "issue": "2026-43",
+      "title": "Graphify \u628a\u4ee3\u7801\u548c\u6587\u6863\u53d8\u6210\u53ef\u4ee5\u63d0\u95ee\u7684\u77e5\u8bc6\u56fe\u8c31",
+      "url": "https://github.com/Graphify-Labs/graphify"
+    },
     "github:jakeschincariol/founder-skill": {
       "first_seen": "2026-10-13",
       "issue": "2026-42",
@@ -47,6 +59,12 @@
       "issue": "2026-42",
       "title": "/awwwards: an agent skill that builds a polished website from one line",
       "url": "https://github.com/juliobsz/skills"
+    },
+    "github:lemomo-ai/lemo-opuscar": {
+      "first_seen": "2026-10-25",
+      "issue": "2026-43",
+      "title": "Lemo-Opuscar: 59 film styles made in code, run from Claude Code",
+      "url": "https://github.com/lemomo-ai/lemo-opuscar"
     },
     "github:lingcore/winshun": {
       "first_seen": "2026-10-13",
@@ -83,6 +101,12 @@
       "issue": "2026-42",
       "title": "OpenAI releases 719 AI-produced math manuscripts with partial Lean formalizations",
       "url": "https://github.com/openai/math"
+    },
+    "github:stablyai/orca": {
+      "first_seen": "2026-10-25",
+      "issue": "2026-43",
+      "title": "Orca lets you run several coding agents side by side, each in its own worktree",
+      "url": "https://github.com/stablyai/orca"
     },
     "github:storytold/cadcraft": {
       "first_seen": "2026-10-12",
@@ -144,6 +168,18 @@
       "title": "LiquidAI/d1-3B",
       "url": "https://huggingface.co/LiquidAI/d1-3B"
     },
+    "hf:OpenMOSS-Team/MOSS-Image-Base": {
+      "first_seen": "2026-10-25",
+      "issue": "2026-43",
+      "title": "MOSS-Image-Base: an open text-to-image model that also reads layout JSON for text and",
+      "url": "https://huggingface.co/OpenMOSS-Team/MOSS-Image-Base"
+    },
+    "hf:OpenMOSS-Team/MOSS-Image-SFT": {
+      "first_seen": "2026-10-25",
+      "issue": "2026-43",
+      "title": "MOSS-Image-SFT: a text-to-image model you can run yourself with Python",
+      "url": "https://huggingface.co/OpenMOSS-Team/MOSS-Image-SFT"
+    },
     "hf:Qwen/Qwen-Image-2.1": {
       "first_seen": "2026-10-12",
       "issue": "2026-42",
@@ -155,6 +191,12 @@
       "issue": "2026-42",
       "title": "Qwen-Image-2.1-Turbo: a quicker model that makes and edits images",
       "url": "https://huggingface.co/Qwen/Qwen-Image-2.1-Turbo"
+    },
+    "hf:deepseek-ai/DeepSeek-V4.1-Flash-1017": {
+      "first_seen": "2026-10-25",
+      "issue": "2026-43",
+      "title": "DeepSeek V4.1 Flash 1017\uff1a\u5c0f\u5e45\u66f4\u65b0\uff0c\u7f16\u7a0b\u548c\u505a\u4efb\u52a1\u90fd\u66f4\u5f3a",
+      "url": "https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash-1017"
     },
     "hf:google/embeddinggemma-2": {
       "first_seen": "2026-10-12",
@@ -173,6 +215,18 @@
       "issue": "2026-42",
       "title": "MiniCPM-V 4.7 is a vision model that can run on an iPhone",
       "url": "https://huggingface.co/openbmb/MiniCPM-V-4.7-35B-A3B"
+    },
+    "hfspace:OpenMOSS-Team/MOSS-Image": {
+      "first_seen": "2026-10-25",
+      "issue": "2026-43",
+      "title": "OpenMOSS-Team/MOSS-Image",
+      "url": "https://huggingface.co/spaces/OpenMOSS-Team/MOSS-Image"
+    },
+    "hfspace:hugging-apps/bfs-best-face-swap": {
+      "first_seen": "2026-10-25",
+      "issue": "2026-43",
+      "title": "BFS Best Face Swap demo swaps heads in images using Qwen-Image-2.1",
+      "url": "https://huggingface.co/spaces/hugging-apps/bfs-best-face-swap"
     },
     "hfspace:tardellirs/model-pulse": {
       "first_seen": "2026-10-13",
@@ -198,6 +252,12 @@
       "title": "AI coding agents write more code, but code review slows everything down",
       "url": "https://arstechnica.com/ai/2026/10/ai-coding-agents-generate-more-code-but-not-more-software"
     },
+    "https://artificialanalysis.ai/models/deepseek-v4-1-flash-1017": {
+      "first_seen": "2026-10-25",
+      "issue": "2026-43",
+      "title": "DeepSeek V4.1 Flash 1017 (Max)",
+      "url": "https://artificialanalysis.ai/models/deepseek-v4-1-flash-1017"
+    },
     "https://blog.google/innovation-and-ai/models-and-research/gemini-models/introducing-gemini-4-argon/": {
       "first_seen": "2026-10-18",
       "issue": "2026-42",
@@ -209,6 +269,12 @@
       "issue": "2026-42",
       "title": "EmbeddingGemma 2: a small open model that turns text, images",
       "url": "https://blog.google/innovation-and-ai/technology/developers-tools/embeddinggemma-2"
+    },
+    "https://claude.com/product/claude-duet": {
+      "first_seen": "2026-10-25",
+      "issue": "2026-43",
+      "title": "Claude Duet: a proactive agent that sends a morning brief and handles bigger tasks",
+      "url": "https://claude.com/product/claude-duet"
     },
     "https://claude.dev/blog/solving-code-review-at-anthropic/": {
       "first_seen": "2026-10-18",
@@ -300,6 +366,12 @@
       "title": "OpenAI Pulls 3 Math Papers After Finding a Sign Error",
       "url": "https://github.com/openai/math/blob/main/history.md"
     },
+    "https://github.com/openai/openai-cli": {
+      "first_seen": "2026-10-25",
+      "issue": "2026-43",
+      "title": "OpenAI CLI: call OpenAI from your terminal to make images and manage files",
+      "url": "https://github.com/openai/openai-cli"
+    },
     "https://github.com/rociiu/talorys": {
       "first_seen": "2026-10-13",
       "issue": "2026-42",
@@ -329,6 +401,12 @@
       "issue": "2026-42",
       "title": "Mistral Large 4",
       "url": "https://mistral.ai/news/mistral-large-4/\\"
+    },
+    "https://news.ycombinator.com/item?id=50151036": {
+      "first_seen": "2026-10-25",
+      "issue": "2026-43",
+      "title": "Ask HN: How do you ship AI-written code you don't fully understand?",
+      "url": "https://news.ycombinator.com/item?id=50151036"
     },
     "https://openai.com/index/gpt-6-for-everyone": {
       "first_seen": "2026-10-12",
@@ -366,6 +444,12 @@
       "title": "Redesigning source control at Anthropic",
       "url": "https://simonwillison.net/2026/Oct/13/redesigning-source-control-at-anthropic"
     },
+    "https://simonwillison.net/2026/Oct/23/kimi-k31-pro/": {
+      "first_seen": "2026-10-25",
+      "issue": "2026-43",
+      "title": "Introducing Kimi K3.1 Pro",
+      "url": "https://simonwillison.net/2026/Oct/23/kimi-k31-pro"
+    },
     "https://simonwillison.net/2026/Oct/6/hn-49982139/": {
       "first_seen": "2026-10-13",
       "issue": "2026-42",
@@ -402,11 +486,23 @@
       "title": "Claude Haiku 5.5 now available on AI Gateway",
       "url": "https://vercel.com/changelog/claude-haiku-5-5-now-available-on-ai-gateway"
     },
+    "https://vercel.com/changelog/deepseek-v4-1-flash-is-now-available-in-token-pass": {
+      "first_seen": "2026-10-25",
+      "issue": "2026-43",
+      "title": "DeepSeek V4.1 Flash is now available in Token Pass",
+      "url": "https://vercel.com/changelog/deepseek-v4-1-flash-is-now-available-in-token-pass"
+    },
     "https://vercel.com/changelog/gemini-4-argon-now-available-on-ai-gateway": {
       "first_seen": "2026-10-18",
       "issue": "2026-42",
       "title": "Gemini 4 Argon now available on AI Gateway",
       "url": "https://vercel.com/changelog/gemini-4-argon-now-available-on-ai-gateway"
+    },
+    "https://vercel.com/changelog/kimi-k3-1-pro-and-kimi-k3-1-pro-highspeed-are-available-now-in-ai-gateway": {
+      "first_seen": "2026-10-25",
+      "issue": "2026-43",
+      "title": "Kimi K3.1 Pro \u4e0a\u7ebf Vercel AI Gateway\uff0c\u8fd8\u6709\u66f4\u5feb\u7684 Highspeed \u7248",
+      "url": "https://vercel.com/changelog/kimi-k3-1-pro-and-kimi-k3-1-pro-highspeed-are-available-now-in-ai-gateway"
     },
     "https://vercel.com/changelog/liquid-ai-d1-is-available-on-ai-gateway": {
       "first_seen": "2026-10-13",
@@ -425,6 +521,12 @@
       "issue": "2026-42",
       "title": "Anthropic built its own source control system, Scion, to handle AI-written code",
       "url": "https://anthropic.com/engineering/redesigning-source-control"
+    },
+    "https://www.kimi.ai/blog/kimi-k3-1-pro": {
+      "first_seen": "2026-10-25",
+      "issue": "2026-43",
+      "title": "Kimi K3.1 Pro and K3.1 Pro Highspeed",
+      "url": "https://kimi.ai/blog/kimi-k3-1-pro"
     },
     "https://www.liquid.ai/blog/lfm2-5-24b-a2b": {
       "first_seen": "2026-10-18",
