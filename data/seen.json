@@ -24,6 +24,12 @@
       "title": "SolidCraft: open-source 3D CAD app that AI agents can drive through MCP",
       "url": "https://github.com/bherbruck/solidcraft"
     },
+    "github:deepseek-ai/deepseek-harness": {
+      "first_seen": "2026-11-09",
+      "issue": "2026-46",
+      "title": "DeepSeek Harness: an open-source agent setup you can run with one npx command",
+      "url": "https://github.com/deepseek-ai/deepseek-harness"
+    },
     "github:ebony-vinyl/dsh-our-free-model": {
       "first_seen": "2026-10-18",
       "issue": "2026-42",
@@ -48,6 +54,12 @@
       "title": "Graphify \u628a\u4ee3\u7801\u548c\u6587\u6863\u53d8\u6210\u53ef\u4ee5\u63d0\u95ee\u7684\u77e5\u8bc6\u56fe\u8c31",
       "url": "https://github.com/Graphify-Labs/graphify"
     },
+    "github:harry0703/moneyprinterturbo": {
+      "first_seen": "2026-11-09",
+      "issue": "2026-46",
+      "title": "MoneyPrinterTurbo: turn a topic or keyword into a short HD video with AI",
+      "url": "https://github.com/harry0703/MoneyPrinterTurbo"
+    },
     "github:heydamir/unslop": {
       "first_seen": "2026-11-02",
       "issue": "2026-45",
@@ -60,6 +72,12 @@
       "title": "HyperFrames turns HTML into MP4 videos, built for AI coding agents",
       "url": "https://github.com/heygen-com/hyperframes"
     },
+    "github:hkuds/deeptutor": {
+      "first_seen": "2026-11-09",
+      "issue": "2026-46",
+      "title": "DeepTutor\uff1a\u4e00\u4e2a\u4f1a\u8bb0\u4f4f\u4f60\u5b66\u4e60\u8fdb\u5ea6\u7684\u5f00\u6e90 AI \u79c1\u4eba\u5bfc\u5e08",
+      "url": "https://github.com/HKUDS/DeepTutor"
+    },
     "github:jakeschincariol/founder-skill": {
       "first_seen": "2026-10-13",
       "issue": "2026-42",
@@ -71,6 +89,12 @@
       "issue": "2026-42",
       "title": "/awwwards: an agent skill that builds a polished website from one line",
       "url": "https://github.com/juliobsz/skills"
+    },
+    "github:kkkkhazix/agent-autoloop": {
+      "first_seen": "2026-11-09",
+      "issue": "2026-46",
+      "title": "Agent Autoloop runs command-line AI agents in the background and asks when unsure",
+      "url": "https://github.com/KKKKhazix/agent-autoloop"
     },
     "github:lemomo-ai/lemo-opuscar": {
       "first_seen": "2026-10-25",
@@ -312,6 +336,12 @@
       "title": "DeepSeek V4.1 Flash 1017 (Max)",
       "url": "https://artificialanalysis.ai/models/deepseek-v4-1-flash-1017"
     },
+    "https://arxiv.org/abs/2605.29713": {
+      "first_seen": "2026-11-09",
+      "issue": "2026-46",
+      "title": "The Little Book of Generative AI Foundations: a math primer on how image and text",
+      "url": "https://arxiv.org/abs/2605.29713"
+    },
     "https://blog.google/innovation-and-ai/models-and-research/gemini-models/introducing-gemini-4-argon/": {
       "first_seen": "2026-10-18",
       "issue": "2026-42",
@@ -329,6 +359,12 @@
       "issue": "2026-42",
       "title": "EmbeddingGemma 2: a small open model that turns text, images",
       "url": "https://blog.google/innovation-and-ai/technology/developers-tools/embeddinggemma-2"
+    },
+    "https://blog.google/innovation-and-ai/technology/developers-tools/introducing-gemini-omni-1-2-flash/": {
+      "first_seen": "2026-11-09",
+      "issue": "2026-46",
+      "title": "Gemini Omni 1.2 Flash",
+      "url": "https://blog.google/innovation-and-ai/technology/developers-tools/introducing-gemini-omni-1-2-flash"
     },
     "https://claude.com/product/claude-duet": {
       "first_seen": "2026-10-25",
@@ -365,6 +401,12 @@
       "issue": "2026-45",
       "title": "Gemini 4 Carbon: Google's new top model, aimed at long coding jobs and cybersecurity",
       "url": "https://deepmind.google/blog/gemini-4-carbon-our-next-frontier-model"
+    },
+    "https://deepmind.google/blog/gemini-omni-12-flash-fast-and-cost-effective-with-longer-clips/": {
+      "first_seen": "2026-11-09",
+      "issue": "2026-46",
+      "title": "Gemini Omni 1.2 Flash: Google's video model now makes 15-second clips",
+      "url": "https://deepmind.google/blog/gemini-omni-12-flash-fast-and-cost-effective-with-longer-clips"
     },
     "https://deepmind.google/blog/introducing-gemini-4-argon/": {
       "first_seen": "2026-10-18",
@@ -426,6 +468,12 @@
       "title": "Hob: a free, open-source app to run AI on your own computer",
       "url": "https://github.com/FrigadeHQ/hob"
     },
+    "https://github.com/anthropics/claude-code/issues/107757": {
+      "first_seen": "2026-11-09",
+      "issue": "2026-46",
+      "title": "Claude Code reportedly sent users' email addresses to websites in its User-Agent header",
+      "url": "https://github.com/anthropics/claude-code/issues/107757"
+    },
     "https://github.com/docker/docker-agent": {
       "first_seen": "2026-10-12",
       "issue": "2026-42",
@@ -456,6 +504,12 @@
       "title": "OpenAI CLI: call OpenAI from your terminal to make images and manage files",
       "url": "https://github.com/openai/openai-cli"
     },
+    "https://github.com/postmanlabs/postman-app-support/issues/14370": {
+      "first_seen": "2026-11-09",
+      "issue": "2026-46",
+      "title": "Postman desktop reportedly auto-installed Codex and Claude plugins, user says",
+      "url": "https://github.com/postmanlabs/postman-app-support/issues/14370"
+    },
     "https://github.com/rociiu/talorys": {
       "first_seen": "2026-10-13",
       "issue": "2026-42",
@@ -467,6 +521,12 @@
       "issue": "2026-45",
       "title": "ChatGPT \u548c Codex \u7684\u7528\u91cf\u5c06\u5408\u5e76\u8ba1\u7b97",
       "url": "https://help.openai.com/en/articles/20001625-understanding-chatgpt-and-codex-usage-limits"
+    },
+    "https://honnibal.dev/blog/astra-read-write-misleading": {
+      "first_seen": "2026-11-09",
+      "issue": "2026-46",
+      "title": "The 'Astra can read and write weights to improve Qwen' post is misleading",
+      "url": "https://honnibal.dev/blog/astra-read-write-misleading"
     },
     "https://huggingface.co/blog/LiquidAI/lfm25-24b-a2b": {
       "first_seen": "2026-10-18",
@@ -510,6 +570,24 @@
       "title": "Ask HN: How do you ship AI-written code you don't fully understand?",
       "url": "https://news.ycombinator.com/item?id=50151036"
     },
+    "https://news.ycombinator.com/item?id=50352757": {
+      "first_seen": "2026-11-09",
+      "issue": "2026-46",
+      "title": "OpenAI Codex may have turned model training back on for some users' chats",
+      "url": "https://news.ycombinator.com/item?id=50352757"
+    },
+    "https://news.ycombinator.com/item?id=50363461": {
+      "first_seen": "2026-11-09",
+      "issue": "2026-46",
+      "title": "Gemini may use your saved chats for training, even on paid plans",
+      "url": "https://news.ycombinator.com/item?id=50363461"
+    },
+    "https://news.ycombinator.com/item?id=50366117": {
+      "first_seen": "2026-11-09",
+      "issue": "2026-46",
+      "title": "Ask HN thread: how developers are wiring up AI tools day to day",
+      "url": "https://news.ycombinator.com/item?id=50366117"
+    },
     "https://openai.com/index/gpt-6-for-everyone": {
       "first_seen": "2026-10-12",
       "issue": "2026-42",
@@ -545,6 +623,18 @@
       "issue": "2026-42",
       "title": "Reflection introduces Beam, a 501B open-weight model for coding and agentic work",
       "url": "https://reflection.ai/blog/introducing-beam"
+    },
+    "https://rikiyat.github.io/blog/weight-space-programming/": {
+      "first_seen": "2026-11-09",
+      "issue": "2026-46",
+      "title": "Astra reads and edits neural network weights, not just text",
+      "url": "https://rikiyat.github.io/blog/weight-space-programming"
+    },
+    "https://simonwillison.net/2026/Nov/3/qwen-can-interpret-model-weights/": {
+      "first_seen": "2026-11-09",
+      "issue": "2026-46",
+      "title": "Qwen 3.8 27B on a laptop reads raw model weights and guesses the game they were trained on",
+      "url": "https://simonwillison.net/2026/Nov/3/qwen-can-interpret-model-weights"
     },
     "https://simonwillison.net/2026/Oct/13/redesigning-source-control-at-anthropic/": {
       "first_seen": "2026-10-18",
@@ -606,6 +696,12 @@
       "title": "Gemini 4 Argon now available on AI Gateway",
       "url": "https://vercel.com/changelog/gemini-4-argon-now-available-on-ai-gateway"
     },
+    "https://vercel.com/changelog/gemini-omni-1-2-flash-now-available-on-ai-gateway": {
+      "first_seen": "2026-11-09",
+      "issue": "2026-46",
+      "title": "Gemini Omni 1.2 Flash now available on AI Gateway",
+      "url": "https://vercel.com/changelog/gemini-omni-1-2-flash-now-available-on-ai-gateway"
+    },
     "https://vercel.com/changelog/kimi-k3-1-pro-and-kimi-k3-1-pro-highspeed-are-available-now-in-ai-gateway": {
       "first_seen": "2026-10-25",
       "issue": "2026-43",
@@ -629,6 +725,12 @@
       "issue": "2026-42",
       "title": "Anthropic built its own source control system, Scion, to handle AI-written code",
       "url": "https://anthropic.com/engineering/redesigning-source-control"
+    },
+    "https://www.anthropic.com/research/components-of-agent-memory": {
+      "first_seen": "2026-11-09",
+      "issue": "2026-46",
+      "title": "Anthropic explains how Claude agents remember things, and how \"dreaming\" fixes bad notes",
+      "url": "https://anthropic.com/research/components-of-agent-memory"
     },
     "https://www.kimi.ai/blog/kimi-k3-1-pro": {
       "first_seen": "2026-10-25",
