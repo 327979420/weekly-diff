@@ -30,6 +30,12 @@
       "title": "DeepSeek Harness: an open-source agent setup you can run with one npx command",
       "url": "https://github.com/deepseek-ai/deepseek-harness"
     },
+    "github:deepseek-ai/dsh-superagent-prototype": {
+      "first_seen": "2026-11-16",
+      "issue": "2026-47",
+      "title": "DeepSeek \u53d1\u5e03 dsh-superagent\uff1a\u4e00\u4e2a\u4f1a\u66ff\u56e2\u961f\u5904\u7406 GitHub \u4efb\u52a1\u7684\u7f16\u7a0b\u52a9\u624b\u539f\u578b",
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype"
+    },
     "github:ebony-vinyl/dsh-our-free-model": {
       "first_seen": "2026-10-18",
       "issue": "2026-42",
@@ -41,6 +47,12 @@
       "issue": "2026-42",
       "title": "robot-heads: animated 3D robot heads for React that show what your agent is doing",
       "url": "https://github.com/fayazara/robot-heads"
+    },
+    "github:firecrawl/firecrawl": {
+      "first_seen": "2026-11-16",
+      "issue": "2026-47",
+      "title": "Firecrawl: an open source API that lets AI agents search and read the web",
+      "url": "https://github.com/firecrawl/firecrawl"
     },
     "github:franzenzenhofer/big-arrow-on-the-screen": {
       "first_seen": "2026-10-12",
@@ -89,6 +101,12 @@
       "issue": "2026-42",
       "title": "/awwwards: an agent skill that builds a polished website from one line",
       "url": "https://github.com/juliobsz/skills"
+    },
+    "github:juneyaooo/rea-video": {
+      "first_seen": "2026-11-16",
+      "issue": "2026-47",
+      "title": "rea-video: break down any video shot by shot to see how it was made",
+      "url": "https://github.com/JuneYaooo/rea-video"
     },
     "github:kkkkhazix/agent-autoloop": {
       "first_seen": "2026-11-09",
@@ -156,6 +174,12 @@
       "title": "CADCraft: a free, open-source drawing app that works like AutoCAD",
       "url": "https://github.com/storytold/cadcraft"
     },
+    "github:storytold/craft-anything": {
+      "first_seen": "2026-11-16",
+      "issue": "2026-47",
+      "title": "Craft Anything studies how a website or game works, then has AI build your own version",
+      "url": "https://github.com/storytold/craft-anything"
+    },
     "github:storytold/gridcraft": {
       "first_seen": "2026-10-12",
       "issue": "2026-42",
@@ -204,6 +228,12 @@
       "title": "Cloudflare Clef-Flash: a 9B model that picks answers from your options, not free text",
       "url": "https://huggingface.co/Cloudflare/clef-flash"
     },
+    "hf:Comfy-Org/MiniMax-H3-Image": {
+      "first_seen": "2026-11-16",
+      "issue": "2026-47",
+      "title": "MiniMax H3 Image: a ComfyUI model pack for text-to-image and image editing",
+      "url": "https://huggingface.co/Comfy-Org/MiniMax-H3-Image"
+    },
     "hf:LiquidAI/LFM2.5-24B-A2B": {
       "first_seen": "2026-10-18",
       "issue": "2026-42",
@@ -227,6 +257,18 @@
       "issue": "2026-42",
       "title": "LiquidAI/d1-3B",
       "url": "https://huggingface.co/LiquidAI/d1-3B"
+    },
+    "hf:MiniMaxAI/MiniMax-H3-Image": {
+      "first_seen": "2026-11-16",
+      "issue": "2026-47",
+      "title": "MiniMaxAI/MiniMax-H3-Image",
+      "url": "https://huggingface.co/MiniMaxAI/MiniMax-H3-Image"
+    },
+    "hf:NousResearch/Arete-27B": {
+      "first_seen": "2026-11-16",
+      "issue": "2026-47",
+      "title": "Arete-27B: Nous Research retrains Qwen3.8-27B to change its political answers",
+      "url": "https://huggingface.co/NousResearch/Arete-27B"
     },
     "hf:OpenMOSS-Team/MOSS-Image-Base": {
       "first_seen": "2026-10-25",
@@ -276,17 +318,35 @@
       "title": "MiniCPM-V 4.7 is a vision model that can run on an iPhone",
       "url": "https://huggingface.co/openbmb/MiniCPM-V-4.7-35B-A3B"
     },
+    "hfspace:MiniMaxAI/minimax-h3-image": {
+      "first_seen": "2026-11-16",
+      "issue": "2026-47",
+      "title": "MiniMaxAI/minimax-h3-image",
+      "url": "https://huggingface.co/spaces/MiniMaxAI/minimax-h3-image"
+    },
     "hfspace:OpenMOSS-Team/MOSS-Image": {
       "first_seen": "2026-10-25",
       "issue": "2026-43",
       "title": "OpenMOSS-Team/MOSS-Image",
       "url": "https://huggingface.co/spaces/OpenMOSS-Team/MOSS-Image"
     },
+    "hfspace:akhaliq/qwen35-3d-coder-studio": {
+      "first_seen": "2026-11-16",
+      "issue": "2026-47",
+      "title": "Qwen3.5-4B-3D-Coder Studio turns a text prompt into a live, interactive 3D Three.js scene",
+      "url": "https://huggingface.co/spaces/akhaliq/qwen35-3d-coder-studio"
+    },
     "hfspace:briaai/Fibo-2.0-editing": {
       "first_seen": "2026-11-02",
       "issue": "2026-45",
       "title": "Fibo 2.0 Edit Turbo lets you edit images by typing what to change, in a Hugging Face Space",
       "url": "https://huggingface.co/spaces/briaai/Fibo-2.0-editing"
+    },
+    "hfspace:fendouai/free-youtube-transcript": {
+      "first_seen": "2026-11-16",
+      "issue": "2026-47",
+      "title": "Free YouTube Transcript: turn a video link into timestamped text",
+      "url": "https://huggingface.co/spaces/fendouai/free-youtube-transcript"
     },
     "hfspace:hugging-apps/bfs-best-face-swap": {
       "first_seen": "2026-10-25",
@@ -312,6 +372,18 @@
       "title": "webml-community/embeddinggemma-2-webgpu",
       "url": "https://huggingface.co/spaces/webml-community/embeddinggemma-2-webgpu"
     },
+    "https://9to5mac.com/2026/11/10/apple-has-new-mac-app-coming-to-make-running-local-ai-models-easy/": {
+      "first_seen": "2026-11-16",
+      "issue": "2026-47",
+      "title": "Apple's leaked Harbor app would turn your Mac into a private local AI server",
+      "url": "https://9to5mac.com/2026/11/10/apple-has-new-mac-app-coming-to-make-running-local-ai-models-easy"
+    },
+    "https://antigravity.google/blog/gemini-4-hydrogen-in-google-antigravity/": {
+      "first_seen": "2026-11-16",
+      "issue": "2026-47",
+      "title": "Gemini 4 Hydrogen and Orchestrator",
+      "url": "https://antigravity.google/blog/gemini-4-hydrogen-in-google-antigravity"
+    },
     "https://api-docs.deepseek.com/guides/search/": {
       "first_seen": "2026-10-18",
       "issue": "2026-42",
@@ -330,6 +402,12 @@
       "title": "Gemini 4 Carbon is the new #1 on the Artificial Analysis Intelligence Index v5",
       "url": "https://artificialanalysis.ai/articles/gemini-4-carbon-new-number-1"
     },
+    "https://artificialanalysis.ai/models/claude-fable-5-2": {
+      "first_seen": "2026-11-16",
+      "issue": "2026-47",
+      "title": "Claude Fable 5.2 scores 65 on Artificial Analysis, highest so far",
+      "url": "https://artificialanalysis.ai/models/claude-fable-5-2"
+    },
     "https://artificialanalysis.ai/models/deepseek-v4-1-flash-1017": {
       "first_seen": "2026-10-25",
       "issue": "2026-43",
@@ -341,6 +419,12 @@
       "issue": "2026-46",
       "title": "The Little Book of Generative AI Foundations: a math primer on how image and text",
       "url": "https://arxiv.org/abs/2605.29713"
+    },
+    "https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-4-carbon-now-available/": {
+      "first_seen": "2026-11-16",
+      "issue": "2026-47",
+      "title": "Gemini 4 Carbon is now available",
+      "url": "https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-4-carbon-now-available"
     },
     "https://blog.google/innovation-and-ai/models-and-research/gemini-models/introducing-gemini-4-argon/": {
       "first_seen": "2026-10-18",
@@ -354,11 +438,23 @@
       "title": "Gemini 4 Carbon",
       "url": "https://blog.google/innovation-and-ai/models-and-research/gemini-models/introducing-gemini-4-carbon"
     },
+    "https://blog.google/innovation-and-ai/models-and-research/gemini-models/introducing-gemini-4-hydrogen/": {
+      "first_seen": "2026-11-16",
+      "issue": "2026-47",
+      "title": "Gemini 4 Hydrogen",
+      "url": "https://blog.google/innovation-and-ai/models-and-research/gemini-models/introducing-gemini-4-hydrogen"
+    },
     "https://blog.google/innovation-and-ai/technology/developers-tools/embeddinggemma-2/": {
       "first_seen": "2026-10-13",
       "issue": "2026-42",
       "title": "EmbeddingGemma 2: a small open model that turns text, images",
       "url": "https://blog.google/innovation-and-ai/technology/developers-tools/embeddinggemma-2"
+    },
+    "https://blog.google/innovation-and-ai/technology/developers-tools/gemini-decisions-api/": {
+      "first_seen": "2026-11-16",
+      "issue": "2026-47",
+      "title": "Gemini Decisions API: a fast way to sort, route and grade content with one call",
+      "url": "https://blog.google/innovation-and-ai/technology/developers-tools/gemini-decisions-api"
     },
     "https://blog.google/innovation-and-ai/technology/developers-tools/introducing-gemini-omni-1-2-flash/": {
       "first_seen": "2026-11-09",
@@ -366,11 +462,29 @@
       "title": "Gemini Omni 1.2 Flash",
       "url": "https://blog.google/innovation-and-ai/technology/developers-tools/introducing-gemini-omni-1-2-flash"
     },
+    "https://blog.google/products-and-platforms/products/search/gemini-4-hydrogen-search-upgrade/": {
+      "first_seen": "2026-11-16",
+      "issue": "2026-47",
+      "title": "Google Search gets a major upgrade with Gemini 4 Hydrogen",
+      "url": "https://blog.google/products-and-platforms/products/search/gemini-4-hydrogen-search-upgrade"
+    },
+    "https://brave.com/blog/search-api-agentic-payments/": {
+      "first_seen": "2026-11-16",
+      "issue": "2026-47",
+      "title": "Brave Search API adds pay-per-request payments for AI agents via x402",
+      "url": "https://brave.com/blog/search-api-agentic-payments"
+    },
     "https://claude.com/product/claude-duet": {
       "first_seen": "2026-10-25",
       "issue": "2026-43",
       "title": "Claude Duet: a proactive agent that sends a morning brief and handles bigger tasks",
       "url": "https://claude.com/product/claude-duet"
+    },
+    "https://claude.com/resources/articles/sheets-whiteboards-data": {
+      "first_seen": "2026-11-16",
+      "issue": "2026-47",
+      "title": "Claude Whiteboards and Sheets: brainstorm and build spreadsheets with Claude in beta",
+      "url": "https://claude.com/resources/articles/sheets-whiteboards-data"
     },
     "https://claude.dev/blog/solving-code-review-at-anthropic/": {
       "first_seen": "2026-10-18",
@@ -396,6 +510,12 @@
       "title": "Gemini 4 Argon for Robotics",
       "url": "https://deepmind.google/blog/gemini-4-argon-for-robotics"
     },
+    "https://deepmind.google/blog/gemini-4-carbon-is-now-available/": {
+      "first_seen": "2026-11-16",
+      "issue": "2026-47",
+      "title": "Gemini 4 Carbon is now available",
+      "url": "https://deepmind.google/blog/gemini-4-carbon-is-now-available"
+    },
     "https://deepmind.google/blog/gemini-4-carbon-our-next-frontier-model/": {
       "first_seen": "2026-11-02",
       "issue": "2026-45",
@@ -413,6 +533,12 @@
       "issue": "2026-42",
       "title": "Gemini 4 Argon: Built to solve your hardest problems",
       "url": "https://deepmind.google/blog/introducing-gemini-4-argon"
+    },
+    "https://deepmind.google/blog/introducing-gemini-4-hydrogen/": {
+      "first_seen": "2026-11-16",
+      "issue": "2026-47",
+      "title": "Introducing Gemini 4 Hydrogen",
+      "url": "https://deepmind.google/blog/introducing-gemini-4-hydrogen"
     },
     "https://deepmind.google/models/gemini/": {
       "first_seen": "2026-10-18",
@@ -461,6 +587,24 @@
       "issue": "2026-42",
       "title": "Gemini 4 Argon now in GitHub Copilot: Google's newest model for coding",
       "url": "https://github.blog/changelog/2026-10-13-gemini-4-argon-in-github-copilot"
+    },
+    "https://github.blog/changelog/2026-11-09-claude-fable-5-2-in-github-copilot": {
+      "first_seen": "2026-11-16",
+      "issue": "2026-47",
+      "title": "Claude Fable 5.2 now in GitHub Copilot for coding tasks",
+      "url": "https://github.blog/changelog/2026-11-09-claude-fable-5-2-in-github-copilot"
+    },
+    "https://github.blog/changelog/2026-11-10-gemini-4-carbon-in-github-copilot": {
+      "first_seen": "2026-11-16",
+      "issue": "2026-47",
+      "title": "Gemini 4 Carbon now in GitHub Copilot for coding and security work",
+      "url": "https://github.blog/changelog/2026-11-10-gemini-4-carbon-in-github-copilot"
+    },
+    "https://github.blog/changelog/2026-11-13-gemini-4-hydrogen-in-github-copilot": {
+      "first_seen": "2026-11-16",
+      "issue": "2026-47",
+      "title": "Gemini 4 Hydrogen in GitHub Copilot",
+      "url": "https://github.blog/changelog/2026-11-13-gemini-4-hydrogen-in-github-copilot"
     },
     "https://github.com/FrigadeHQ/hob": {
       "first_seen": "2026-11-02",
@@ -546,6 +690,12 @@
       "title": "Sebastian Raschka's free video course builds a reasoning model from scratch in Python",
       "url": "https://magazine.sebastianraschka.com/p/building-reasoning-models"
     },
+    "https://magazine.sebastianraschka.com/p/understanding-positional-embeddings": {
+      "first_seen": "2026-11-16",
+      "issue": "2026-47",
+      "title": "Positional embeddings explained: how LLMs learn where each word sits in a sentence",
+      "url": "https://magazine.sebastianraschka.com/p/understanding-positional-embeddings"
+    },
     "https://mistral.ai/news/mistral-large-4-oss/": {
       "first_seen": "2026-11-02",
       "issue": "2026-45",
@@ -630,6 +780,12 @@
       "title": "Astra reads and edits neural network weights, not just text",
       "url": "https://rikiyat.github.io/blog/weight-space-programming"
     },
+    "https://simonwillison.net/2026/Nov/10/prompting-claude-fable-52/": {
+      "first_seen": "2026-11-16",
+      "issue": "2026-47",
+      "title": "Quoting Prompting Claude Fable 5.2",
+      "url": "https://simonwillison.net/2026/Nov/10/prompting-claude-fable-52"
+    },
     "https://simonwillison.net/2026/Nov/3/qwen-can-interpret-model-weights/": {
       "first_seen": "2026-11-09",
       "issue": "2026-46",
@@ -696,6 +852,18 @@
       "title": "Gemini 4 Argon now available on AI Gateway",
       "url": "https://vercel.com/changelog/gemini-4-argon-now-available-on-ai-gateway"
     },
+    "https://vercel.com/changelog/gemini-4-carbon-now-available-on-ai-gateway": {
+      "first_seen": "2026-11-16",
+      "issue": "2026-47",
+      "title": "Gemini 4 Carbon now available on AI Gateway",
+      "url": "https://vercel.com/changelog/gemini-4-carbon-now-available-on-ai-gateway"
+    },
+    "https://vercel.com/changelog/gemini-4-hydrogen-now-available-on-ai-gateway": {
+      "first_seen": "2026-11-16",
+      "issue": "2026-47",
+      "title": "Gemini 4 Hydrogen now available on AI Gateway",
+      "url": "https://vercel.com/changelog/gemini-4-hydrogen-now-available-on-ai-gateway"
+    },
     "https://vercel.com/changelog/gemini-omni-1-2-flash-now-available-on-ai-gateway": {
       "first_seen": "2026-11-09",
       "issue": "2026-46",
@@ -713,6 +881,12 @@
       "issue": "2026-42",
       "title": "Liquid AI's d1 is available on AI Gateway",
       "url": "https://vercel.com/changelog/liquid-ai-d1-is-available-on-ai-gateway"
+    },
+    "https://www.anthropic.com/claude-fable-and-mythos-5-2": {
+      "first_seen": "2026-11-16",
+      "issue": "2026-47",
+      "title": "Claude Fable 5.2 and Mythos 5.2",
+      "url": "https://anthropic.com/claude-fable-and-mythos-5-2"
     },
     "https://www.anthropic.com/claude-haiku-5-5": {
       "first_seen": "2026-10-12",
